@@ -1,0 +1,26 @@
+# runtime evidence / outputs
+logs/
+uploads/
+pcap_out/
+
+# qgc runtime state
+qgc/data/
+qgc/logs/
+
+# large binaries
+qgc/app/*.AppImage
+qgc/app/*.appimage
+
+# env / secrets
+.env
+*.pem
+*.key
+
+# python/cache
+__pycache__/
+*.pyc
+
+# editor/os
+.DS_Store
+.idea/
+.vscode/

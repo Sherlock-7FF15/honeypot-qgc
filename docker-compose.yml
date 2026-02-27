@@ -1,0 +1,93 @@
+services:
+  qgc:
+    build:
+      context: ./qgc
+      args:
+        QGC_APPIMAGE_URL: "https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl-x86_64.AppImage"
+    container_name: qgc
+    restart: always
+
+    # NOTE: 不再对外暴露端口（必须）
+    # ports:
+    #   - "14550:14550/udp"
+
+    volumes:
+      - ./qgc/data:/data
+      - ./qgc/logs:/logs
+
+    mem_limit: 1g
+    cpus: 1.0
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+      - /run:rw,noexec,nosuid,size=64m
+    security_opt:
+      - no-new-privileges:true
+
+    networks:
+      - internal_net
+
+  facade:
+    build: ./facade
+    container_name: facade
+    restart: always
+    depends_on:
+      - qgc
+
+    # 只有 facade 对外暴露
+    ports:
+      - "14550:14550/udp"
+
+    environment:
+      - PUBLIC_BIND=0.0.0.0
+      - PUBLIC_PORT=14550
+      - QGC_HOST=qgc
+      - QGC_PORT=14550
+
+      # session idle 超时（秒），超时就写 session_end 并清理映射
+      - SESSION_IDLE=300
+
+      # 记录 payload 的预览字节数（避免日志爆炸）
+      - PREVIEW_BYTES=96
+
+      # 日志根目录
+      - LOG_ROOT=/logs/facade
+      - UPLOAD_ROOT=/uploads
+      - SESSION_IDLE_IN=60
+      - HEARTBEAT_AGG_SEC=5
+    volumes:
+      - ./logs:/logs
+      - ./uploads:/uploads
+
+    networks:
+      - internal_net
+
+  watcher:
+    build: ./watcher
+    container_name: watcher
+    restart: always
+    depends_on:
+      - qgc
+    environment:
+      - WATCH_DIRS=/qgc-data/Documents/QGroundControl:/qgc-data/tmp:/qgc-logs
+      - WATCHER_LOG=/logs/watcher/events.fs.jsonl
+      - UPLOAD_ROOT=/uploads/fs
+      - MAX_BYTES=52428800
+      - MOD_COOLDOWN_SEC=2.0
+      - HASH_ON_MODIFY=true
+    volumes:
+      - ./qgc/data:/qgc-data:ro
+      - ./qgc/logs:/qgc-logs:ro
+      - ./logs:/logs:rw
+      - ./uploads:/uploads:rw
+
+
+networks:
+  internal_net:
+    driver: bridge
+

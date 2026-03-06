@@ -81,12 +81,30 @@ services:
     image: nginx:1.27-alpine
     container_name: ui-gateway
     restart: always
+    command: ["/bin/sh", "-c", "mkdir -p /logs/ui-gateway/sessions && exec nginx -g 'daemon off;'"]
     depends_on:
       - qgc
     ports:
       - "6080:6080/tcp"
     volumes:
       - ./ui-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  ui-sessionizer:
+    build:
+      context: ./ui-gateway
+      dockerfile: sessionizer.Dockerfile
+    container_name: ui-sessionizer
+    restart: always
+    depends_on:
+      - ui-gateway
+    environment:
+      - UI_ACCESS_LOG=/logs/ui-gateway/access.log
+      - UI_LOG_ROOT=/logs/ui-gateway
+      - UI_SESSION_IDLE_SEC=300
+    volumes:
       - ./logs:/logs:rw
     networks:
       - internal_net

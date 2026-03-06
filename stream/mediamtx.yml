@@ -1,0 +1,14 @@
+logLevel: info
+
+# RTSP ingest/egress
+rtsp: yes
+rtspAddress: :554
+
+# Built-in HLS web output (internal)
+hls: yes
+hlsAddress: :8888
+hlsAlwaysRemux: yes
+
+# Keep paths dynamic; publisher will push to /qgc
+paths:
+  all:

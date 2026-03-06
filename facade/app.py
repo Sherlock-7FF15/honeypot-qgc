@@ -46,8 +46,8 @@ def append_jsonl(path: Path, obj: dict):
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
-def new_session_id(peer_ip: str, peer_port: int) -> str:
-    return f"{int(ts())}_{peer_ip.replace(':','_')}_{peer_port}_udp{PUBLIC_PORT}"
+def new_session_id(peer_ip: str) -> str:
+    return f"{int(ts())}_{peer_ip.replace(':','_')}_udp{PUBLIC_PORT}"
 
 def sha256_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
@@ -246,9 +246,10 @@ def dump_msg110_artifact(session_id: str, direction: str, hdr: dict, udp_datagra
 
 # ---------------- Session ----------------
 class Session:
-    def __init__(self, peer: Tuple[str, int]):
-        self.peer = peer
-        self.id = new_session_id(peer[0], peer[1])
+    def __init__(self, peer_ip: str, initial_peer_port: int):
+        self.peer_ip = peer_ip
+        self.last_peer_port = initial_peer_port
+        self.id = new_session_id(peer_ip)
         self.dir = SESS_DIR / self.id
         self.dir.mkdir(parents=True, exist_ok=True)
         self.events = self.dir / "events.jsonl"
@@ -268,7 +269,9 @@ class Session:
 
         self.stats = {
             "session_id": self.id,
-            "peer": f"{peer[0]}:{peer[1]}",
+            "peer_ip": peer_ip,
+            "src_ports_seen": [initial_peer_port],
+            "last_peer_port": initial_peer_port,
             "public_port": PUBLIC_PORT,
             "first_seen": now,
             "last_seen_in": now,
@@ -284,6 +287,13 @@ class Session:
             "heartbeat_total_count": 0,
         }
         append_jsonl(LOG_INDEX, {"event": "session_start", **self.stats})
+
+
+    def record_peer_port(self, peer_port: int):
+        self.last_peer_port = peer_port
+        self.stats["last_peer_port"] = peer_port
+        if peer_port not in self.stats["src_ports_seen"]:
+            self.stats["src_ports_seen"].append(peer_port)
 
     def _touch_in(self):
         self.last_seen_in = ts()
@@ -467,9 +477,9 @@ def main():
     sock_int.setblocking(False)
     qgc_addr = (QGC_HOST, QGC_PORT)
 
-    sessions = {}  # peer -> Session
-    last_peer: Optional[Tuple[str, int]] = None
-    sysid_to_peer = {}  # sysid -> peer (best-effort)
+    sessions = {}  # session_key -> Session
+    last_session_key: Optional[str] = None
+    sysid_to_session = {}  # sysid -> session_key (best-effort)
 
     append_jsonl(LOG_INDEX, {
         "event": "facade_start",
@@ -488,17 +498,20 @@ def main():
         # (1) inbound from attacker
         try:
             data, peer = sock_pub.recvfrom(65535)
-            if peer not in sessions:
-                sessions[peer] = Session(peer)
-            s = sessions[peer]
-            last_peer = peer
+            peer_ip, peer_port = peer
+            session_key = peer_ip
+            if session_key not in sessions:
+                sessions[session_key] = Session(peer_ip, peer_port)
+            s = sessions[session_key]
+            s.record_peer_port(peer_port)
+            last_session_key = session_key
 
-            s.log_pkt("in", data, src=f"{peer[0]}:{peer[1]}", dst=f"facade:{PUBLIC_PORT}")
+            s.log_pkt("in", data, src=f"{peer_ip}:{peer_port}", dst=f"facade:{PUBLIC_PORT}")
             s.update_stats("in", len(data))
 
             hdr = parse_mavlink_header(data)
             if hdr and hdr.get("sysid") is not None:
-                sysid_to_peer[int(hdr["sysid"])] = peer
+                sysid_to_session[int(hdr["sysid"])] = session_key
 
             # forward -> QGC
             sock_int.sendto(data, qgc_addr)
@@ -513,14 +526,15 @@ def main():
             data, _src = sock_int.recvfrom(65535)
             hdr = parse_mavlink_header(data)
 
-            target_peer = None
+            target_session_key = None
             if hdr and hdr.get("sysid") is not None:
-                target_peer = sysid_to_peer.get(int(hdr["sysid"]))
-            if target_peer is None:
-                target_peer = last_peer
+                target_session_key = sysid_to_session.get(int(hdr["sysid"]))
+            if target_session_key is None:
+                target_session_key = last_session_key
 
-            if target_peer and target_peer in sessions:
-                s = sessions[target_peer]
+            if target_session_key and target_session_key in sessions:
+                s = sessions[target_session_key]
+                target_peer = (s.peer_ip, s.last_peer_port)
                 s.log_pkt("out", data, src=f"qgc:{QGC_PORT}", dst=f"{target_peer[0]}:{target_peer[1]}")
                 s.update_stats("out", len(data))
                 sock_pub.sendto(data, target_peer)
@@ -540,24 +554,24 @@ def main():
         # (3) cleanup idle sessions + periodic heartbeat flush
         if sessions:
             dead = []
-            for peer, s in sessions.items():
+            for session_key, s in sessions.items():
                 # flush heartbeat aggregates even if still alive
                 s._emit_heartbeat_agg_if_due(now, force=False)
                 if s.should_close(now):
-                    dead.append(peer)
+                    dead.append(session_key)
 
-            for peer in dead:
-                s = sessions.pop(peer, None)
+            for session_key in dead:
+                s = sessions.pop(session_key, None)
                 if s:
                     s.close()
 
                 # remove sysid mappings pointing to this peer
-                for sysid, p in list(sysid_to_peer.items()):
-                    if p == peer:
-                        sysid_to_peer.pop(sysid, None)
+                for sysid, mapped_session in list(sysid_to_session.items()):
+                    if mapped_session == session_key:
+                        sysid_to_session.pop(sysid, None)
 
-                if last_peer == peer:
-                    last_peer = None
+                if last_session_key == session_key:
+                    last_session_key = None
 
         time.sleep(0.002)
 

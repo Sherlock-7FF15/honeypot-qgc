@@ -120,8 +120,7 @@ services:
     image: bluenviron/mediamtx:latest
     container_name: rtsp-server
     restart: always
-    entrypoint: ["/bin/sh", "-c"]
-    command: "mkdir -p /logs/rtsp/sessions && exec /mediamtx /mediamtx.yml 2>&1 | tee -a /logs/rtsp/mediamtx.log"
+    command: ["/mediamtx.yml"]
     ports:
       - "554:554/tcp"
     volumes:
@@ -176,7 +175,7 @@ services:
       - rtsp-server
     command: ["python", "/app/rtsp_sessionizer.py"]
     environment:
-      - RTSP_SERVER_LOG=/logs/rtsp/mediamtx.log
+      - RTSP_SERVER_LOG=/logs/mediamtx.log
       - RTSP_LOG_ROOT=/logs/rtsp
       - RTSP_SESSION_IDLE_SEC=300
     volumes:

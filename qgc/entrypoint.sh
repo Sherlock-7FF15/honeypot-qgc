@@ -13,6 +13,7 @@ SCREEN_GEOM="${SCREEN_GEOM:-1280x720x24}"
 VNC_BIND="${VNC_BIND:-0.0.0.0}"
 VNC_PORT="${VNC_PORT:-5900}"
 NOVNC_PORT="${NOVNC_PORT:-6080}"
+NOVNC_BIND="${NOVNC_BIND:-0.0.0.0}"
 ENABLE_NOVNC="${ENABLE_NOVNC:-true}"
 
 cleanup() {
@@ -29,7 +30,7 @@ id
 echo "HOME=$HOME"
 echo "DISPLAY_NUM=$DISPLAY_NUM"
 echo "SCREEN_GEOM=$SCREEN_GEOM"
-echo "VNC_BIND=$VNC_BIND VNC_PORT=$VNC_PORT NOVNC_PORT=$NOVNC_PORT ENABLE_NOVNC=$ENABLE_NOVNC"
+echo "VNC_BIND=$VNC_BIND VNC_PORT=$VNC_PORT NOVNC_BIND=$NOVNC_BIND NOVNC_PORT=$NOVNC_PORT ENABLE_NOVNC=$ENABLE_NOVNC"
 
 echo "=== START XVFB ==="
 Xvfb "$DISPLAY_NUM" -screen 0 "$SCREEN_GEOM" -nolisten tcp &
@@ -42,13 +43,26 @@ x11vnc -display "$DISPLAY_NUM" -rfbport "$VNC_PORT" -listen "$VNC_BIND" -forever
 X11VNC_PID=$!
 
 if [[ "$ENABLE_NOVNC" == "true" ]]; then
-  NOVNC_PROXY="/usr/share/novnc/utils/novnc_proxy"
-  if [[ -x "$NOVNC_PROXY" ]]; then
-    echo "=== START noVNC ==="
-    "$NOVNC_PROXY" --vnc "127.0.0.1:${VNC_PORT}" --listen "${NOVNC_PORT}" >/logs/novnc.log 2>&1 &
+  echo "=== START noVNC ==="
+  NOVNC_PROXY="$(command -v novnc_proxy || true)"
+  if [[ -z "$NOVNC_PROXY" ]]; then
+    for c in /usr/share/novnc/utils/novnc_proxy /usr/share/novnc/utils/launch.sh; do
+      if [[ -x "$c" ]]; then
+        NOVNC_PROXY="$c"
+        break
+      fi
+    done
+  fi
+
+  if [[ -n "$NOVNC_PROXY" ]]; then
+    "$NOVNC_PROXY" --vnc "127.0.0.1:${VNC_PORT}" --listen "${NOVNC_BIND}:${NOVNC_PORT}" >/logs/novnc.log 2>&1 &
+    NOVNC_PID=$!
+  elif command -v websockify >/dev/null 2>&1 && [[ -d /usr/share/novnc ]]; then
+    websockify --web /usr/share/novnc "${NOVNC_BIND}:${NOVNC_PORT}" "127.0.0.1:${VNC_PORT}" >/logs/novnc.log 2>&1 &
     NOVNC_PID=$!
   else
-    echo "WARN: novnc_proxy not found at $NOVNC_PROXY, skip noVNC"
+    echo "ERROR: ENABLE_NOVNC=true but no novnc_proxy/websockify runtime found"
+    exit 1
   fi
 fi
 

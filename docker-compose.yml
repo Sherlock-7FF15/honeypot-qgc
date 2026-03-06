@@ -120,7 +120,8 @@ services:
     image: bluenviron/mediamtx:latest
     container_name: rtsp-server
     restart: always
-    command: ["/bin/sh", "-c", "mkdir -p /logs/rtsp/sessions && /mediamtx /mediamtx.yml 2>&1 | tee -a /logs/rtsp/mediamtx.log"]
+    entrypoint: ["/bin/sh", "-c"]
+    command: "mkdir -p /logs/rtsp/sessions && exec /mediamtx /mediamtx.yml 2>&1 | tee -a /logs/rtsp/mediamtx.log"
     ports:
       - "554:554/tcp"
     volumes:

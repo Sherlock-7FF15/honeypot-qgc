@@ -15,12 +15,17 @@ VNC_PORT="${VNC_PORT:-5900}"
 NOVNC_PORT="${NOVNC_PORT:-6080}"
 NOVNC_BIND="${NOVNC_BIND:-0.0.0.0}"
 ENABLE_NOVNC="${ENABLE_NOVNC:-true}"
+ENABLE_VNC_STACK="${ENABLE_VNC_STACK:-true}"
+ENABLE_RTSP_STREAM="${ENABLE_RTSP_STREAM:-false}"
+RTSP_PUBLISH_URL="${RTSP_PUBLISH_URL:-rtsp://mediamtx:554/qgc}"
+STREAM_FPS="${STREAM_FPS:-10}"
 
 cleanup() {
   set +e
   [[ -n "${NOVNC_PID:-}" ]] && kill "$NOVNC_PID" 2>/dev/null || true
   [[ -n "${X11VNC_PID:-}" ]] && kill "$X11VNC_PID" 2>/dev/null || true
   [[ -n "${XVFB_PID:-}" ]] && kill "$XVFB_PID" 2>/dev/null || true
+  [[ -n "${FFMPEG_PID:-}" ]] && kill "$FFMPEG_PID" 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
@@ -30,7 +35,7 @@ id
 echo "HOME=$HOME"
 echo "DISPLAY_NUM=$DISPLAY_NUM"
 echo "SCREEN_GEOM=$SCREEN_GEOM"
-echo "VNC_BIND=$VNC_BIND VNC_PORT=$VNC_PORT NOVNC_BIND=$NOVNC_BIND NOVNC_PORT=$NOVNC_PORT ENABLE_NOVNC=$ENABLE_NOVNC"
+echo "VNC_BIND=$VNC_BIND VNC_PORT=$VNC_PORT NOVNC_BIND=$NOVNC_BIND NOVNC_PORT=$NOVNC_PORT ENABLE_NOVNC=$ENABLE_NOVNC ENABLE_VNC_STACK=$ENABLE_VNC_STACK ENABLE_RTSP_STREAM=$ENABLE_RTSP_STREAM RTSP_PUBLISH_URL=$RTSP_PUBLISH_URL STREAM_FPS=$STREAM_FPS"
 
 echo "=== START XVFB ==="
 Xvfb "$DISPLAY_NUM" -screen 0 "$SCREEN_GEOM" -nolisten tcp &
@@ -38,32 +43,48 @@ XVFB_PID=$!
 export DISPLAY="$DISPLAY_NUM"
 sleep 1
 
-echo "=== START X11VNC ==="
-x11vnc -display "$DISPLAY_NUM" -rfbport "$VNC_PORT" -listen "$VNC_BIND" -forever -shared -nopw -xkb -o /logs/x11vnc.log &
-X11VNC_PID=$!
+if [[ "$ENABLE_VNC_STACK" == "true" ]]; then
+  echo "=== START X11VNC ==="
+  x11vnc -display "$DISPLAY_NUM" -rfbport "$VNC_PORT" -listen "$VNC_BIND" -forever -shared -nopw -xkb -o /logs/x11vnc.log &
+  X11VNC_PID=$!
 
-if [[ "$ENABLE_NOVNC" == "true" ]]; then
-  echo "=== START noVNC ==="
-  NOVNC_PROXY="$(command -v novnc_proxy || true)"
-  if [[ -z "$NOVNC_PROXY" ]]; then
-    for c in /usr/share/novnc/utils/novnc_proxy /usr/share/novnc/utils/launch.sh; do
-      if [[ -x "$c" ]]; then
-        NOVNC_PROXY="$c"
-        break
-      fi
+  if [[ "$ENABLE_NOVNC" == "true" ]]; then
+    echo "=== START noVNC ==="
+    NOVNC_PROXY="$(command -v novnc_proxy || true)"
+    if [[ -z "$NOVNC_PROXY" ]]; then
+      for c in /usr/share/novnc/utils/novnc_proxy /usr/share/novnc/utils/launch.sh; do
+        if [[ -x "$c" ]]; then
+          NOVNC_PROXY="$c"
+          break
+        fi
+      done
+    fi
+
+    if [[ -n "$NOVNC_PROXY" ]]; then
+      "$NOVNC_PROXY" --vnc "127.0.0.1:${VNC_PORT}" --listen "${NOVNC_BIND}:${NOVNC_PORT}" >/logs/novnc.log 2>&1 &
+      NOVNC_PID=$!
+    elif command -v websockify >/dev/null 2>&1 && [[ -d /usr/share/novnc ]]; then
+      websockify --web /usr/share/novnc "${NOVNC_BIND}:${NOVNC_PORT}" "127.0.0.1:${VNC_PORT}" >/logs/novnc.log 2>&1 &
+      NOVNC_PID=$!
+    else
+      echo "ERROR: ENABLE_NOVNC=true but no novnc_proxy/websockify runtime found"
+      exit 1
+    fi
+  fi
+else
+  echo "=== VNC STACK DISABLED (ENABLE_VNC_STACK=false) ==="
+fi
+
+if [[ "$ENABLE_RTSP_STREAM" == "true" ]]; then
+  echo "=== START FFmpeg RTSP PUBLISHER ==="
+  SCREEN_SIZE="${SCREEN_GEOM%x*}"
+  (
+    while true; do
+      ffmpeg -nostdin -f x11grab -video_size "$SCREEN_SIZE" -framerate "$STREAM_FPS" -i "${DISPLAY_NUM}.0"         -an -c:v libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p         -f rtsp -rtsp_transport tcp "$RTSP_PUBLISH_URL" >> /logs/ffmpeg-stream.log 2>&1 || true
+      sleep 2
     done
-  fi
-
-  if [[ -n "$NOVNC_PROXY" ]]; then
-    "$NOVNC_PROXY" --vnc "127.0.0.1:${VNC_PORT}" --listen "${NOVNC_BIND}:${NOVNC_PORT}" >/logs/novnc.log 2>&1 &
-    NOVNC_PID=$!
-  elif command -v websockify >/dev/null 2>&1 && [[ -d /usr/share/novnc ]]; then
-    websockify --web /usr/share/novnc "${NOVNC_BIND}:${NOVNC_PORT}" "127.0.0.1:${VNC_PORT}" >/logs/novnc.log 2>&1 &
-    NOVNC_PID=$!
-  else
-    echo "ERROR: ENABLE_NOVNC=true but no novnc_proxy/websockify runtime found"
-    exit 1
-  fi
+  ) &
+  FFMPEG_PID=$!
 fi
 
 while true; do

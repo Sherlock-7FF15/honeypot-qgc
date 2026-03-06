@@ -7,9 +7,20 @@ services:
     container_name: qgc
     restart: always
 
-    # NOTE: 不再对外暴露端口（必须）
-    # ports:
-    #   - "14550:14550/udp"
+    # NOTE: qgc 本身不对外暴露端口（通过 ui-gateway 转发 noVNC）
+
+    environment:
+      - DISPLAY_NUM=:99
+      - SCREEN_GEOM=1280x720x24
+      - VNC_BIND=0.0.0.0
+      - VNC_PORT=5900
+      - NOVNC_PORT=6080
+      - NOVNC_BIND=0.0.0.0
+      - ENABLE_NOVNC=true
+      - ENABLE_VNC_STACK=${ENABLE_VNC_STACK:-true}
+      - ENABLE_RTSP_STREAM=${ENABLE_RTSP_STREAM:-false}
+      - RTSP_PUBLISH_URL=${RTSP_PUBLISH_URL:-rtsp://mediamtx:554/qgc}
+      - STREAM_FPS=${STREAM_FPS:-10}
 
     volumes:
       - ./qgc/data:/data
@@ -39,9 +50,12 @@ services:
     depends_on:
       - qgc
 
-    # 只有 facade 对外暴露
+    # 对外暴露 MAVLink 入口（facade）
     ports:
+      # add common MAVLink ports and forward all to facade's UDP 14550 listener
+      - "14540:14550/udp"
       - "14550:14550/udp"
+      - "14560:14550/udp"
 
     environment:
       - PUBLIC_BIND=0.0.0.0
@@ -64,6 +78,108 @@ services:
       - ./logs:/logs
       - ./uploads:/uploads
 
+    networks:
+      - internal_net
+
+  ui-gateway:
+    profiles: ["vnc"]
+    image: nginx:1.27-alpine
+    container_name: ui-gateway
+    restart: always
+    command: ["/bin/sh", "-c", "mkdir -p /logs/ui-gateway/sessions && exec nginx -g 'daemon off;'"]
+    depends_on:
+      - qgc
+    ports:
+      - "6080:6080/tcp"
+    volumes:
+      - ./ui-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  ui-sessionizer:
+    profiles: ["vnc"]
+    build:
+      context: ./ui-gateway
+      dockerfile: sessionizer.Dockerfile
+    container_name: ui-sessionizer
+    restart: always
+    depends_on:
+      - ui-gateway
+    environment:
+      - UI_ACCESS_LOG=/logs/ui-gateway/access.log
+      - UI_LOG_ROOT=/logs/ui-gateway
+      - UI_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  rtsp-server:
+    profiles: ["stream"]
+    image: bluenviron/mediamtx:latest
+    container_name: rtsp-server
+    restart: always
+    command: ["/mediamtx.yml"]
+    ports:
+      - "554:554/tcp"
+    volumes:
+      - ./stream/mediamtx.yml:/mediamtx.yml:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  stream-web-gateway:
+    profiles: ["stream"]
+    image: nginx:1.27-alpine
+    container_name: stream-web-gateway
+    restart: always
+    depends_on:
+      - rtsp-server
+    command: ["/bin/sh", "-c", "mkdir -p /logs/stream-web/sessions && exec nginx -g 'daemon off;'"]
+    ports:
+      - "80:80/tcp"
+    volumes:
+      - ./stream/web-gateway.nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  stream-web-sessionizer:
+    profiles: ["stream"]
+    build:
+      context: ./stream
+      dockerfile: sessionizer.Dockerfile
+    container_name: stream-web-sessionizer
+    restart: always
+    depends_on:
+      - stream-web-gateway
+    command: ["python", "/app/web_sessionizer.py"]
+    environment:
+      - STREAM_WEB_ACCESS_LOG=/logs/stream-web/access.log
+      - STREAM_WEB_LOG_ROOT=/logs/stream-web
+      - STREAM_WEB_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  rtsp-sessionizer:
+    profiles: ["stream"]
+    build:
+      context: ./stream
+      dockerfile: sessionizer.Dockerfile
+    container_name: rtsp-sessionizer
+    restart: always
+    depends_on:
+      - rtsp-server
+    command: ["python", "/app/rtsp_sessionizer.py"]
+    environment:
+      - RTSP_SERVER_LOG=/logs/mediamtx.log
+      - RTSP_LOG_ROOT=/logs/rtsp
+      - RTSP_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
     networks:
       - internal_net
 
@@ -90,4 +206,3 @@ services:
 networks:
   internal_net:
     driver: bridge
-

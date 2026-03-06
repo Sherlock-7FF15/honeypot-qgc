@@ -26,6 +26,8 @@ Enable stream publishing from qgc and start stream stack:
 ENABLE_RTSP_STREAM=true ENABLE_VNC_STACK=false docker compose --profile stream up -d --build
 ```
 
+> `RTSP_PUBLISH_URL` defaults to `rtsp://rtsp-server:554/qgc` and usually doesn't need manual override.
+
 ### 4) Run both VNC and stream (optional)
 ```bash
 ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --build
@@ -40,6 +42,9 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 ## Sessionized log locations
 - Facade MAVLink sessions:
   - `logs/facade/sessions/<session_id>/events.jsonl`
+- QGC runtime logs:
+  - `logs/qgc/qgc.stdout`
+  - `logs/qgc/ffmpeg-stream.log` (present when `ENABLE_RTSP_STREAM=true`)
 - noVNC UI sessions (`vnc` profile):
   - `logs/ui-gateway/sessions/<session_id>/events.jsonl`
   - `logs/ui-gateway/sessions/<session_id>/stats.json`

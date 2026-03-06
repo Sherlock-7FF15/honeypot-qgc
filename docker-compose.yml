@@ -19,12 +19,12 @@ services:
       - ENABLE_NOVNC=true
       - ENABLE_VNC_STACK=${ENABLE_VNC_STACK:-true}
       - ENABLE_RTSP_STREAM=${ENABLE_RTSP_STREAM:-false}
-      - RTSP_PUBLISH_URL=${RTSP_PUBLISH_URL:-rtsp://mediamtx:554/qgc}
+      - RTSP_PUBLISH_URL=${RTSP_PUBLISH_URL:-rtsp://rtsp-server:554/qgc}
       - STREAM_FPS=${STREAM_FPS:-10}
 
     volumes:
       - ./qgc/data:/data
-      - ./qgc/logs:/logs
+      - ./logs/qgc:/logs
 
     mem_limit: 1g
     cpus: 1.0
@@ -198,7 +198,7 @@ services:
       - HASH_ON_MODIFY=true
     volumes:
       - ./qgc/data:/qgc-data:ro
-      - ./qgc/logs:/qgc-logs:ro
+      - ./logs/qgc:/qgc-logs:ro
       - ./logs:/logs:rw
       - ./uploads:/uploads:rw
 

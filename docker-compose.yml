@@ -43,12 +43,23 @@ services:
     networks:
       - internal_net
 
+
+  mavproxy:
+    build: ./mavproxy
+    container_name: mavproxy
+    restart: always
+    volumes:
+      - ./logs/mavproxy:/logs
+      - ./mavproxy/data:/data
+    networks:
+      - internal_net
+
   facade:
     build: ./facade
     container_name: facade
     restart: always
     depends_on:
-      - qgc
+      - mavproxy
 
     # 对外暴露 MAVLink 入口（facade）
     ports:
@@ -62,11 +73,11 @@ services:
     environment:
       - PUBLIC_BIND=0.0.0.0
       - PUBLIC_PORT=14550
-      - QGC_HOST=qgc
+      - QGC_HOST=mavproxy
       - QGC_PORT=14550
       - TCP_BIND=0.0.0.0
       - TCP_PORTS=5760,14550
-      - QGC_TCP_HOST=qgc
+      - QGC_TCP_HOST=mavproxy
       - QGC_TCP_PORT_MAP=5760:5760,14550:14550
 
       # session idle 超时（秒），超时就写 session_end 并清理映射

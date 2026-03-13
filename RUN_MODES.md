@@ -3,6 +3,8 @@
 ## Overview
 This project now supports two optional UI exposure modes while keeping MAVLink capture in `facade`.
 
+`facade` forwards attacker traffic to a dedicated `mavproxy` backend container (UDP/TCP) for protocol interaction.
+
 - `vnc` profile: noVNC web access on `:6080` (interactive by default).
 - `stream` profile: read-only RTSP/HLS-style viewing (`:554` RTSP and `:80` web gateway).
 
@@ -40,7 +42,7 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 - Stream web gateway (`stream` profile): TCP `80`
 
 ## Sessionized log locations
-- Facade MAVLink sessions:
+- Facade MAVLink sessions (attacker <-> facade <-> mavproxy):
   - `logs/facade/sessions/<session_id>/events.jsonl`
 - QGC runtime logs:
   - `logs/qgc/qgc.stdout`

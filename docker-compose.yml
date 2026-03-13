@@ -56,12 +56,18 @@ services:
       - "14540:14550/udp"
       - "14550:14550/udp"
       - "14560:14550/udp"
+      - "14550:14550/tcp"
+      - "5760:5760/tcp"
 
     environment:
       - PUBLIC_BIND=0.0.0.0
       - PUBLIC_PORT=14550
       - QGC_HOST=qgc
       - QGC_PORT=14550
+      - TCP_BIND=0.0.0.0
+      - TCP_PORTS=5760,14550
+      - QGC_TCP_HOST=qgc
+      - QGC_TCP_PORT_MAP=5760:5760,14550:14550
 
       # session idle 超时（秒），超时就写 session_end 并清理映射
       - SESSION_IDLE=300

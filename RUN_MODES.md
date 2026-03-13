@@ -34,7 +34,7 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 ```
 
 ## Ports
-- MAVLink facade: UDP `14540`, `14550`, `14560`
+- MAVLink facade: UDP `14540`, `14550`, `14560` + TCP `14550`, `5760`
 - noVNC (`vnc` profile): TCP `6080`
 - RTSP (`stream` profile): TCP `554`
 - Stream web gateway (`stream` profile): TCP `80`

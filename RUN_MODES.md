@@ -44,6 +44,9 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 ## Sessionized log locations
 - Facade MAVLink sessions (attacker <-> facade <-> mavproxy):
   - `logs/facade/sessions/<session_id>/events.jsonl`
+- MAVProxy backend logs/state:
+  - `logs/mavproxy/...`
+  - `logs/mavproxy/mavproxy.stdout.log` (stdout/stderr)
 - QGC runtime logs:
   - `logs/qgc/qgc.stdout`
   - `logs/qgc/ffmpeg-stream.log` (present when `ENABLE_RTSP_STREAM=true`)

@@ -49,8 +49,7 @@ services:
     container_name: mavproxy
     restart: always
     volumes:
-      - ./logs/mavproxy:/logs
-      - ./mavproxy/data:/data
+      - ./logs/mavproxy:/logs/mavproxy
     networks:
       - internal_net
 

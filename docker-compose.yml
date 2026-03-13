@@ -53,6 +53,24 @@ services:
     networks:
       - internal_net
 
+
+  mavproxy-sessionizer:
+    build:
+      context: ./mavproxy
+      dockerfile: sessionizer.Dockerfile
+    container_name: mavproxy-sessionizer
+    restart: always
+    depends_on:
+      - mavproxy
+    environment:
+      - MAVPROXY_STDOUT_LOG=/logs/mavproxy/mavproxy.stdout.log
+      - MAVPROXY_LOG_ROOT=/logs/mavproxy
+      - MAVPROXY_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs/mavproxy:/logs/mavproxy:rw
+    networks:
+      - internal_net
+
   facade:
     build: ./facade
     container_name: facade

@@ -63,11 +63,11 @@ services:
     depends_on:
       - mavproxy
     environment:
-      - MAVPROXY_STDOUT_LOG=/logs/mavproxy/mavproxy.stdout.log
+      - FACADE_SESSION_ROOT=/logs/facade/sessions
       - MAVPROXY_LOG_ROOT=/logs/mavproxy
       - MAVPROXY_SESSION_IDLE_SEC=300
     volumes:
-      - ./logs/mavproxy:/logs/mavproxy:rw
+      - ./logs:/logs:rw
     networks:
       - internal_net
 

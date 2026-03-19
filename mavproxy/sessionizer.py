@@ -4,21 +4,39 @@ import re
 import time
 from pathlib import Path
 
-LOG_FILE = Path(os.getenv("MAVPROXY_STDOUT_LOG", "/logs/mavproxy/mavproxy.stdout.log"))
+FACADE_SESS_ROOT = Path(os.getenv("FACADE_SESSION_ROOT", "/logs/facade/sessions"))
 LOG_ROOT = Path(os.getenv("MAVPROXY_LOG_ROOT", "/logs/mavproxy"))
 SESS_DIR = LOG_ROOT / "sessions"
 INDEX_FILE = LOG_ROOT / "mavproxy.index.jsonl"
 IDLE_SEC = int(os.getenv("MAVPROXY_SESSION_IDLE_SEC", "300"))
 
 IP_PORT_RE = re.compile(r"(?P<ip>\d+\.\d+\.\d+\.\d+):(?P<port>\d+)")
-OPEN_HINTS = ("connect ", "opened", "connected")
-CLOSE_HINTS = ("disconnected", "closed")
-NOISE_PATTERNS = [
-    re.compile(r"^no script honeypot/mavinit\.scr$", re.IGNORECASE),
-    re.compile(r"^waiting for heartbeat from 0\.0\.0\.0:\d+$", re.IGNORECASE),
-    re.compile(r"^link \d+ down$", re.IGNORECASE),
-    re.compile(r"^link \d+ no link$", re.IGNORECASE),
-]
+MIRROR_EVENTS = {
+    "tcp_connection_start",
+    "tcp_connection_end",
+    "tcp_connection_error",
+    "tcp_chunk",
+    "udp_datagram",
+    "tcp_datagram",
+    "mavftp_msg110",
+    "ftp_listdir",
+    "ftp_read",
+    "ftp_write",
+    "ftp_create",
+    "ftp_delete",
+    "ftp_open_ro",
+    "ftp_open_wo",
+    "ftp_mkdir",
+    "ftp_rmdir",
+    "ftp_rename",
+    "ftp_truncate",
+    "ftp_crc32",
+    "ftp_reset",
+    "ftp_terminate",
+    "ftp_ack",
+    "ftp_nak",
+    "artifact_saved",
+}
 
 
 def now_ts() -> float:
@@ -36,16 +54,20 @@ def new_session_id(peer_ip: str, peer_port: int, t: float) -> str:
     return f"{int(t)}_{peer_ip}_{peer_port}_mavproxy"
 
 
-def is_noise(line: str) -> bool:
-    stripped = line.strip()
-    if not stripped:
-        return True
-    return any(pattern.match(stripped) for pattern in NOISE_PATTERNS)
+def extract_peer(ev: dict) -> tuple[str, int] | None:
+    for key in ("src", "dst"):
+        value = ev.get(key)
+        if not isinstance(value, str):
+            continue
+        m = IP_PORT_RE.search(value)
+        if m:
+            return m.group("ip"), int(m.group("port"))
+    return None
 
 
 class Session:
-    def __init__(self, peer_ip: str, peer_port: int, first_line: str):
-        t = now_ts()
+    def __init__(self, peer_ip: str, peer_port: int, first_event: dict):
+        t = float(first_event.get("ts", now_ts()))
         self.peer_key = f"{peer_ip}:{peer_port}"
         self.peer_ip = peer_ip
         self.peer_port = peer_port
@@ -61,29 +83,32 @@ class Session:
             "peer_port": peer_port,
             "first_seen": t,
             "last_seen": t,
-            "lines": 0,
-            "open_events": 0,
-            "close_events": 0,
+            "events": 0,
+            "facade_session_ids": [],
+            "event_types": {},
         }
-        append_jsonl(INDEX_FILE, {"event": "mavproxy_session_start", **self.stats, "line": first_line[:500]})
+        self.add(first_event)
+        append_jsonl(INDEX_FILE, {"event": "mavproxy_session_start", **self.stats})
 
-    def add(self, line: str):
-        t = now_ts()
+    def add(self, ev: dict):
+        t = float(ev.get("ts", now_ts()))
         self.last = t
         self.stats["last_seen"] = t
-        self.stats["lines"] += 1
+        self.stats["events"] += 1
 
-        low = line.lower()
-        if any(h in low for h in OPEN_HINTS):
-            self.stats["open_events"] += 1
-        if any(h in low for h in CLOSE_HINTS):
-            self.stats["close_events"] += 1
+        facade_session_id = ev.get("session_id")
+        if facade_session_id and facade_session_id not in self.stats["facade_session_ids"]:
+            self.stats["facade_session_ids"].append(facade_session_id)
+
+        event_name = str(ev.get("event", "unknown"))
+        self.stats["event_types"][event_name] = self.stats["event_types"].get(event_name, 0) + 1
 
         append_jsonl(self.events, {
-            "event": "mavproxy_log",
+            "event": "mavproxy_mirrored_event",
             "session_id": self.id,
-            "peer_key": self.peer_key,
-            "line": line.strip()[:2000],
+            "peer_ip": self.peer_ip,
+            "peer_port": self.peer_port,
+            "facade_event": ev,
         })
 
     def should_close(self, t: float) -> bool:
@@ -91,19 +116,21 @@ class Session:
 
     def close(self):
         self.dir.mkdir(parents=True, exist_ok=True)
-        (self.dir / "stats.json").write_text(json.dumps(self.stats, ensure_ascii=False, indent=2), encoding="utf-8")
+        (self.dir / "stats.json").write_text(
+            json.dumps(self.stats, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
         append_jsonl(INDEX_FILE, {"event": "mavproxy_session_end", **self.stats})
 
 
-def parse_peer(line: str) -> tuple[str, int] | None:
-    m = IP_PORT_RE.search(line)
-    if not m:
+def load_event(line: str) -> dict | None:
+    try:
+        ev = json.loads(line)
+    except json.JSONDecodeError:
         return None
-    ip = m.group("ip")
-    port = int(m.group("port"))
-    if ip == "0.0.0.0":
+    if ev.get("event") not in MIRROR_EVENTS:
         return None
-    return ip, port
+    return ev
 
 
 def main():
@@ -111,39 +138,47 @@ def main():
     SESS_DIR.mkdir(parents=True, exist_ok=True)
     append_jsonl(INDEX_FILE, {
         "event": "mavproxy_sessionizer_start",
-        "log_file": str(LOG_FILE),
+        "facade_session_root": str(FACADE_SESS_ROOT),
         "idle_sec": IDLE_SEC,
     })
 
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-    LOG_FILE.touch(exist_ok=True)
-
+    offsets: dict[Path, int] = {}
     sessions: dict[str, Session] = {}
 
-    with LOG_FILE.open("r", encoding="utf-8", errors="replace") as f:
-        f.seek(0, os.SEEK_END)
-        while True:
-            line = f.readline()
-            if not line:
-                t = now_ts()
-                dead = [k for k, s in sessions.items() if s.should_close(t)]
-                for k in dead:
-                    sessions.pop(k).close()
-                time.sleep(0.5)
-                continue
+    while True:
+        for events_file in sorted(FACADE_SESS_ROOT.glob("*/events.jsonl")):
+            if events_file not in offsets:
+                offsets[events_file] = 0
 
-            if is_noise(line):
-                continue
+            with events_file.open("r", encoding="utf-8", errors="replace") as f:
+                f.seek(offsets[events_file])
+                while True:
+                    line = f.readline()
+                    if not line:
+                        offsets[events_file] = f.tell()
+                        break
 
-            peer = parse_peer(line)
-            if peer is None:
-                continue
+                    ev = load_event(line)
+                    if ev is None:
+                        continue
 
-            peer_ip, peer_port = peer
-            peer_key = f"{peer_ip}:{peer_port}"
-            if peer_key not in sessions:
-                sessions[peer_key] = Session(peer_ip, peer_port, line)
-            sessions[peer_key].add(line)
+                    peer = extract_peer(ev)
+                    if peer is None:
+                        continue
+
+                    peer_ip, peer_port = peer
+                    peer_key = f"{peer_ip}:{peer_port}"
+                    if peer_key not in sessions:
+                        sessions[peer_key] = Session(peer_ip, peer_port, ev)
+                    else:
+                        sessions[peer_key].add(ev)
+
+        t = now_ts()
+        dead = [k for k, s in sessions.items() if s.should_close(t)]
+        for k in dead:
+            sessions.pop(k).close()
+
+        time.sleep(0.5)
 
 
 if __name__ == "__main__":

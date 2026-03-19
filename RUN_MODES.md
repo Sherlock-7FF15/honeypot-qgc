@@ -52,7 +52,7 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 - MAVProxy backend logs/state:
   - `logs/mavproxy/mavproxy.stdout.log` (filtered stdout/stderr; idle/no-link noise is dropped)
   - `logs/mavproxy/mavproxy.index.jsonl`
-  - `logs/mavproxy/sessions/<session_id>/events.jsonl`
+  - `logs/mavproxy/sessions/<session_id>/events.jsonl` (mirrored from facade attacker-facing events)
   - `logs/mavproxy/sessions/<session_id>/stats.json`
 - QGC runtime logs:
   - `logs/qgc/qgc.stdout`

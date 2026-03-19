@@ -9,6 +9,15 @@ NOISE_PATTERNS = [
     re.compile(r"^link \d+ down$", re.IGNORECASE),
     re.compile(r"^link \d+ no link$", re.IGNORECASE),
 ]
+TRACEBACK_CONTINUATION_PATTERNS = [
+    re.compile(r"^\s+File "),
+    re.compile(r"^\s*self\."),
+    re.compile(r"^\s*res = "),
+    re.compile(r"^\s*buf = "),
+    re.compile(r"^\s*raise "),
+    re.compile(r"^Traceback "),
+    re.compile(r"^[A-Za-z_]+Error$"),
+]
 
 
 def is_noise(line: str) -> bool:
@@ -16,6 +25,11 @@ def is_noise(line: str) -> bool:
     if not stripped:
         return True
     return any(pattern.match(stripped) for pattern in NOISE_PATTERNS)
+
+
+def is_traceback_continuation(line: str) -> bool:
+    stripped = line.rstrip()
+    return any(pattern.match(stripped) for pattern in TRACEBACK_CONTINUATION_PATTERNS)
 
 
 def main() -> int:
@@ -37,7 +51,17 @@ def main() -> int:
         )
 
         assert proc.stdout is not None
+        skip_traceback = False
         for line in proc.stdout:
+            if skip_traceback:
+                if is_traceback_continuation(line):
+                    continue
+                skip_traceback = False
+
+            if line.startswith("Exception in thread log_writer:"):
+                skip_traceback = True
+                continue
+
             if is_noise(line):
                 continue
             log_file.write(line)

@@ -29,6 +29,7 @@ ENABLE_RTSP_STREAM=true ENABLE_VNC_STACK=false docker compose --profile stream u
 ```
 
 > `RTSP_PUBLISH_URL` defaults to `rtsp://rtsp-server:554/qgc` and usually doesn't need manual override.
+> `ENABLE_RTSP_STREAM` defaults to `auto` inside `qgc`, which means the RTSP publisher will start automatically whenever the `rtsp-server` service is reachable.
 
 ### 4) Run both VNC and stream (optional)
 ```bash

@@ -4,6 +4,8 @@ import json
 import socket
 import base64
 import hashlib
+import threading
+import select
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -12,6 +14,11 @@ PUBLIC_BIND = os.getenv("PUBLIC_BIND", "0.0.0.0")
 PUBLIC_PORT = int(os.getenv("PUBLIC_PORT", "14550"))
 QGC_HOST = os.getenv("QGC_HOST", "qgc")
 QGC_PORT = int(os.getenv("QGC_PORT", "14550"))
+
+TCP_BIND = os.getenv("TCP_BIND", "0.0.0.0")
+TCP_PORTS = [int(x.strip()) for x in os.getenv("TCP_PORTS", "5760,14550").split(",") if x.strip()]
+QGC_TCP_HOST = os.getenv("QGC_TCP_HOST", QGC_HOST)
+QGC_TCP_PORT_MAP_RAW = os.getenv("QGC_TCP_PORT_MAP", "5760:5760,14550:14550")
 
 # Session idle: ONLY inbound drives closing (no heartbeat "keepalive")
 SESSION_IDLE_IN = int(os.getenv("SESSION_IDLE_IN", "60"))        # seconds without dir=in => end session
@@ -46,8 +53,8 @@ def append_jsonl(path: Path, obj: dict):
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
-def new_session_id(peer_ip: str, peer_port: int) -> str:
-    return f"{int(ts())}_{peer_ip.replace(':','_')}_{peer_port}_udp{PUBLIC_PORT}"
+def new_session_id(peer_ip: str) -> str:
+    return f"{int(ts())}_{peer_ip.replace(':','_')}_udp{PUBLIC_PORT}"
 
 def sha256_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
@@ -105,6 +112,39 @@ def extract_mavlink_payload(data: bytes, hdr: dict) -> Optional[bytes]:
     if len(data) < end:
         return None
     return data[start:end]
+
+
+def split_mavlink_frames(buffer: bytes) -> Tuple[list[bytes], bytes]:
+    frames = []
+    i = 0
+    n = len(buffer)
+    while i < n:
+        stx = buffer[i]
+        if stx not in (0xFE, 0xFD):
+            i += 1
+            continue
+
+        if stx == 0xFE:
+            if i + 6 > n:
+                break
+            payload_len = buffer[i + 1]
+            frame_len = 6 + payload_len + 2
+        else:
+            if i + 10 > n:
+                break
+            payload_len = buffer[i + 1]
+            incompat = buffer[i + 2]
+            sig_len = 13 if (incompat & 0x01) else 0
+            frame_len = 10 + payload_len + 2 + sig_len
+
+        if i + frame_len > n:
+            break
+
+        frames.append(buffer[i:i + frame_len])
+        i += frame_len
+
+    remainder = buffer[i:] if i < n else b""
+    return frames, remainder
 
 # ---------------- MAVLink FTP parsing (msgid 110) ----------------
 # FILE_TRANSFER_PROTOCOL payload:
@@ -246,9 +286,10 @@ def dump_msg110_artifact(session_id: str, direction: str, hdr: dict, udp_datagra
 
 # ---------------- Session ----------------
 class Session:
-    def __init__(self, peer: Tuple[str, int]):
-        self.peer = peer
-        self.id = new_session_id(peer[0], peer[1])
+    def __init__(self, peer_ip: str, initial_peer_port: int):
+        self.peer_ip = peer_ip
+        self.last_peer_port = initial_peer_port
+        self.id = new_session_id(peer_ip)
         self.dir = SESS_DIR / self.id
         self.dir.mkdir(parents=True, exist_ok=True)
         self.events = self.dir / "events.jsonl"
@@ -268,7 +309,9 @@ class Session:
 
         self.stats = {
             "session_id": self.id,
-            "peer": f"{peer[0]}:{peer[1]}",
+            "peer_ip": peer_ip,
+            "src_ports_seen": [initial_peer_port],
+            "last_peer_port": initial_peer_port,
             "public_port": PUBLIC_PORT,
             "first_seen": now,
             "last_seen_in": now,
@@ -282,8 +325,20 @@ class Session:
             "mav_msg110_count_out": 0,
             "heartbeat_agg_events": 0,
             "heartbeat_total_count": 0,
+            "tcp_conn_count": 0,
+            "tcp_chunks_in": 0,
+            "tcp_chunks_out": 0,
+            "tcp_bytes_in": 0,
+            "tcp_bytes_out": 0,
         }
         append_jsonl(LOG_INDEX, {"event": "session_start", **self.stats})
+
+
+    def record_peer_port(self, peer_port: int):
+        self.last_peer_port = peer_port
+        self.stats["last_peer_port"] = peer_port
+        if peer_port not in self.stats["src_ports_seen"]:
+            self.stats["src_ports_seen"].append(peer_port)
 
     def _touch_in(self):
         self.last_seen_in = ts()
@@ -362,7 +417,7 @@ class Session:
         self.hb_last_dst = dst
         self._emit_heartbeat_agg_if_due(now, force=False)
 
-    def log_pkt(self, direction: str, data: bytes, src: str, dst: str):
+    def log_pkt(self, direction: str, data: bytes, src: str, dst: str, transport: str = "udp", listen_port: Optional[int] = None):
         hdr = parse_mavlink_header(data)
         self._track_sysid(hdr)
 
@@ -373,7 +428,7 @@ class Session:
 
         # Normal datagram event for everything else
         append_jsonl(self.events, {
-            "event": "udp_datagram",
+            "event": f"{transport}_datagram",
             "session_id": self.id,
             "dir": direction,
             "src": src,
@@ -381,6 +436,8 @@ class Session:
             "len": len(data),
             "preview_b64": b64_preview(data),
             "mavlink": hdr if hdr else None,
+            "transport": transport,
+            "listen_port": listen_port,
         })
 
         # msgid=110: FTP capture + high-level ftp_* event + artifact dump
@@ -435,6 +492,27 @@ class Session:
             else:
                 self.stats["mav_msg110_count_out"] += 1
 
+    def log_tcp_chunk(self, direction: str, data: bytes, src: str, dst: str, listen_port: int):
+        append_jsonl(self.events, {
+            "event": "tcp_chunk",
+            "session_id": self.id,
+            "dir": direction,
+            "src": src,
+            "dst": dst,
+            "len": len(data),
+            "preview_b64": b64_preview(data),
+            "transport": "tcp",
+            "listen_port": listen_port,
+        })
+        if direction == "in":
+            self.stats["tcp_chunks_in"] += 1
+            self.stats["tcp_bytes_in"] += len(data)
+            self._touch_in()
+        else:
+            self.stats["tcp_chunks_out"] += 1
+            self.stats["tcp_bytes_out"] += len(data)
+        self._touch_any()
+
     def flush(self):
         self._emit_heartbeat_agg_if_due(ts(), force=True)
 
@@ -452,6 +530,142 @@ class Session:
         append_jsonl(LOG_INDEX, {"event": "session_end", **self.stats})
         (self.dir / "stats.json").write_text(json.dumps(self.stats, ensure_ascii=False, indent=2))
 
+# ---------------- TCP proxy (MAVProxy-style) ----------------
+def parse_tcp_port_map() -> dict[int, int]:
+    mapping = {}
+    for item in QGC_TCP_PORT_MAP_RAW.split(','):
+        item = item.strip()
+        if not item:
+            continue
+        if ':' in item:
+            a, b = item.split(':', 1)
+            try:
+                mapping[int(a.strip())] = int(b.strip())
+            except Exception:
+                continue
+        else:
+            try:
+                p = int(item)
+                mapping[p] = p
+            except Exception:
+                continue
+    return mapping
+
+
+def tcp_conn_worker(client_sock: socket.socket, client_addr: tuple[str, int], listen_port: int, sessions: dict, sessions_lock: threading.Lock, tcp_port_map: dict[int, int]):
+    peer_ip, peer_port = client_addr
+    upstream_port = tcp_port_map.get(listen_port, listen_port)
+
+    with sessions_lock:
+        if peer_ip not in sessions:
+            sessions[peer_ip] = Session(peer_ip, peer_port)
+        s = sessions[peer_ip]
+        s.record_peer_port(peer_port)
+        s.stats["tcp_conn_count"] += 1
+
+    append_jsonl(s.events, {
+        "event": "tcp_connection_start",
+        "session_id": s.id,
+        "src": f"{peer_ip}:{peer_port}",
+        "listen_port": listen_port,
+        "upstream": f"{QGC_TCP_HOST}:{upstream_port}",
+    })
+
+    try:
+        upstream = socket.create_connection((QGC_TCP_HOST, upstream_port), timeout=5.0)
+        upstream.setblocking(False)
+        client_sock.setblocking(False)
+    except Exception as e:
+        append_jsonl(s.events, {
+            "event": "tcp_connection_error",
+            "session_id": s.id,
+            "src": f"{peer_ip}:{peer_port}",
+            "listen_port": listen_port,
+            "upstream": f"{QGC_TCP_HOST}:{upstream_port}",
+            "error": repr(e),
+        })
+        try:
+            client_sock.close()
+        except Exception:
+            pass
+        return
+
+    in_buf = b""
+    out_buf = b""
+
+    try:
+        while True:
+            r, _, _ = select.select([client_sock, upstream], [], [], 0.5)
+            if client_sock in r:
+                chunk = client_sock.recv(65535)
+                if not chunk:
+                    break
+                s.log_tcp_chunk("in", chunk, src=f"{peer_ip}:{peer_port}", dst=f"qgc:{upstream_port}", listen_port=listen_port)
+                upstream.sendall(chunk)
+
+                in_buf += chunk
+                frames, in_buf = split_mavlink_frames(in_buf)
+                for fr in frames:
+                    s.update_stats("in", len(fr))
+                    s.log_pkt("in", fr, src=f"{peer_ip}:{peer_port}", dst=f"facade-tcp:{listen_port}", transport="tcp", listen_port=listen_port)
+
+            if upstream in r:
+                chunk = upstream.recv(65535)
+                if not chunk:
+                    break
+                s.log_tcp_chunk("out", chunk, src=f"qgc:{upstream_port}", dst=f"{peer_ip}:{peer_port}", listen_port=listen_port)
+                client_sock.sendall(chunk)
+
+                out_buf += chunk
+                frames, out_buf = split_mavlink_frames(out_buf)
+                for fr in frames:
+                    s.update_stats("out", len(fr))
+                    s.log_pkt("out", fr, src=f"qgc:{upstream_port}", dst=f"{peer_ip}:{peer_port}", transport="tcp", listen_port=listen_port)
+
+    except Exception as e:
+        append_jsonl(s.events, {
+            "event": "tcp_connection_error",
+            "session_id": s.id,
+            "src": f"{peer_ip}:{peer_port}",
+            "listen_port": listen_port,
+            "upstream": f"{QGC_TCP_HOST}:{upstream_port}",
+            "error": repr(e),
+        })
+    finally:
+        append_jsonl(s.events, {
+            "event": "tcp_connection_end",
+            "session_id": s.id,
+            "src": f"{peer_ip}:{peer_port}",
+            "listen_port": listen_port,
+            "upstream": f"{QGC_TCP_HOST}:{upstream_port}",
+        })
+        try:
+            client_sock.close()
+        except Exception:
+            pass
+        try:
+            upstream.close()
+        except Exception:
+            pass
+
+
+def tcp_listener_worker(listen_port: int, sessions: dict, sessions_lock: threading.Lock, tcp_port_map: dict[int, int]):
+    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind((TCP_BIND, listen_port))
+    srv.listen(128)
+    append_jsonl(LOG_INDEX, {"event": "tcp_listener_start", "bind": f"{TCP_BIND}:{listen_port}", "upstream": f"{QGC_TCP_HOST}:{tcp_port_map.get(listen_port, listen_port)}"})
+
+    while True:
+        try:
+            c, addr = srv.accept()
+            t = threading.Thread(target=tcp_conn_worker, args=(c, addr, listen_port, sessions, sessions_lock, tcp_port_map), daemon=True)
+            t.start()
+        except Exception as e:
+            append_jsonl(LOG_INDEX, {"event": "error", "where": "tcp_accept", "listen_port": listen_port, "err": repr(e)})
+            time.sleep(0.2)
+
+
 # ---------------- Main loop ----------------
 def main():
     ensure_dirs()
@@ -467,9 +681,15 @@ def main():
     sock_int.setblocking(False)
     qgc_addr = (QGC_HOST, QGC_PORT)
 
-    sessions = {}  # peer -> Session
-    last_peer: Optional[Tuple[str, int]] = None
-    sysid_to_peer = {}  # sysid -> peer (best-effort)
+    sessions = {}  # session_key -> Session
+    sessions_lock = threading.Lock()
+    last_session_key: Optional[str] = None
+    sysid_to_session = {}  # sysid -> session_key (best-effort)
+
+    tcp_port_map = parse_tcp_port_map()
+    for p in TCP_PORTS:
+        t = threading.Thread(target=tcp_listener_worker, args=(p, sessions, sessions_lock, tcp_port_map), daemon=True)
+        t.start()
 
     append_jsonl(LOG_INDEX, {
         "event": "facade_start",
@@ -479,7 +699,11 @@ def main():
         "heartbeat_agg_sec": HEARTBEAT_AGG_SEC,
         "preview_bytes": PREVIEW_BYTES,
         "upload_root": UPLOAD_ROOT,
-        "mode": "udp_proxy+mavlink_header+sysid_map+mavftp110_dump+ftp_hl_events+hb_agg+idle_in+drop_nopeer_hb",
+        "mode": "udp+tcp_proxy+mavlink_header+sysid_map+mavftp110_dump+ftp_hl_events+hb_agg+idle_in",
+        "tcp_bind": TCP_BIND,
+        "tcp_ports": TCP_PORTS,
+        "qgc_tcp_host": QGC_TCP_HOST,
+        "qgc_tcp_port_map": tcp_port_map,
     })
 
     while True:
@@ -488,17 +712,21 @@ def main():
         # (1) inbound from attacker
         try:
             data, peer = sock_pub.recvfrom(65535)
-            if peer not in sessions:
-                sessions[peer] = Session(peer)
-            s = sessions[peer]
-            last_peer = peer
+            peer_ip, peer_port = peer
+            session_key = peer_ip
+            with sessions_lock:
+                if session_key not in sessions:
+                    sessions[session_key] = Session(peer_ip, peer_port)
+                s = sessions[session_key]
+            s.record_peer_port(peer_port)
+            last_session_key = session_key
 
-            s.log_pkt("in", data, src=f"{peer[0]}:{peer[1]}", dst=f"facade:{PUBLIC_PORT}")
+            s.log_pkt("in", data, src=f"{peer_ip}:{peer_port}", dst=f"facade:{PUBLIC_PORT}")
             s.update_stats("in", len(data))
 
             hdr = parse_mavlink_header(data)
             if hdr and hdr.get("sysid") is not None:
-                sysid_to_peer[int(hdr["sysid"])] = peer
+                sysid_to_session[int(hdr["sysid"])] = session_key
 
             # forward -> QGC
             sock_int.sendto(data, qgc_addr)
@@ -513,14 +741,15 @@ def main():
             data, _src = sock_int.recvfrom(65535)
             hdr = parse_mavlink_header(data)
 
-            target_peer = None
+            target_session_key = None
             if hdr and hdr.get("sysid") is not None:
-                target_peer = sysid_to_peer.get(int(hdr["sysid"]))
-            if target_peer is None:
-                target_peer = last_peer
+                target_session_key = sysid_to_session.get(int(hdr["sysid"]))
+            if target_session_key is None:
+                target_session_key = last_session_key
 
-            if target_peer and target_peer in sessions:
-                s = sessions[target_peer]
+            if target_session_key and target_session_key in sessions:
+                s = sessions[target_session_key]
+                target_peer = (s.peer_ip, s.last_peer_port)
                 s.log_pkt("out", data, src=f"qgc:{QGC_PORT}", dst=f"{target_peer[0]}:{target_peer[1]}")
                 s.update_stats("out", len(data))
                 sock_pub.sendto(data, target_peer)
@@ -540,24 +769,24 @@ def main():
         # (3) cleanup idle sessions + periodic heartbeat flush
         if sessions:
             dead = []
-            for peer, s in sessions.items():
+            for session_key, s in list(sessions.items()):
                 # flush heartbeat aggregates even if still alive
                 s._emit_heartbeat_agg_if_due(now, force=False)
                 if s.should_close(now):
-                    dead.append(peer)
+                    dead.append(session_key)
 
-            for peer in dead:
-                s = sessions.pop(peer, None)
+            for session_key in dead:
+                s = sessions.pop(session_key, None)
                 if s:
                     s.close()
 
                 # remove sysid mappings pointing to this peer
-                for sysid, p in list(sysid_to_peer.items()):
-                    if p == peer:
-                        sysid_to_peer.pop(sysid, None)
+                for sysid, mapped_session in list(sysid_to_session.items()):
+                    if mapped_session == session_key:
+                        sysid_to_session.pop(sysid, None)
 
-                if last_peer == peer:
-                    last_peer = None
+                if last_session_key == session_key:
+                    last_session_key = None
 
         time.sleep(0.002)
 

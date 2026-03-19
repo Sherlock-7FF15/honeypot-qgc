@@ -42,6 +42,10 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 - RTSP (`stream` profile): TCP `554`
 - Stream web gateway (`stream` profile): TCP `80`
 
+### Browser entrypoints
+- noVNC: `http://<host>:6080/vnc_auto.html`
+- Read-only stream web page: `http://<host>/qgc`
+
 ## Sessionized log locations
 - Facade MAVLink sessions (attacker <-> facade <-> mavproxy):
   - `logs/facade/sessions/<session_id>/events.jsonl`

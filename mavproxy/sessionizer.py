@@ -11,9 +11,14 @@ INDEX_FILE = LOG_ROOT / "mavproxy.index.jsonl"
 IDLE_SEC = int(os.getenv("MAVPROXY_SESSION_IDLE_SEC", "300"))
 
 IP_PORT_RE = re.compile(r"(?P<ip>\d+\.\d+\.\d+\.\d+):(?P<port>\d+)")
-
-OPEN_HINTS = ("connect ", "waiting for heartbeat", "link ", "opened", "connected")
-CLOSE_HINTS = ("disconnected", "closed", " down")
+OPEN_HINTS = ("connect ", "opened", "connected")
+CLOSE_HINTS = ("disconnected", "closed")
+NOISE_PATTERNS = [
+    re.compile(r"^no script honeypot/mavinit\.scr$", re.IGNORECASE),
+    re.compile(r"^waiting for heartbeat from 0\.0\.0\.0:\d+$", re.IGNORECASE),
+    re.compile(r"^link \d+ down$", re.IGNORECASE),
+    re.compile(r"^link \d+ no link$", re.IGNORECASE),
+]
 
 
 def now_ts() -> float:
@@ -27,34 +32,42 @@ def append_jsonl(path: Path, obj: dict):
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
 
-def new_session_id(peer_key: str, t: float) -> str:
-    return f"{int(t)}_{peer_key}_mavproxy"
+def new_session_id(peer_ip: str, peer_port: int, t: float) -> str:
+    return f"{int(t)}_{peer_ip}_{peer_port}_mavproxy"
+
+
+def is_noise(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return True
+    return any(pattern.match(stripped) for pattern in NOISE_PATTERNS)
 
 
 class Session:
-    def __init__(self, peer_key: str, peer_ip: str | None, first_line: str):
+    def __init__(self, peer_ip: str, peer_port: int, first_line: str):
         t = now_ts()
-        self.peer_key = peer_key
+        self.peer_key = f"{peer_ip}:{peer_port}"
         self.peer_ip = peer_ip
+        self.peer_port = peer_port
         self.first = t
         self.last = t
-        self.id = new_session_id(peer_key, t)
+        self.id = new_session_id(peer_ip, peer_port, t)
         self.dir = SESS_DIR / self.id
         self.events = self.dir / "events.jsonl"
         self.stats = {
             "session_id": self.id,
-            "peer_key": peer_key,
+            "peer_key": self.peer_key,
             "peer_ip": peer_ip,
+            "peer_port": peer_port,
             "first_seen": t,
             "last_seen": t,
             "lines": 0,
             "open_events": 0,
             "close_events": 0,
-            "ports_seen": [],
         }
         append_jsonl(INDEX_FILE, {"event": "mavproxy_session_start", **self.stats, "line": first_line[:500]})
 
-    def add(self, line: str, port: str | None):
+    def add(self, line: str):
         t = now_ts()
         self.last = t
         self.stats["last_seen"] = t
@@ -65,11 +78,6 @@ class Session:
             self.stats["open_events"] += 1
         if any(h in low for h in CLOSE_HINTS):
             self.stats["close_events"] += 1
-
-        if port:
-            p = int(port)
-            if p not in self.stats["ports_seen"]:
-                self.stats["ports_seen"].append(p)
 
         append_jsonl(self.events, {
             "event": "mavproxy_log",
@@ -87,20 +95,15 @@ class Session:
         append_jsonl(INDEX_FILE, {"event": "mavproxy_session_end", **self.stats})
 
 
-def parse_peer(line: str) -> tuple[str, str | None, str | None]:
+def parse_peer(line: str) -> tuple[str, int] | None:
     m = IP_PORT_RE.search(line)
-    if m:
-        ip = m.group("ip")
-        port = m.group("port")
-        return ip.replace(":", "_"), ip, port
-
-    if "link " in line.lower():
-        lm = re.search(r"link\s+(\d+)", line, flags=re.IGNORECASE)
-        if lm:
-            key = f"link{lm.group(1)}"
-            return key, None, None
-
-    return "unknown", None, None
+    if not m:
+        return None
+    ip = m.group("ip")
+    port = int(m.group("port"))
+    if ip == "0.0.0.0":
+        return None
+    return ip, port
 
 
 def main():
@@ -129,10 +132,18 @@ def main():
                 time.sleep(0.5)
                 continue
 
-            peer_key, peer_ip, port = parse_peer(line)
+            if is_noise(line):
+                continue
+
+            peer = parse_peer(line)
+            if peer is None:
+                continue
+
+            peer_ip, peer_port = peer
+            peer_key = f"{peer_ip}:{peer_port}"
             if peer_key not in sessions:
-                sessions[peer_key] = Session(peer_key, peer_ip, line)
-            sessions[peer_key].add(line, port)
+                sessions[peer_key] = Session(peer_ip, peer_port, line)
+            sessions[peer_key].add(line)
 
 
 if __name__ == "__main__":

@@ -50,7 +50,7 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 - Facade MAVLink sessions (attacker <-> facade <-> mavproxy):
   - `logs/facade/sessions/<session_id>/events.jsonl`
 - MAVProxy backend logs/state:
-  - `logs/mavproxy/mavproxy.stdout.log` (stdout/stderr)
+  - `logs/mavproxy/mavproxy.stdout.log` (filtered stdout/stderr; idle/no-link noise is dropped)
   - `logs/mavproxy/mavproxy.index.jsonl`
   - `logs/mavproxy/sessions/<session_id>/events.jsonl`
   - `logs/mavproxy/sessions/<session_id>/stats.json`

@@ -18,7 +18,7 @@ services:
       - NOVNC_BIND=0.0.0.0
       - ENABLE_NOVNC=true
       - ENABLE_VNC_STACK=${ENABLE_VNC_STACK:-true}
-      - ENABLE_RTSP_STREAM=${ENABLE_RTSP_STREAM:-false}
+      - ENABLE_RTSP_STREAM=${ENABLE_RTSP_STREAM:-auto}
       - RTSP_PUBLISH_URL=${RTSP_PUBLISH_URL:-rtsp://rtsp-server:554/qgc}
       - STREAM_FPS=${STREAM_FPS:-10}
 

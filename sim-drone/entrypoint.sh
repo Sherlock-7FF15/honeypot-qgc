@@ -18,7 +18,7 @@ exec >>"$SIM_LOG" 2>&1
 
 cleanup() {
   set +e
-  [[ -n "${SOCAT_PID:-}" ]] && kill "$SOCAT_PID" 2>/dev/null || true
+  [[ -n "${FORWARDER_PID:-}" ]] && kill "$FORWARDER_PID" 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
@@ -35,8 +35,21 @@ until getent hosts "$SIM_GCS_HOST" >/dev/null 2>&1; do
 done
 
 echo "=== starting UDP forwarder 127.0.0.1:14550 -> ${SIM_GCS_HOST}:${SIM_GCS_PORT} ==="
-socat -u UDP4-RECVFROM:14550,fork,reuseaddr UDP4-SENDTO:${SIM_GCS_HOST}:${SIM_GCS_PORT} &
-SOCAT_PID=$!
+python3 -u - <<'PY' &
+import os
+import socket
+
+target = (os.environ["SIM_GCS_HOST"], int(os.environ["SIM_GCS_PORT"]))
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(("0.0.0.0", 14550))
+
+while True:
+    payload, _ = sock.recvfrom(65535)
+    if payload:
+        sock.sendto(payload, target)
+PY
+FORWARDER_PID=$!
 
 export HEADLESS
 export PX4_HOME_LAT

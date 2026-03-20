@@ -5,8 +5,7 @@ ARG PX4_GIT_REF=v1.16.0
 
 RUN git clone --depth 1 --single-branch --branch "${PX4_GIT_REF}" \
       --recurse-submodules --shallow-submodules \
-      https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}" \
-  && find "${PX4_AUTOPILOT_DIR}" -name .git -type d -prune -exec rm -rf {} +
+      https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}"
 
 WORKDIR ${PX4_AUTOPILOT_DIR}
 COPY entrypoint.sh /opt/sim-drone-entrypoint.sh

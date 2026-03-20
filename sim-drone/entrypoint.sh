@@ -32,7 +32,7 @@ echo "=== preflight ==="
 git rev-parse --is-inside-work-tree
 command -v python3
 command -v gz
-make --version | head -n 1
+make --version
 
 until getent hosts "$SIM_GCS_HOST" >/dev/null 2>&1; do
   echo "waiting for $SIM_GCS_HOST DNS..."

@@ -20,7 +20,10 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyri
   && apt-get install -y --no-install-recommends gz-harmonic \
   && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --recursive --branch "${PX4_GIT_REF}" https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}"
+RUN git clone --depth 1 --single-branch --branch "${PX4_GIT_REF}" \
+      --recurse-submodules --shallow-submodules \
+      https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}" \
+  && find "${PX4_AUTOPILOT_DIR}" -name .git -type d -prune -exec rm -rf {} +
 
 WORKDIR ${PX4_AUTOPILOT_DIR}
 COPY entrypoint.sh /opt/sim-drone-entrypoint.sh

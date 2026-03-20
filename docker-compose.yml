@@ -50,8 +50,34 @@ services:
     restart: always
     environment:
       - MAVPROXY_SIM_UDP_PORT=14570
+      - MAVPROXY_QGC_OUT=udp:qgc:14550
     volumes:
       - ./logs/mavproxy:/logs/mavproxy
+    networks:
+      - internal_net
+
+  sim-drone:
+    profiles: ["sim"]
+    build:
+      context: ./sim-drone
+      args:
+        PX4_GIT_REF: v1.16.0
+    container_name: sim-drone
+    restart: always
+    depends_on:
+      - mavproxy
+      - qgc
+    environment:
+      - PX4_SIM_TARGET=gz_x500
+      - PX4_GIT_REF=v1.16.0
+      - SIM_GCS_HOST=mavproxy
+      - SIM_GCS_PORT=14570
+      - HEADLESS=1
+      - PX4_HOME_LAT=47.397742
+      - PX4_HOME_LON=8.545594
+      - PX4_HOME_ALT=488.0
+    volumes:
+      - ./logs/sim-drone:/logs
     networks:
       - internal_net
 

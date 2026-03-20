@@ -50,6 +50,15 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 - Recommended for PX4/Gazebo SITL: send the simulated drone MAVLink stream directly to `mavproxy:14570/udp`.
 - This path stays on the internal Docker network and is **not** exposed by `facade`, so attacker-facing `facade` / mirrored `mavproxy` sessions do not get polluted by simulator traffic.
 
+### PX4/Gazebo simulated drone
+```bash
+docker compose --profile sim up -d --build sim-drone mavproxy qgc
+```
+
+- `sim-drone` runs `HEADLESS=1 make px4_sitl gz_x500`.
+- PX4's local GCS stream on `127.0.0.1:14550` is forwarded to `mavproxy:14570/udp`.
+- `mavproxy` forwards telemetry onward to `qgc:14550` using `--out=udp:qgc:14550`, so the simulated drone should appear inside QGC.
+
 ## Sessionized log locations
 - Facade MAVLink sessions (attacker <-> facade <-> mavproxy):
   - `logs/facade/sessions/<session_id>/events.jsonl`

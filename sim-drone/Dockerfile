@@ -11,7 +11,9 @@ RUN wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pk
 
 RUN git clone --depth 1 --single-branch --branch "${PX4_GIT_REF}" \
       --recurse-submodules --shallow-submodules \
-      https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}"
+      https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}" \
+  && git -C "${PX4_AUTOPILOT_DIR}/platforms/nuttx/NuttX/nuttx" fetch --tags --depth 1 origin \
+  && git -C "${PX4_AUTOPILOT_DIR}/platforms/nuttx/NuttX/apps" fetch --tags --depth 1 origin
 
 WORKDIR ${PX4_AUTOPILOT_DIR}
 COPY entrypoint.sh /opt/sim-drone-entrypoint.sh

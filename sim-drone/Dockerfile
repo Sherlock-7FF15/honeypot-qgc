@@ -22,7 +22,6 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyri
 RUN git clone --recursive --branch "${PX4_GIT_REF}" https://github.com/PX4/PX4-Autopilot.git "${PX4_AUTOPILOT_DIR}"
 
 WORKDIR ${PX4_AUTOPILOT_DIR}
-RUN DONT_RUN=1 HEADLESS=1 make px4_sitl gz_x500
 COPY entrypoint.sh /opt/sim-drone-entrypoint.sh
 RUN chmod +x /opt/sim-drone-entrypoint.sh
 

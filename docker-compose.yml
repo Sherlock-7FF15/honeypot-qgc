@@ -7,13 +7,24 @@ services:
     container_name: qgc
     restart: always
 
-    # NOTE: 不再对外暴露端口（必须）
-    # ports:
-    #   - "14550:14550/udp"
+    # NOTE: qgc 本身不对外暴露端口（通过 ui-gateway 转发 noVNC）
+
+    environment:
+      - DISPLAY_NUM=:99
+      - SCREEN_GEOM=1280x720x24
+      - VNC_BIND=0.0.0.0
+      - VNC_PORT=5900
+      - NOVNC_PORT=6080
+      - NOVNC_BIND=0.0.0.0
+      - ENABLE_NOVNC=true
+      - ENABLE_VNC_STACK=${ENABLE_VNC_STACK:-true}
+      - ENABLE_RTSP_STREAM=${ENABLE_RTSP_STREAM:-auto}
+      - RTSP_PUBLISH_URL=${RTSP_PUBLISH_URL:-rtsp://rtsp-server:554/qgc}
+      - STREAM_FPS=${STREAM_FPS:-10}
 
     volumes:
       - ./qgc/data:/data
-      - ./qgc/logs:/logs
+      - ./logs/qgc:/logs
 
     mem_limit: 1g
     cpus: 1.0
@@ -32,22 +43,87 @@ services:
     networks:
       - internal_net
 
+
+  mavproxy:
+    build: ./mavproxy
+    container_name: mavproxy
+    restart: always
+    environment:
+      - MAVPROXY_SIM_UDP_PORT=14570
+      - MAVPROXY_QGC_OUT=udp:qgc:14550
+    volumes:
+      - ./logs/mavproxy:/logs/mavproxy
+    networks:
+      - internal_net
+
+  sim-drone:
+    profiles: ["sim"]
+    build:
+      context: ./sim-drone
+      args:
+        PX4_GIT_REF: v1.16.0
+    container_name: sim-drone
+    restart: always
+    depends_on:
+      - mavproxy
+      - qgc
+    environment:
+      - PX4_SIM_TARGET=gz_x500
+      - PX4_GIT_REF=v1.16.0
+      - SIM_GCS_HOST=mavproxy
+      - SIM_GCS_PORT=14570
+      - HEADLESS=1
+      - PX4_HOME_LAT=47.397742
+      - PX4_HOME_LON=8.545594
+      - PX4_HOME_ALT=488.0
+    volumes:
+      - ./logs/sim-drone:/logs
+    networks:
+      - internal_net
+
+
+  mavproxy-sessionizer:
+    build:
+      context: ./mavproxy
+      dockerfile: sessionizer.Dockerfile
+    container_name: mavproxy-sessionizer
+    restart: always
+    depends_on:
+      - mavproxy
+    environment:
+      - FACADE_SESSION_ROOT=/logs/facade/sessions
+      - MAVPROXY_LOG_ROOT=/logs/mavproxy
+      - MAVPROXY_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
   facade:
     build: ./facade
     container_name: facade
     restart: always
     depends_on:
-      - qgc
+      - mavproxy
 
-    # 只有 facade 对外暴露
+    # 对外暴露 MAVLink 入口（facade）
     ports:
+      # add common MAVLink ports and forward all to facade's UDP 14550 listener
+      - "14540:14550/udp"
       - "14550:14550/udp"
+      - "14560:14550/udp"
+      - "14550:14550/tcp"
+      - "5760:5760/tcp"
 
     environment:
       - PUBLIC_BIND=0.0.0.0
       - PUBLIC_PORT=14550
-      - QGC_HOST=qgc
+      - QGC_HOST=mavproxy
       - QGC_PORT=14550
+      - TCP_BIND=0.0.0.0
+      - TCP_PORTS=5760,14550
+      - QGC_TCP_HOST=mavproxy
+      - QGC_TCP_PORT_MAP=5760:5760,14550:14550
 
       # session idle 超时（秒），超时就写 session_end 并清理映射
       - SESSION_IDLE=300
@@ -67,6 +143,108 @@ services:
     networks:
       - internal_net
 
+  ui-gateway:
+    profiles: ["vnc"]
+    image: nginx:1.27-alpine
+    container_name: ui-gateway
+    restart: always
+    command: ["/bin/sh", "-c", "mkdir -p /logs/ui-gateway/sessions && exec nginx -g 'daemon off;'"]
+    depends_on:
+      - qgc
+    ports:
+      - "6080:6080/tcp"
+    volumes:
+      - ./ui-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  ui-sessionizer:
+    profiles: ["vnc"]
+    build:
+      context: ./ui-gateway
+      dockerfile: sessionizer.Dockerfile
+    container_name: ui-sessionizer
+    restart: always
+    depends_on:
+      - ui-gateway
+    environment:
+      - UI_ACCESS_LOG=/logs/ui-gateway/access.log
+      - UI_LOG_ROOT=/logs/ui-gateway
+      - UI_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  rtsp-server:
+    profiles: ["stream"]
+    image: bluenviron/mediamtx:latest
+    container_name: rtsp-server
+    restart: always
+    command: ["/mediamtx.yml"]
+    ports:
+      - "554:554/tcp"
+    volumes:
+      - ./stream/mediamtx.yml:/mediamtx.yml:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  stream-web-gateway:
+    profiles: ["stream"]
+    image: nginx:1.27-alpine
+    container_name: stream-web-gateway
+    restart: always
+    depends_on:
+      - rtsp-server
+    command: ["/bin/sh", "-c", "mkdir -p /logs/stream-web/sessions && exec nginx -g 'daemon off;'"]
+    ports:
+      - "80:80/tcp"
+    volumes:
+      - ./stream/web-gateway.nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  stream-web-sessionizer:
+    profiles: ["stream"]
+    build:
+      context: ./stream
+      dockerfile: sessionizer.Dockerfile
+    container_name: stream-web-sessionizer
+    restart: always
+    depends_on:
+      - stream-web-gateway
+    command: ["python", "/app/web_sessionizer.py"]
+    environment:
+      - STREAM_WEB_ACCESS_LOG=/logs/stream-web/access.log
+      - STREAM_WEB_LOG_ROOT=/logs/stream-web
+      - STREAM_WEB_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
+  rtsp-sessionizer:
+    profiles: ["stream"]
+    build:
+      context: ./stream
+      dockerfile: sessionizer.Dockerfile
+    container_name: rtsp-sessionizer
+    restart: always
+    depends_on:
+      - rtsp-server
+    command: ["python", "/app/rtsp_sessionizer.py"]
+    environment:
+      - RTSP_SERVER_LOG=/logs/mediamtx.log
+      - RTSP_LOG_ROOT=/logs/rtsp
+      - RTSP_SESSION_IDLE_SEC=300
+    volumes:
+      - ./logs:/logs:rw
+    networks:
+      - internal_net
+
   watcher:
     build: ./watcher
     container_name: watcher
@@ -82,7 +260,7 @@ services:
       - HASH_ON_MODIFY=true
     volumes:
       - ./qgc/data:/qgc-data:ro
-      - ./qgc/logs:/qgc-logs:ro
+      - ./logs/qgc:/qgc-logs:ro
       - ./logs:/logs:rw
       - ./uploads:/uploads:rw
 
@@ -90,4 +268,3 @@ services:
 networks:
   internal_net:
     driver: bridge
-

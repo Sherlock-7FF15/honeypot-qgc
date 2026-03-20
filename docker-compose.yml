@@ -48,6 +48,8 @@ services:
     build: ./mavproxy
     container_name: mavproxy
     restart: always
+    environment:
+      - MAVPROXY_SIM_UDP_PORT=14570
     volumes:
       - ./logs/mavproxy:/logs/mavproxy
     networks:

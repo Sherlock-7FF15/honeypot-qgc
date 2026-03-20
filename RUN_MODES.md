@@ -46,6 +46,10 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 - noVNC: `http://<host>:6080/vnc_auto.html`
 - Read-only stream web page: `http://<host>/qgc`
 
+### Internal-only simulated drone path
+- Recommended for PX4/Gazebo SITL: send the simulated drone MAVLink stream directly to `mavproxy:14570/udp`.
+- This path stays on the internal Docker network and is **not** exposed by `facade`, so attacker-facing `facade` / mirrored `mavproxy` sessions do not get polluted by simulator traffic.
+
 ## Sessionized log locations
 - Facade MAVLink sessions (attacker <-> facade <-> mavproxy):
   - `logs/facade/sessions/<session_id>/events.jsonl`

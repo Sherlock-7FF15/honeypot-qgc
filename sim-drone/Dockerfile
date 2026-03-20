@@ -7,7 +7,12 @@ ARG PX4_GIT_REF=v1.16.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
+    gnupg \
+    lsb-release \
     socat \
+    software-properties-common \
+    sudo \
+    wget \
   && rm -rf /var/lib/apt/lists/*
 
 RUN git clone --depth 1 --single-branch --branch "${PX4_GIT_REF}" \

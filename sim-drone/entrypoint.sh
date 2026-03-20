@@ -14,7 +14,7 @@ PX4_HOME_LON="${PX4_HOME_LON:-8.545594}"
 PX4_HOME_ALT="${PX4_HOME_ALT:-488.0}"
 
 mkdir -p "$LOG_DIR"
-exec >>"$SIM_LOG" 2>&1
+exec > >(tee -a "$SIM_LOG") 2>&1
 
 cleanup() {
   set +e
@@ -28,6 +28,11 @@ echo "=== sim-drone entrypoint start ==="
 date
 echo "PX4_SIM_TARGET=$PX4_SIM_TARGET PX4_GIT_REF=$PX4_GIT_REF"
 echo "SIM_GCS_HOST=$SIM_GCS_HOST SIM_GCS_PORT=$SIM_GCS_PORT HEADLESS=$HEADLESS"
+echo "=== preflight ==="
+git rev-parse --is-inside-work-tree
+command -v python3
+command -v gz
+make --version | head -n 1
 
 until getent hosts "$SIM_GCS_HOST" >/dev/null 2>&1; do
   echo "waiting for $SIM_GCS_HOST DNS..."

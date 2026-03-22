@@ -63,13 +63,15 @@ services:
       args:
         PX4_GIT_REF: v1.16.0
     container_name: sim-drone
-    restart: always
+    restart: "no"
     depends_on:
       - mavproxy
       - qgc
     environment:
       - PX4_SIM_TARGET=gz_x500
       - PX4_GIT_REF=v1.16.0
+      - PX4_MAKE_JOBS=2
+      - SIM_LOG_TO_FILE=0
       - SIM_GCS_HOST=mavproxy
       - SIM_GCS_PORT=14570
       - HEADLESS=1
@@ -78,6 +80,11 @@ services:
       - PX4_HOME_ALT=488.0
     volumes:
       - ./logs/sim-drone:/logs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - internal_net
 

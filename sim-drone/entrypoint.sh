@@ -3,9 +3,11 @@ set -euo pipefail
 
 LOG_DIR=/logs
 SIM_LOG="$LOG_DIR/sim-drone.log"
+SIM_LOG_TO_FILE="${SIM_LOG_TO_FILE:-0}"
 PX4_AUTOPILOT_DIR="${PX4_AUTOPILOT_DIR:-/opt/PX4-Autopilot}"
 PX4_SIM_TARGET="${PX4_SIM_TARGET:-gz_x500}"
 PX4_GIT_REF="${PX4_GIT_REF:-v1.16.0}"
+PX4_MAKE_JOBS="${PX4_MAKE_JOBS:-2}"
 SIM_GCS_HOST="${SIM_GCS_HOST:-mavproxy}"
 SIM_GCS_PORT="${SIM_GCS_PORT:-14570}"
 HEADLESS="${HEADLESS:-1}"
@@ -14,7 +16,10 @@ PX4_HOME_LON="${PX4_HOME_LON:-8.545594}"
 PX4_HOME_ALT="${PX4_HOME_ALT:-488.0}"
 
 mkdir -p "$LOG_DIR"
-exec > >(tee -a "$SIM_LOG") 2>&1
+if [[ "$SIM_LOG_TO_FILE" == "1" ]]; then
+  : >"$SIM_LOG"
+  exec > >(tee -a "$SIM_LOG") 2>&1
+fi
 
 cleanup() {
   set +e
@@ -26,7 +31,7 @@ cd "$PX4_AUTOPILOT_DIR"
 
 echo "=== sim-drone entrypoint start ==="
 date
-echo "PX4_SIM_TARGET=$PX4_SIM_TARGET PX4_GIT_REF=$PX4_GIT_REF"
+echo "PX4_SIM_TARGET=$PX4_SIM_TARGET PX4_GIT_REF=$PX4_GIT_REF PX4_MAKE_JOBS=$PX4_MAKE_JOBS SIM_LOG_TO_FILE=$SIM_LOG_TO_FILE"
 echo "SIM_GCS_HOST=$SIM_GCS_HOST SIM_GCS_PORT=$SIM_GCS_PORT HEADLESS=$HEADLESS"
 echo "=== preflight ==="
 git rev-parse --is-inside-work-tree
@@ -62,4 +67,4 @@ export PX4_HOME_LON
 export PX4_HOME_ALT
 
 echo "=== launching PX4 SITL + Gazebo ==="
-exec make px4_sitl "${PX4_SIM_TARGET}"
+exec make -j "${PX4_MAKE_JOBS}" px4_sitl "${PX4_SIM_TARGET}"

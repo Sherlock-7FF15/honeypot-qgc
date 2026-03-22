@@ -58,6 +58,7 @@ docker compose --profile sim up -d --build sim-drone mavproxy qgc
 - `sim-drone` runs `HEADLESS=1 make px4_sitl gz_x500`.
 - PX4's local GCS stream on `127.0.0.1:14550` is forwarded to `mavproxy:14570/udp`.
 - `mavproxy` forwards telemetry onward to `qgc:14550` using `--out=udp:qgc:14550`, so the simulated drone should appear inside QGC.
+- By default `sim-drone` logs go to `docker compose logs sim-drone` only; set `SIM_LOG_TO_FILE=1` if you explicitly want a mirrored `logs/sim-drone/sim-drone.log` file on disk.
 
 ## Sessionized log locations
 - Facade MAVLink sessions (attacker <-> facade <-> mavproxy):

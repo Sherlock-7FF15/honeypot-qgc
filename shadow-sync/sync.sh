@@ -16,36 +16,46 @@ mkdir -p \
   "$DST_BASE/var/log/qgc" \
   "$DST_BASE/var/log/mavproxy"
 
+sync_tree() {
+  local src="$1"
+  local dst="$2"
+  shift 2
+
+  if [[ -d "$src" ]]; then
+    rsync -a --delete \
+      --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+      "$@" \
+      "$src/" "$dst/"
+  else
+    mkdir -p "$dst"
+  fi
+}
+
 while true; do
-  if [[ -d "$SRC_QGC_DATA/Documents/QGroundControl" ]]; then
-    rsync -a --delete "$SRC_QGC_DATA/Documents/QGroundControl/" "$DST_BASE/home/gcs/Documents/QGroundControl/"
-  else
-    mkdir -p "$DST_BASE/home/gcs/Documents/QGroundControl"
-  fi
+  sync_tree \
+    "$SRC_QGC_DATA/Documents/QGroundControl" \
+    "$DST_BASE/home/gcs/Documents/QGroundControl"
 
-  if [[ -d "$SRC_QGC_DATA/.config" ]]; then
-    rsync -a --delete "$SRC_QGC_DATA/.config/" "$DST_BASE/home/gcs/.config/"
-  else
-    mkdir -p "$DST_BASE/home/gcs/.config"
-  fi
+  sync_tree \
+    "$SRC_QGC_DATA/.config" \
+    "$DST_BASE/home/gcs/.config"
 
-  if [[ -d "$SRC_QGC_DATA/.cache" ]]; then
-    rsync -a --delete "$SRC_QGC_DATA/.cache/" "$DST_BASE/home/gcs/.cache/"
-  else
-    mkdir -p "$DST_BASE/home/gcs/.cache"
-  fi
+  sync_tree \
+    "$SRC_QGC_DATA/.cache" \
+    "$DST_BASE/home/gcs/.cache" \
+    --exclude 'mesa_shader_cache/' \
+    --exclude 'gstreamer-1.0/' \
+    --exclude '*.lock' \
+    --exclude '*.tmp'
 
-  if [[ -d "$SRC_QGC_LOGS" ]]; then
-    rsync -a --delete "$SRC_QGC_LOGS/" "$DST_BASE/var/log/qgc/"
-  else
-    mkdir -p "$DST_BASE/var/log/qgc"
-  fi
+  sync_tree \
+    "$SRC_QGC_LOGS" \
+    "$DST_BASE/var/log/qgc"
 
-  if [[ -d "$SRC_MAVPROXY_LOGS" ]]; then
-    rsync -a --delete "$SRC_MAVPROXY_LOGS/" "$DST_BASE/var/log/mavproxy/"
-  else
-    mkdir -p "$DST_BASE/var/log/mavproxy"
-  fi
+  sync_tree \
+    "$SRC_MAVPROXY_LOGS" \
+    "$DST_BASE/var/log/mavproxy"
 
+  chmod -R a+rX "$DST_BASE" || true
   sleep "$SYNC_INTERVAL_SEC"
 done

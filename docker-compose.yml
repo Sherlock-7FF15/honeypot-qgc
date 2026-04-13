@@ -88,6 +88,43 @@ services:
     networks:
       - internal_net
 
+  shadow-sync:
+    profiles: ["ssh-shadow"]
+    build:
+      context: ./shadow-sync
+    container_name: shadow-sync
+    restart: always
+    environment:
+      - SYNC_INTERVAL_SEC=3
+    volumes:
+      - ./qgc/data:/src/qgc-data:ro
+      - ./logs/qgc:/src/logs-qgc:ro
+      - ./logs/mavproxy:/src/logs-mavproxy:ro
+      - ./shadow/base:/shadow/base:rw
+      - ./shadow/state:/shadow/state:rw
+    networks:
+      - internal_net
+
+  ssh-shadow:
+    profiles: ["ssh-shadow"]
+    build:
+      context: ./ssh-shadow
+    container_name: ssh-shadow
+    restart: always
+    depends_on:
+      - shadow-sync
+    environment:
+      - SSH_SHADOW_PASSWORD=${SSH_SHADOW_PASSWORD:-gcs123!}
+    ports:
+      - "22:2222/tcp"
+    volumes:
+      - ./shadow/base:/shadow/base:ro
+      - ./shadow/sessions:/shadow/sessions:rw
+      - ./shadow/state:/shadow/state:rw
+      - ./logs/ssh-shadow:/logs/ssh-shadow:rw
+    networks:
+      - internal_net
+
 
   mavproxy-sessionizer:
     build:

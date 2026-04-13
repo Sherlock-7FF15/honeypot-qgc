@@ -115,8 +115,9 @@ services:
       - shadow-sync
     environment:
       - SSH_SHADOW_PASSWORD=${SSH_SHADOW_PASSWORD:-gcs123!}
+      - SSH_SHADOW_HOST_PORT=${SSH_SHADOW_HOST_PORT:-22}
     ports:
-      - "22:2222/tcp"
+      - "${SSH_SHADOW_HOST_PORT:-22}:2222/tcp"
     volumes:
       - ./shadow/base:/shadow/base:ro
       - ./shadow/sessions:/shadow/sessions:rw

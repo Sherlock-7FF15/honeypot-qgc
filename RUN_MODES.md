@@ -38,10 +38,10 @@ ENABLE_RTSP_STREAM=true docker compose --profile vnc --profile stream up -d --bu
 
 ### 5) SSH shadow workstation mode
 ```bash
-docker compose --profile ssh-shadow up -d --build shadow-sync ssh-shadow
+SSH_SHADOW_HOST_PORT=2222 docker compose --profile ssh-shadow up -d --build shadow-sync ssh-shadow
 ```
 
-- Exposes host TCP `22` backed by `ssh-shadow` (OpenSSH on internal `2222`).
+- Exposes host TCP `${SSH_SHADOW_HOST_PORT:-22}` backed by `ssh-shadow` (OpenSSH on internal `2222`).
 - Login is `gcs` with password `${SSH_SHADOW_PASSWORD:-gcs123!}`.
 - The attacker is dropped into a controlled per-session shadow workspace (not the live `qgc` filesystem).
 - See `docs/ssh-shadow.md` for architecture, logging, and evidence details.

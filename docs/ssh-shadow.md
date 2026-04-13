@@ -12,7 +12,7 @@ Components:
 ## Start / stop
 
 ```bash
-docker compose --profile ssh-shadow up -d --build shadow-sync ssh-shadow
+SSH_SHADOW_HOST_PORT=2222 docker compose --profile ssh-shadow up -d --build shadow-sync ssh-shadow
 ```
 
 Stop:
@@ -27,11 +27,12 @@ Single account:
 
 - username: `gcs`
 - password: `${SSH_SHADOW_PASSWORD:-gcs123!}`
+- host port: `${SSH_SHADOW_HOST_PORT:-22}` (container always listens on `2222`)
 
 Example:
 
 ```bash
-ssh gcs@<host-ip>
+ssh -p ${SSH_SHADOW_HOST_PORT:-22} gcs@<host-ip>
 ```
 
 > Only one active interactive session is allowed. Additional connections receive a short "console busy" message and disconnect.
@@ -40,7 +41,9 @@ ssh gcs@<host-ip>
 
 `shadow-sync` mirrors into `./shadow/base`:
 
-- `./qgc/data` -> `./shadow/base/home/gcs/Documents/QGroundControl`
+- `./qgc/data/Documents/QGroundControl` -> `./shadow/base/home/gcs/Documents/QGroundControl`
+- `./qgc/data/.config` -> `./shadow/base/home/gcs/.config`
+- `./qgc/data/.cache` -> `./shadow/base/home/gcs/.cache`
 - `./logs/qgc` -> `./shadow/base/var/log/qgc`
 - `./logs/mavproxy` -> `./shadow/base/var/log/mavproxy`
 
@@ -83,6 +86,23 @@ The trace agent detects and terminates session on sensitive behavior, including:
 - newly created executable/suspicious script/binary files in workspace
 
 On detection it records a structured event, captures file hashes and copies evidence, writes termination reason, and disconnects.
+
+## Automated verifier
+
+Run:
+
+```bash
+SSH_SHADOW_HOST_PORT=2222 ./scripts/verify_ssh_shadow.sh
+```
+
+The verifier checks:
+
+1. compose config/build/up
+2. mirror propagation into `./shadow/base`
+3. single-session lock behavior
+4. command/tty/trace logs
+5. sensitive-command disconnect (`wget`)
+6. workspace isolation from live `./qgc/data`
 
 ## Limitations / non-goals
 

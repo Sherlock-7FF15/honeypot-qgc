@@ -61,6 +61,8 @@ cleanup() {
   fi
 
   /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
+  rm -rf "${STATE_ROOT}/active-workspace"
+  mkdir -p "${STATE_ROOT}/active-workspace/var/log/qgc" "${STATE_ROOT}/active-workspace/var/log/mavproxy"
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time
@@ -86,14 +88,11 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
 fi
 
 rsync -a --delete "${BASE_ROOT}/" "${WORKSPACE}/"
-
-mkdir -p /home/gcs
-mkdir -p "${WORKSPACE}/home/gcs/Documents" "${WORKSPACE}/home/gcs/.config" "${WORKSPACE}/home/gcs/.cache" "${WORKSPACE}/var/log"
-ln -sfn "${WORKSPACE}/home/gcs/Documents/QGroundControl" /home/gcs/Documents
-ln -sfn "${WORKSPACE}/home/gcs/.config/QGroundControl" /home/gcs/.config
-ln -sfn "${WORKSPACE}/home/gcs/.cache/QGroundControl" /home/gcs/.cache
+mkdir -p "${WORKSPACE}/home/gcs/Documents/QGroundControl" "${WORKSPACE}/home/gcs/.config" "${WORKSPACE}/home/gcs/.cache" "${WORKSPACE}/var/log/qgc" "${WORKSPACE}/var/log/mavproxy"
+rm -rf "${STATE_ROOT}/active-workspace"
+ln -s "${WORKSPACE}" "${STATE_ROOT}/active-workspace"
 
 export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 
 echo "[ssh-shadow] connected to shadow GCS workstation"
-exec /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE"
+/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE"

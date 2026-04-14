@@ -2,12 +2,12 @@
 
 ## Overview
 
-The `ssh-shadow` profile adds a real OpenSSH endpoint that presents a shadow GCS workstation to attackers while isolating the live `qgc` runtime.
+The `ssh-shadow` profile exposes a real OpenSSH endpoint that presents a shadow GCS workstation to attackers while isolating live runtime state.
 
 Components:
 
 - `shadow-sync`: continuously mirrors selected live artifacts into `./shadow/base`.
-- `ssh-shadow`: OpenSSH service (host `22` -> container `2222`) with a forced command wrapper that creates a per-session jail and runs trace/detection logic.
+- `ssh-shadow`: OpenSSH service (host `22` -> container `2222`) with a forced-command wrapper that creates a **per-session jail root** and runs trace/detection logic.
 
 ## Start / stop
 
@@ -23,19 +23,25 @@ docker compose --profile ssh-shadow down
 
 ## Login
 
-Single account:
+Weak-credential usernames (all mapped to the same shadow workflow):
 
-- username: `gcs`
-- password: `${SSH_SHADOW_PASSWORD:-gcs123!}`
-- host port: `${SSH_SHADOW_HOST_PORT:-22}` (container always listens on `2222`)
+- `gcs`, `admin`, `ubuntu`, `pi`, `support`, `operator`, `guest`, `test`
+
+Password for all listed users:
+
+- `${SSH_SHADOW_PASSWORD:-gcs123!}`
+
+Optional user override (space-separated list):
+
+- `SSH_SHADOW_USERS="gcs admin ubuntu ..."`
 
 Example:
 
 ```bash
-ssh -p ${SSH_SHADOW_HOST_PORT:-22} gcs@<host-ip>
+ssh -p ${SSH_SHADOW_HOST_PORT:-22} admin@<host-ip>
 ```
 
-> Only one active interactive session is allowed. Additional connections receive a short "console busy" message and disconnect.
+> Only one active interactive session is allowed. Additional connections receive a short `console busy` message and disconnect.
 
 ## Mirrored sources
 
@@ -47,38 +53,34 @@ ssh -p ${SSH_SHADOW_HOST_PORT:-22} gcs@<host-ip>
 - `./logs/qgc` -> `./shadow/base/var/log/qgc`
 - `./logs/mavproxy` -> `./shadow/base/var/log/mavproxy`
 
-Timestamps are preserved using `rsync -a`.
+Timestamps are preserved with `rsync -a`.
 
-## Session isolation model
+## Session model (current proot jail)
 
 For each accepted SSH session:
 
-1. create `./shadow/sessions/<session_id>/workspace` from `./shadow/base`
-2. build per-session jail root at `./shadow/jails/<session_id>/rootfs`
-3. launch attacker shell via `proot -R <jail_root>` so `/` is jailed and `/shadow` is not visible
+1. create `./shadow/jails/<session_id>/rootfs`
+2. copy mirrored base data into that jail root
+3. launch attacker shell through `proot -R <jail_root>`
 
-Attacker writes stay in the session workspace and do not modify `./qgc/data`.
+This is the single session filesystem source of truth (legacy `active-workspace` logic removed). Attacker writes remain inside the session jail and do not modify `./qgc/data`.
 
 ## Logs and evidence
 
-Per-session logs are stored under:
+Successful sessions:
 
-- `./logs/ssh-shadow/sessions/<session_id>/`
+- `./logs/ssh-shadow/sessions/<session_id>/session.json`
+- `./logs/ssh-shadow/sessions/<session_id>/tty.transcript`
+- `./logs/ssh-shadow/sessions/<session_id>/commands.jsonl`
+- `./logs/ssh-shadow/sessions/<session_id>/events.jsonl`
+- `./logs/ssh-shadow/sessions/<session_id>/strace*`
+- `./logs/ssh-shadow/sessions/<session_id>/evidence/*`
 
-Pre-auth / failed-auth / scanning activity is stored separately in:
+Pre-auth / scan / failed-auth activity:
 
 - `./logs/ssh-shadow/preauth.jsonl`
 
-Artifacts include:
-
-- `session.json` (metadata + termination reason)
-- `tty.transcript` (TTY transcript)
-- `commands.jsonl` (timestamped command + cwd)
-- `events.jsonl` (structured security/session events)
-- `strace*` (file/exec trace output)
-- `evidence/file_hashes.json` and copied suspicious files
-
-Pre-auth event types include:
+Observed preauth event types:
 
 - `connect`
 - `banner_or_probe`
@@ -89,16 +91,16 @@ Pre-auth event types include:
 
 ## Sensitive behavior policy
 
-The trace agent detects and terminates session on sensitive behavior, including:
+The trace agent terminates sessions on sensitive behavior, including:
 
 - `scp` / `sftp`
 - downloaders: `wget`, `curl`, `tftp`
 - `chmod +x`
-- `python -c`, `bash -c`, `sh -c`
-- `nc`/reverse-shell-like patterns
-- newly created executable/suspicious script/binary files in workspace
+- inline execution: `python -c`, `bash -c`, `sh -c`
+- reverse-shell-like patterns
+- newly created executable/script/binary artifacts in the jailed workspace
 
-On detection it records a structured event, captures file hashes and copies evidence, writes termination reason, and disconnects.
+On detection it records events, captures hashes/files to evidence, writes termination reason, and disconnects.
 
 ## Automated verifier
 
@@ -108,20 +110,21 @@ Run:
 SSH_SHADOW_HOST_PORT=2222 ./scripts/verify_ssh_shadow.sh
 ```
 
-The verifier checks:
+Verifier coverage:
 
 1. compose config/build/up
 2. mirror propagation into `./shadow/base`
-3. qgc + ssh-shadow are up
+3. `qgc` + `ssh-shadow` availability
 4. single-session lock behavior
-5. successful login in jailed root + expected paths
+5. successful jail login for multiple weak usernames
 6. command/tty/trace logs
-7. failed-auth and success events in `preauth.jsonl`
+7. preauth auth-failure + auth-success logging
 8. sensitive-command disconnect (`wget`)
-9. workspace isolation from live `./qgc/data`
-10. watcher still running
+9. session write isolation from live `./qgc/data`
+10. watcher health check
 
 ## Limitations / non-goals
 
-- Process/service/network realism is lightweight (PATH wrappers for `ps`, `systemctl`, `ss`), not a full init-system emulation.
-- This profile is designed for interaction capture and containment, not high-fidelity host emulation.
+- Jailing currently uses `proot` for portability; this is not kernel `chroot` isolation.
+- Process/service realism is lightweight (`fakebin` wrappers for `ps`, `systemctl`, `ss`).
+- Designed for interaction capture and containment, not full host emulation.

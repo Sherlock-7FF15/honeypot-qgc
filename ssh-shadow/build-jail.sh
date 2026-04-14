@@ -34,3 +34,11 @@ for f in /etc/hosts /etc/resolv.conf /etc/nsswitch.conf /etc/passwd /etc/group; 
 done
 
 cp -a /opt/ssh-shadow/fakebin/. "$JAIL_ROOT/opt/ssh-shadow/fakebin/"
+
+# Provide equivalent homes for all weak-credential users by cloning gcs seed data.
+for u in gcs admin ubuntu pi support operator guest test; do
+  mkdir -p "$JAIL_ROOT/home/$u"
+  if [[ "$u" != "gcs" ]]; then
+    rsync -a --delete "$JAIL_ROOT/home/gcs/" "$JAIL_ROOT/home/$u/" || true
+  fi
+done

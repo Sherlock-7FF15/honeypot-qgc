@@ -5,10 +5,9 @@ LOG_ROOT="/logs/ssh-shadow"
 SESS_ROOT="${LOG_ROOT}/sessions"
 STATE_ROOT="/shadow/state"
 BASE_ROOT="/shadow/base"
-SESS_WORK_ROOT="/shadow/sessions"
 JAILS_ROOT="/shadow/jails"
 
-mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$SESS_WORK_ROOT"
+mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$JAILS_ROOT"
 
 REMOTE_IP="unknown"
 REMOTE_PORT="0"
@@ -17,20 +16,23 @@ if [[ -n "${SSH_CONNECTION:-}" ]]; then
   REMOTE_PORT="$(awk '{print $2}' <<<"$SSH_CONNECTION")"
 fi
 
+LOGIN_USER="${USER:-gcs}"
+[[ -z "$LOGIN_USER" ]] && LOGIN_USER="gcs"
+
 NOW_TS="$(date -u +%s)"
 SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
-WORKSPACE="${SESS_WORK_ROOT}/${SESSION_ID}/workspace"
 JAIL_ROOT="${JAILS_ROOT}/${SESSION_ID}/rootfs"
-mkdir -p "$SESSION_DIR" "$WORKSPACE" "$JAIL_ROOT"
+mkdir -p "$SESSION_DIR" "$JAIL_ROOT"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
 {
   "session_id": "${SESSION_ID}",
-  "username": "${USER:-gcs}",
+  "username": "${LOGIN_USER}",
   "remote_ip": "${REMOTE_IP}",
   "remote_port": ${REMOTE_PORT},
+  "jail_root": "${JAIL_ROOT}",
   "login_time_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "ssh_original_command": $(python3 - <<'PY' "${SSH_ORIGINAL_COMMAND:-}"
 import json,sys
@@ -44,11 +46,11 @@ LOCK_FILE="${STATE_ROOT}/active_session.lock"
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
   echo "[ssh-shadow] console busy, try again later."
-  python3 - <<'PY' "$LOG_ROOT" "$REMOTE_IP" "$REMOTE_PORT"
+  python3 - <<'PY' "$LOG_ROOT" "$REMOTE_IP" "$REMOTE_PORT" "$LOGIN_USER"
 import json,sys,time
-root,ip,port=sys.argv[1:]
+root,ip,port,username=sys.argv[1:]
 with open(f"{root}/busy.jsonl","a",encoding="utf-8") as f:
-    f.write(json.dumps({"ts":time.time(),"event":"busy_reject","remote_ip":ip,"remote_port":int(port)})+"\n")
+    f.write(json.dumps({"ts":time.time(),"event":"busy_reject","remote_ip":ip,"remote_port":int(port),"username":username})+"\n")
 PY
   exit 1
 fi
@@ -63,8 +65,6 @@ cleanup() {
   fi
 
   /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
-  rm -rf "${STATE_ROOT}/active-workspace"
-  mkdir -p "${STATE_ROOT}/active-workspace/var/log/qgc" "${STATE_ROOT}/active-workspace/var/log/mavproxy"
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time
@@ -81,7 +81,7 @@ trap cleanup EXIT
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   if [[ "${SSH_ORIGINAL_COMMAND}" =~ (^|[[:space:]])(scp|sftp)([[:space:]]|$) ]]; then
-    export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
+    export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
     echo "blocked_ssh_original_command:${SSH_ORIGINAL_COMMAND}" > "${SESSION_DIR}/termination_reason.txt"
     /opt/ssh-shadow/trace-agent.sh check-command "${SSH_ORIGINAL_COMMAND}" >/dev/null 2>&1 || true
     echo "[ssh-shadow] file transfer channels are disabled."
@@ -89,13 +89,9 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   fi
 fi
 
-rsync -a --delete "${BASE_ROOT}/" "${WORKSPACE}/"
-mkdir -p "${WORKSPACE}/home/gcs/Documents/QGroundControl" "${WORKSPACE}/home/gcs/.config" "${WORKSPACE}/home/gcs/.cache" "${WORKSPACE}/var/log/qgc" "${WORKSPACE}/var/log/mavproxy"
-/opt/ssh-shadow/build-jail.sh "${WORKSPACE}" "${JAIL_ROOT}"
-rm -rf "${STATE_ROOT}/active-workspace"
-ln -s "${WORKSPACE}" "${STATE_ROOT}/active-workspace"
+/opt/ssh-shadow/build-jail.sh "${BASE_ROOT}" "${JAIL_ROOT}"
 
-export SESSION_DIR WORKSPACE JAIL_ROOT BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
+export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
 
 echo "[ssh-shadow] connected to shadow GCS workstation"
-/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$JAIL_ROOT"
+/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$JAIL_ROOT" "$LOGIN_USER"

@@ -42,10 +42,7 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 
-if ! grep -q 'ready' /tmp/ssh-shadow.ready; then
-  echo "ssh-shadow did not become ready" >&2
-  exit 1
-fi
+grep -q 'ready' /tmp/ssh-shadow.ready
 
 echo "[5/12] verify sync from live source to shadow/base"
 mkdir -p qgc/data/Documents/QGroundControl logs/qgc logs/mavproxy
@@ -63,15 +60,17 @@ sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHo
 FIRST_PID=$!
 sleep 2
 set +e
-sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 gcs@127.0.0.1 'echo second' > /tmp/ssh-shadow.second.log 2>&1
+sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 admin@127.0.0.1 'echo second' > /tmp/ssh-shadow.second.log 2>&1
 SECOND_RC=$?
 set -e
 wait "$FIRST_PID" || true
 [[ "$SECOND_RC" -ne 0 ]]
 grep -qi 'console busy' /tmp/ssh-shadow.second.log
 
-echo "[7/12] successful login lands in jail + normal paths work"
-sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gcs@127.0.0.1 'pwd; ls /; ls /home/gcs/Documents/QGroundControl; ls /var/log/qgc; test ! -e /shadow; test ! -e /shadow/sessions; cat /var/log/qgc/verify_qgc.log >/dev/null; exit'
+echo "[7/12] multi-user login lands in jail + expected paths"
+for u in gcs admin ubuntu; do
+  sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$u"@127.0.0.1 "pwd; test -d /home/$u; ls /home/$u/Documents/QGroundControl; ls /var/log/qgc; test ! -e /shadow; cat /var/log/qgc/verify_qgc.log >/dev/null; exit"
+done
 
 LATEST_SESSION_DIR="$(ls -1dt logs/ssh-shadow/sessions/* | head -n1)"
 [[ -f "$LATEST_SESSION_DIR/session.json" ]]
@@ -82,18 +81,21 @@ grep -q '"cmd": "pwd"' "$LATEST_SESSION_DIR/commands.jsonl"
 
 echo "[8/12] failed login attempt appears in preauth log"
 set +e
-sshpass -p 'wrong-pass' ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 gcs@127.0.0.1 'echo should_fail' >/tmp/ssh-shadow.failed-auth.log 2>&1
+sshpass -p 'wrong-pass' ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5 support@127.0.0.1 'echo should_fail' >/tmp/ssh-shadow.failed-auth.log 2>&1
 FAIL_RC=$?
 set -e
 [[ "$FAIL_RC" -ne 0 ]]
 grep -q '"event_type": "auth_failed"' logs/ssh-shadow/preauth.jsonl
+grep -q '"username": "support"' logs/ssh-shadow/preauth.jsonl
 
-echo "[9/12] successful login appears in preauth log"
+echo "[9/12] successful login appears in preauth + session metadata"
 grep -q '"event_type": "auth_success"' logs/ssh-shadow/preauth.jsonl
+grep -q '"username": "admin"' logs/ssh-shadow/preauth.jsonl
+grep -q '"username": "admin"' logs/ssh-shadow/sessions/*/session.json
 
 echo "[10/12] sensitive behavior disconnect (wget)"
 set +e
-sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gcs@127.0.0.1 'wget http://example.com/a' > /tmp/ssh-shadow.blocked.log 2>&1
+sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null guest@127.0.0.1 'wget http://example.com/a' > /tmp/ssh-shadow.blocked.log 2>&1
 BLOCK_RC=$?
 set -e
 [[ "$BLOCK_RC" -ne 0 ]]
@@ -101,7 +103,7 @@ LATEST_BLOCK_SESSION="$(ls -1dt logs/ssh-shadow/sessions/* | head -n1)"
 grep -q 'blocked_command:wget http://example.com/a' "$LATEST_BLOCK_SESSION/termination_reason.txt"
 
 echo "[11/12] isolation check (session write must not appear in live qgc/data)"
-sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null gcs@127.0.0.1 'echo attacker-file > ~/Documents/QGroundControl/attacker_only.txt; exit'
+sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null test@127.0.0.1 'echo attacker-file > ~/Documents/QGroundControl/attacker_only.txt; exit'
 [[ ! -f qgc/data/Documents/QGroundControl/attacker_only.txt ]]
 
 echo "[12/12] watcher still running and bounded"

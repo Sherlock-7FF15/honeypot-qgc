@@ -54,7 +54,7 @@ PY
 }
 
 PROMPT_COMMAND='history -a; __ssh_shadow_log_cmd'
-PS1='gcs@gcs-shadow:\w$ '
+PS1='${LOGIN_USER}@gcs-shadow:\w$ '
 alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 

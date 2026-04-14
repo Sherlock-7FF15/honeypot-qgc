@@ -5,9 +5,9 @@ LOG_ROOT="/logs/ssh-shadow"
 SESS_ROOT="${LOG_ROOT}/sessions"
 STATE_ROOT="/shadow/state"
 BASE_ROOT="/shadow/base"
-JAILS_ROOT="/shadow/jails"
+SESS_WORK_ROOT="/shadow/sessions"
 
-mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$JAILS_ROOT"
+mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$SESS_WORK_ROOT"
 
 REMOTE_IP="unknown"
 REMOTE_PORT="0"
@@ -22,8 +22,8 @@ LOGIN_USER="${USER:-gcs}"
 NOW_TS="$(date -u +%s)"
 SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
-JAIL_ROOT="${JAILS_ROOT}/${SESSION_ID}/rootfs"
-mkdir -p "$SESSION_DIR" "$JAIL_ROOT"
+WORKSPACE="${SESS_WORK_ROOT}/${SESSION_ID}/workspace"
+mkdir -p "$SESSION_DIR" "$WORKSPACE"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
@@ -32,7 +32,8 @@ cat > "$META_FILE" <<JSON
   "username": "${LOGIN_USER}",
   "remote_ip": "${REMOTE_IP}",
   "remote_port": ${REMOTE_PORT},
-  "jail_root": "${JAIL_ROOT}",
+  "workspace": "${WORKSPACE}",
+  "isolation_mode": "session-workspace-no-proot",
   "login_time_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "ssh_original_command": $(python3 - <<'PY' "${SSH_ORIGINAL_COMMAND:-}"
 import json,sys
@@ -50,16 +51,41 @@ if ! flock -n 9; then
 import json,sys,time
 root,ip,port,username=sys.argv[1:]
 with open(f"{root}/busy.jsonl","a",encoding="utf-8") as f:
-    f.write(json.dumps({
-        "ts": time.time(),
-        "event": "busy_reject",
-        "remote_ip": ip,
-        "remote_port": int(port),
-        "username": username
-    }) + "\n")
+    f.write(json.dumps({"ts":time.time(),"event":"busy_reject","remote_ip":ip,"remote_port":int(port),"username":username})+"\n")
 PY
   exit 1
 fi
+
+HOME_PATH="/home/${LOGIN_USER}"
+ORIG_HOME_PATH="/home/${LOGIN_USER}.__orig"
+
+setup_projection() {
+  /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$WORKSPACE" "$LOGIN_USER"
+
+  rm -rf "$ORIG_HOME_PATH"
+
+  if [[ -L "$HOME_PATH" ]]; then
+    rm -f "$HOME_PATH"
+  elif [[ -d "$HOME_PATH" ]]; then
+    mv "$HOME_PATH" "$ORIG_HOME_PATH"
+  else
+    rm -f "$HOME_PATH" || true
+  fi
+
+  ln -s "$WORKSPACE/home/${LOGIN_USER}" "$HOME_PATH"
+}
+
+cleanup_projection() {
+  if [[ -L "$HOME_PATH" ]]; then
+    rm -f "$HOME_PATH"
+  fi
+  if [[ -d "$ORIG_HOME_PATH" ]]; then
+    mv "$ORIG_HOME_PATH" "$HOME_PATH"
+  else
+    mkdir -p "$HOME_PATH"
+    chown "${LOGIN_USER}:honeypot" "$HOME_PATH" || true
+  fi
+}
 
 cleanup() {
   local rc=$?
@@ -71,6 +97,7 @@ cleanup() {
   fi
 
   /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
+  cleanup_projection || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time
@@ -87,7 +114,7 @@ trap cleanup EXIT
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   if [[ "${SSH_ORIGINAL_COMMAND}" =~ (^|[[:space:]])(scp|sftp)([[:space:]]|$) ]]; then
-    export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
+    export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
     echo "blocked_ssh_original_command:${SSH_ORIGINAL_COMMAND}" > "${SESSION_DIR}/termination_reason.txt"
     /opt/ssh-shadow/trace-agent.sh check-command "${SSH_ORIGINAL_COMMAND}" >/dev/null 2>&1 || true
     echo "[ssh-shadow] file transfer channels are disabled."
@@ -95,29 +122,8 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   fi
 fi
 
-# Build per-session root directly from sanitized BASE_ROOT.
-set +e
-rsync -a --delete \
-  --exclude '.ffmpeg-stream.log*' \
-  --exclude '.qgc.stdout*' \
-  --exclude '*.tmp' \
-  --exclude '*.swp' \
-  --exclude '*.part' \
-  --exclude 'home/gcs/.cache/mesa_shader_cache/' \
-  --exclude 'home/gcs/.cache/gstreamer-1.0/' \
-  "${BASE_ROOT}/" "${JAIL_ROOT}/"
-RSYNC_RC=$?
-set -e
-
-# Accept 23/24 because files may change while the live system is running.
-if [[ $RSYNC_RC -ne 0 && $RSYNC_RC -ne 23 && $RSYNC_RC -ne 24 ]]; then
-  echo "jail_rsync_failed:${RSYNC_RC}" > "${SESSION_DIR}/termination_reason.txt"
-  exit $RSYNC_RC
-fi
-
-/opt/ssh-shadow/build-jail.sh "${JAIL_ROOT}" "${JAIL_ROOT}" "${LOGIN_USER}"
-
-export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
+setup_projection
+export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER SHADOW_WORKSPACE="$WORKSPACE" SHADOW_LOGIN_USER="$LOGIN_USER"
 
 echo "[ssh-shadow] connected to shadow GCS workstation"
-exec /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$JAIL_ROOT" "$LOGIN_USER"
+/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER"

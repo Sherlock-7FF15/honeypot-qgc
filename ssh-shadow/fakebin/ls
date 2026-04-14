@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
 set -e
 
-if [[ "${1:-}" == "/var/log/qgc" && -n "${SHADOW_WORKSPACE:-}" ]]; then
-  exec /bin/ls "${SHADOW_WORKSPACE}/var/log/qgc"
+if [[ "$#" -eq 0 ]]; then
+  exec /bin/ls
 fi
-if [[ "${1:-}" == "/var/log/mavproxy" && -n "${SHADOW_WORKSPACE:-}" ]]; then
-  exec /bin/ls "${SHADOW_WORKSPACE}/var/log/mavproxy"
-fi
-if [[ "$#" -gt 0 && ( "$1" == "/" || "$1" == "/"/ ) ]]; then
-  /bin/ls "$@" | awk '$0 != "shadow"'
+
+args=()
+for a in "$@"; do
+  case "$a" in
+    /var/log/qgc)
+      args+=("/shadow/base/var/log/qgc")
+      ;;
+    /var/log/mavproxy)
+      args+=("/shadow/base/var/log/mavproxy")
+      ;;
+    *)
+      args+=("$a")
+      ;;
+  esac
+done
+
+if [[ "${args[0]:-}" == "/" || "${args[0]:-}" == "//" ]]; then
+  /bin/ls "${args[@]}" | awk '$0 != "shadow"'
   exit ${PIPESTATUS[0]}
 fi
-exec /bin/ls "$@"
+
+exec /bin/ls "${args[@]}"

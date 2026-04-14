@@ -27,6 +27,12 @@ mkdir -p /run/sshd /shadow/base /shadow/sessions /shadow/state /shadow/jails /lo
 chown -R root:honeypot /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 chmod -R g+rwX /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 
+# Keep attacker-visible workstation log paths stable and readable.
+mkdir -p /shadow/base/var/log/qgc /shadow/base/var/log/mavproxy
+rm -rf /var/log/qgc /var/log/mavproxy
+ln -s /shadow/base/var/log/qgc /var/log/qgc
+ln -s /shadow/base/var/log/mavproxy /var/log/mavproxy
+
 if [[ ! -f /etc/ssh/ssh_host_rsa_key ]]; then
   ssh-keygen -A
 fi

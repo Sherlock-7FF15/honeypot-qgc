@@ -56,35 +56,27 @@ PY
   exit 1
 fi
 
-HOME_PATH="/home/${LOGIN_USER}"
-ORIG_HOME_PATH="/home/${LOGIN_USER}.__orig"
+HOME_DOCS="/home/${LOGIN_USER}/Documents/QGroundControl"
 
 setup_projection() {
   /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$WORKSPACE" "$LOGIN_USER"
-
-  rm -rf "$ORIG_HOME_PATH"
-
-  if [[ -L "$HOME_PATH" ]]; then
-    rm -f "$HOME_PATH"
-  elif [[ -d "$HOME_PATH" ]]; then
-    mv "$HOME_PATH" "$ORIG_HOME_PATH"
+  mkdir -p "/home/${LOGIN_USER}/Documents"
+  if [[ -L "$HOME_DOCS" ]]; then
+    rm -f "$HOME_DOCS"
+  elif [[ -d "$HOME_DOCS" ]]; then
+    rm -rf "$HOME_DOCS"
   else
-    rm -f "$HOME_PATH" || true
+    rm -f "$HOME_DOCS" || true
   fi
-
-  ln -s "$WORKSPACE/home/${LOGIN_USER}" "$HOME_PATH"
+  ln -s "$WORKSPACE/home/${LOGIN_USER}/Documents/QGroundControl" "$HOME_DOCS"
 }
 
 cleanup_projection() {
-  if [[ -L "$HOME_PATH" ]]; then
-    rm -f "$HOME_PATH"
+  if [[ -L "$HOME_DOCS" ]]; then
+    rm -f "$HOME_DOCS"
   fi
-  if [[ -d "$ORIG_HOME_PATH" ]]; then
-    mv "$ORIG_HOME_PATH" "$HOME_PATH"
-  else
-    mkdir -p "$HOME_PATH"
-    chown "${LOGIN_USER}:honeypot" "$HOME_PATH" || true
-  fi
+  mkdir -p "$HOME_DOCS"
+  chown "${LOGIN_USER}:honeypot" "$HOME_DOCS" || true
 }
 
 cleanup() {

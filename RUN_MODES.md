@@ -43,7 +43,7 @@ SSH_SHADOW_HOST_PORT=2222 docker compose --profile ssh-shadow up -d --build shad
 
 - Exposes host TCP `${SSH_SHADOW_HOST_PORT:-22}` backed by `ssh-shadow` (OpenSSH on internal `2222`).
 - Login is `gcs` with password `${SSH_SHADOW_PASSWORD:-gcs123!}`.
-- The attacker is dropped into a controlled per-session shadow workspace (not the live `qgc` filesystem).
+- The attacker is dropped into a controlled per-session jail rooted at `/` inside a shadowed workstation filesystem (not the live `qgc` filesystem).
 - See `docs/ssh-shadow.md` for architecture, logging, and evidence details.
 
 ## Ports

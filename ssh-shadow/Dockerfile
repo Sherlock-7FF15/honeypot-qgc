@@ -7,11 +7,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     coreutils \
     findutils \
+    grep \
+    sed \
     procps \
     iproute2 \
     util-linux \
     strace \
     rsync \
+    proot \
     python3 \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -25,6 +28,8 @@ COPY entrypoint.sh /opt/ssh-shadow/entrypoint.sh
 COPY forced-command.sh /opt/ssh-shadow/forced-command.sh
 COPY interactive-shell.sh /opt/ssh-shadow/interactive-shell.sh
 COPY trace-agent.sh /opt/ssh-shadow/trace-agent.sh
+COPY build-jail.sh /opt/ssh-shadow/build-jail.sh
+COPY preauth_logger.py /opt/ssh-shadow/preauth_logger.py
 COPY fakebin/ /opt/ssh-shadow/fakebin/
 
 RUN chmod +x /opt/ssh-shadow/*.sh /opt/ssh-shadow/fakebin/*

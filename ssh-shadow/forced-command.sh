@@ -6,6 +6,7 @@ SESS_ROOT="${LOG_ROOT}/sessions"
 STATE_ROOT="/shadow/state"
 BASE_ROOT="/shadow/base"
 SESS_WORK_ROOT="/shadow/sessions"
+JAILS_ROOT="/shadow/jails"
 
 mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$SESS_WORK_ROOT"
 
@@ -20,7 +21,8 @@ NOW_TS="$(date -u +%s)"
 SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
 WORKSPACE="${SESS_WORK_ROOT}/${SESSION_ID}/workspace"
-mkdir -p "$SESSION_DIR" "$WORKSPACE"
+JAIL_ROOT="${JAILS_ROOT}/${SESSION_ID}/rootfs"
+mkdir -p "$SESSION_DIR" "$WORKSPACE" "$JAIL_ROOT"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
@@ -61,7 +63,8 @@ cleanup() {
   fi
 
   /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
-  rm -rf "${STATE_ROOT}/active-workspace" || true
+  rm -rf "${STATE_ROOT}/active-workspace"
+  mkdir -p "${STATE_ROOT}/active-workspace/var/log/qgc" "${STATE_ROOT}/active-workspace/var/log/mavproxy"
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time
@@ -87,17 +90,12 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
 fi
 
 rsync -a --delete "${BASE_ROOT}/" "${WORKSPACE}/"
-mkdir -p \
-  "${WORKSPACE}/home/gcs/Documents/QGroundControl" \
-  "${WORKSPACE}/home/gcs/.config" \
-  "${WORKSPACE}/home/gcs/.cache" \
-  "${WORKSPACE}/var/log/qgc" \
-  "${WORKSPACE}/var/log/mavproxy"
+mkdir -p "${WORKSPACE}/home/gcs/Documents/QGroundControl" "${WORKSPACE}/home/gcs/.config" "${WORKSPACE}/home/gcs/.cache" "${WORKSPACE}/var/log/qgc" "${WORKSPACE}/var/log/mavproxy"
+/opt/ssh-shadow/build-jail.sh "${WORKSPACE}" "${JAIL_ROOT}"
+rm -rf "${STATE_ROOT}/active-workspace"
+ln -s "${WORKSPACE}" "${STATE_ROOT}/active-workspace"
 
-rm -rf "${STATE_ROOT}/active-workspace" || true
-ln -sfn "${WORKSPACE}" "${STATE_ROOT}/active-workspace"
-
-export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
+export SESSION_DIR WORKSPACE JAIL_ROOT BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 
 echo "[ssh-shadow] connected to shadow GCS workstation"
-exec /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE"
+/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$JAIL_ROOT"

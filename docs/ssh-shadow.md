@@ -7,7 +7,7 @@ The `ssh-shadow` profile adds a real OpenSSH endpoint that presents a shadow GCS
 Components:
 
 - `shadow-sync`: continuously mirrors selected live artifacts into `./shadow/base`.
-- `ssh-shadow`: OpenSSH service (host `22` -> container `2222`) with a forced command wrapper that creates a per-session workspace and runs trace/detection logic.
+- `ssh-shadow`: OpenSSH service (host `22` -> container `2222`) with a forced command wrapper that creates a per-session jail and runs trace/detection logic.
 
 ## Start / stop
 
@@ -53,9 +53,9 @@ Timestamps are preserved using `rsync -a`.
 
 For each accepted SSH session:
 
-1. create `./shadow/sessions/<session_id>/workspace`
-2. copy `./shadow/base` into that workspace
-3. launch the attacker shell in that per-session workspace
+1. create `./shadow/sessions/<session_id>/workspace` from `./shadow/base`
+2. build per-session jail root at `./shadow/jails/<session_id>/rootfs`
+3. launch attacker shell via `proot -R <jail_root>` so `/` is jailed and `/shadow` is not visible
 
 Attacker writes stay in the session workspace and do not modify `./qgc/data`.
 
@@ -65,6 +65,10 @@ Per-session logs are stored under:
 
 - `./logs/ssh-shadow/sessions/<session_id>/`
 
+Pre-auth / failed-auth / scanning activity is stored separately in:
+
+- `./logs/ssh-shadow/preauth.jsonl`
+
 Artifacts include:
 
 - `session.json` (metadata + termination reason)
@@ -73,6 +77,15 @@ Artifacts include:
 - `events.jsonl` (structured security/session events)
 - `strace*` (file/exec trace output)
 - `evidence/file_hashes.json` and copied suspicious files
+
+Pre-auth event types include:
+
+- `connect`
+- `banner_or_probe`
+- `invalid_user`
+- `auth_failed`
+- `auth_success`
+- `disconnect`
 
 ## Sensitive behavior policy
 
@@ -99,10 +112,14 @@ The verifier checks:
 
 1. compose config/build/up
 2. mirror propagation into `./shadow/base`
-3. single-session lock behavior
-4. command/tty/trace logs
-5. sensitive-command disconnect (`wget`)
-6. workspace isolation from live `./qgc/data`
+3. qgc + ssh-shadow are up
+4. single-session lock behavior
+5. successful login in jailed root + expected paths
+6. command/tty/trace logs
+7. failed-auth and success events in `preauth.jsonl`
+8. sensitive-command disconnect (`wget`)
+9. workspace isolation from live `./qgc/data`
+10. watcher still running
 
 ## Limitations / non-goals
 

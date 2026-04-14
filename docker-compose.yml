@@ -303,6 +303,8 @@ services:
       - MAX_BYTES=52428800
       - MOD_COOLDOWN_SEC=2.0
       - HASH_ON_MODIFY=true
+      - DEDUP_TTL_SEC=300
+      - MAX_TRACKED_PATHS=20000
     volumes:
       - ./qgc/data:/qgc-data:ro
       - ./logs/qgc:/qgc-logs:ro

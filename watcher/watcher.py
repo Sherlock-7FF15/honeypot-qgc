@@ -176,6 +176,9 @@ class Handler(FileSystemEventHandler):
                     self.stats["deduped"] += 1
                     self._emit_summary_if_due()
                     return
+                mtime = os.path.getmtime(target)
+                if self._already_saved_recently(target, mtime, fsize):
+                    return
                 digest = sha256_file(target)
                 if self.last_digest.get(target) == digest:
                     self.stats["deduped"] += 1

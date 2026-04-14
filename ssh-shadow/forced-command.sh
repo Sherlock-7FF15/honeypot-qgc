@@ -115,7 +115,7 @@ if [[ $RSYNC_RC -ne 0 && $RSYNC_RC -ne 23 && $RSYNC_RC -ne 24 ]]; then
   exit $RSYNC_RC
 fi
 
-/opt/ssh-shadow/build-jail.sh "${JAIL_ROOT}" "${JAIL_ROOT}"
+/opt/ssh-shadow/build-jail.sh "${JAIL_ROOT}" "${JAIL_ROOT}" "${LOGIN_USER}"
 
 export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
 

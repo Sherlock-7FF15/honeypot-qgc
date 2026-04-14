@@ -2,42 +2,69 @@
 set -euo pipefail
 
 BASE_ROOT="${1:?base_root}"
-WORKSPACE_ROOT="${2:?workspace_root}"
-LOGIN_USER="${3:?login_user}"
+JAIL_ROOT="${2:?jail_root}"
+LOGIN_USER="${3:-gcs}"
 
-rm -rf "$WORKSPACE_ROOT"
-mkdir -p "$WORKSPACE_ROOT/home/$LOGIN_USER/Documents/QGroundControl" "$WORKSPACE_ROOT/home/$LOGIN_USER/.config" "$WORKSPACE_ROOT/home/$LOGIN_USER/.cache" "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy"
+mkdir -p "$JAIL_ROOT"
 
-SRC_HOME="$BASE_ROOT/home/gcs"
-DST_HOME="$WORKSPACE_ROOT/home/$LOGIN_USER"
-
-# Keep login-time build light: copy only what the attacker workflow needs.
-if [[ -d "$SRC_HOME/Documents/QGroundControl" ]]; then
-  rsync -a --delete --ignore-errors "$SRC_HOME/Documents/QGroundControl/" "$DST_HOME/Documents/QGroundControl/"
+# 1) First copy the prepared/sanitized base into the jail root.
+if [[ "$BASE_ROOT" != "$JAIL_ROOT" ]]; then
+  set +e
+  rsync -a --delete "$BASE_ROOT/" "$JAIL_ROOT/"
+  rc=$?
+  set -e
+  if [[ $rc -ne 0 && $rc -ne 23 && $rc -ne 24 ]]; then
+    exit $rc
+  fi
 fi
 
-if [[ -d "$SRC_HOME/.config" ]]; then
-  rsync -a --delete --ignore-errors "$SRC_HOME/.config/" "$DST_HOME/.config/"
-fi
+# 2) Ensure minimal filesystem structure exists.
+mkdir -p \
+  "$JAIL_ROOT/home" \
+  "$JAIL_ROOT/var/log" \
+  "$JAIL_ROOT/bin" \
+  "$JAIL_ROOT/usr/bin" \
+  "$JAIL_ROOT/lib" \
+  "$JAIL_ROOT/lib64" \
+  "$JAIL_ROOT/usr/lib" \
+  "$JAIL_ROOT/etc" \
+  "$JAIL_ROOT/tmp" \
+  "$JAIL_ROOT/dev" \
+  "$JAIL_ROOT/proc" \
+  "$JAIL_ROOT/run" \
+  "$JAIL_ROOT/opt/ssh-shadow/fakebin"
 
-# Cache is noisy and can contain unreadable runtime artifacts; keep only sanitized subset.
-if [[ -d "$SRC_HOME/.cache" ]]; then
-  rsync -a --delete --ignore-errors \
-    --exclude 'mesa_shader_cache/***' \
-    --exclude 'gstreamer-1.0/***' \
-    --exclude 'dconf/***' \
-    --exclude '*.tmp' \
-    --exclude '*.lock' \
-    "$SRC_HOME/.cache/" "$DST_HOME/.cache/" || true
-fi
+chmod 1777 "$JAIL_ROOT/tmp"
 
-if [[ -d "$BASE_ROOT/var/log/qgc" ]]; then
-  rsync -a --delete --ignore-errors "$BASE_ROOT/var/log/qgc/" "$WORKSPACE_ROOT/var/log/qgc/"
-fi
-if [[ -d "$BASE_ROOT/var/log/mavproxy" ]]; then
-  rsync -a --delete --ignore-errors "$BASE_ROOT/var/log/mavproxy/" "$WORKSPACE_ROOT/var/log/mavproxy/"
-fi
+for f in /etc/hosts /etc/resolv.conf /etc/nsswitch.conf /etc/passwd /etc/group; do
+  if [[ -f "$f" ]]; then
+    cp -a "$f" "$JAIL_ROOT/etc/" || true
+  fi
+done
 
-chown -R "$LOGIN_USER:honeypot" "$DST_HOME"
-chmod -R u+rwX,go-rwx "$DST_HOME"
-chmod -R go+rX "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy" || true
+cp -a /opt/ssh-shadow/fakebin/. "$JAIL_ROOT/opt/ssh-shadow/fakebin/" || true
+
+# 3) Make sure source GCS data really exists.
+mkdir -p "$JAIL_ROOT/home/gcs"
+mkdir -p "$JAIL_ROOT/home/gcs/Documents"
+mkdir -p "$JAIL_ROOT/home/gcs/.config"
+mkdir -p "$JAIL_ROOT/home/gcs/.cache"
+mkdir -p "$JAIL_ROOT/home/gcs/Documents/QGroundControl"
+
+# 4) Clone gcs home content into all weak-login users.
+for u in gcs admin ubuntu pi support operator guest test; do
+  mkdir -p "$JAIL_ROOT/home/$u"
+  if [[ "$u" != "gcs" ]]; then
+    rm -rf "$JAIL_ROOT/home/$u/Documents" "$JAIL_ROOT/home/$u/.config" "$JAIL_ROOT/home/$u/.cache"
+    rsync -a "$JAIL_ROOT/home/gcs/" "$JAIL_ROOT/home/$u/" || true
+  fi
+done
+
+# 5) Ensure the requested login user definitely has the expected paths.
+mkdir -p "$JAIL_ROOT/home/${LOGIN_USER}/Documents/QGroundControl"
+mkdir -p "$JAIL_ROOT/home/${LOGIN_USER}/.config"
+mkdir -p "$JAIL_ROOT/home/${LOGIN_USER}/.cache"
+
+# 6) Ensure log paths exist in the final jail.
+mkdir -p "$JAIL_ROOT/var/log/qgc"
+mkdir -p "$JAIL_ROOT/var/log/mavproxy"

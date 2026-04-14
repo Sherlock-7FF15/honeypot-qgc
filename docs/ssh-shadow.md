@@ -27,13 +27,20 @@ Weak-credential usernames (all mapped to the same shadow workflow):
 
 - `gcs`, `admin`, `ubuntu`, `pi`, `support`, `operator`, `guest`, `test`
 
-Password for all listed users:
+Per-user weak credentials (default):
 
-- `${SSH_SHADOW_PASSWORD:-gcs123!}`
+- `gcs:gcs123!`
+- `admin:admin`
+- `ubuntu:ubuntu`
+- `pi:raspberry`
+- `support:support`
+- `operator:operator`
+- `guest:guest`
+- `test:test`
 
-Optional user override (space-separated list):
+Optional override (space-separated `user:pass` pairs):
 
-- `SSH_SHADOW_USERS="gcs admin ubuntu ..."`
+- `SSH_SHADOW_CREDENTIALS="gcs:gcs123! admin:admin ..."`
 
 Example:
 
@@ -53,17 +60,18 @@ ssh -p ${SSH_SHADOW_HOST_PORT:-22} admin@<host-ip>
 - `./logs/qgc` -> `./shadow/base/var/log/qgc`
 - `./logs/mavproxy` -> `./shadow/base/var/log/mavproxy`
 
-Timestamps are preserved with `rsync -a`.
+Timestamps are preserved with `rsync -a`. Shadow sync excludes known noisy/transient cache paths (`mesa_shader_cache`, `gstreamer-1.0`, etc.) to avoid permission/churn failures during session startup.
 
 ## Session model (current workspace projection)
 
 For each accepted SSH session:
 
-1. create `./shadow/sessions/<session_id>/workspace` from mirrored `./shadow/base`
-2. project user-visible writable paths (`/home/<user>/Documents/QGroundControl`, `/var/log/qgc`, `/var/log/mavproxy`) to that workspace for the active session
-3. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
+1. create `./shadow/sessions/<session_id>/workspace` from a **light subset** of mirrored base data
+2. only copy required session data (`Documents/QGroundControl`, `.config`, sanitized `.cache`, qgc/mavproxy logs)
+3. project user-visible writable paths (`/home/<user>/Documents/QGroundControl`, `/var/log/qgc`, `/var/log/mavproxy`) to that workspace for the active session
+4. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
 
-This removes the failing `proot`/`ptrace` dependency while keeping per-session writable isolation and preserving live `./qgc/data` integrity.
+This removes the failing `proot`/`ptrace` dependency and avoids heavy full-tree login-time cloning.
 
 ## Logs and evidence
 

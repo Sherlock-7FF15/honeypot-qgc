@@ -6,22 +6,44 @@ WORKSPACE_ROOT="${2:?workspace_root}"
 LOGIN_USER="${3:?login_user}"
 
 rm -rf "$WORKSPACE_ROOT"
-mkdir -p "$WORKSPACE_ROOT"
+mkdir -p "$WORKSPACE_ROOT/home/$LOGIN_USER" "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy"
 
-# Session-local copy of mirrored state.
-rsync -a --delete "$BASE_ROOT/" "$WORKSPACE_ROOT/"
+SRC_HOME="$BASE_ROOT/home/gcs"
+DST_HOME="$WORKSPACE_ROOT/home/$LOGIN_USER"
 
-# Ensure expected structure exists.
-mkdir -p "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy"
+# Keep login-time build light: copy only what the attacker workflow needs.
+if [[ -d "$SRC_HOME/Documents/QGroundControl" ]]; then
+  rsync -a --delete --ignore-errors "$SRC_HOME/Documents/QGroundControl/" "$DST_HOME/Documents/QGroundControl/"
+else
+  mkdir -p "$DST_HOME/Documents/QGroundControl"
+fi
 
-for u in gcs admin ubuntu pi support operator guest test; do
-  mkdir -p "$WORKSPACE_ROOT/home/$u"
-  if [[ "$u" != "gcs" ]]; then
-    rsync -a --delete "$WORKSPACE_ROOT/home/gcs/" "$WORKSPACE_ROOT/home/$u/" || true
-  fi
-  mkdir -p "$WORKSPACE_ROOT/home/$u/Documents/QGroundControl" "$WORKSPACE_ROOT/home/$u/.config" "$WORKSPACE_ROOT/home/$u/.cache"
-done
+if [[ -d "$SRC_HOME/.config" ]]; then
+  rsync -a --delete --ignore-errors "$SRC_HOME/.config/" "$DST_HOME/.config/"
+else
+  mkdir -p "$DST_HOME/.config"
+fi
 
-chown -R "$LOGIN_USER:honeypot" "$WORKSPACE_ROOT/home/$LOGIN_USER"
-chmod -R u+rwX,go-rwx "$WORKSPACE_ROOT/home/$LOGIN_USER"
+# Cache is noisy and can contain unreadable runtime artifacts; keep only sanitized subset.
+if [[ -d "$SRC_HOME/.cache" ]]; then
+  rsync -a --delete --ignore-errors \
+    --exclude 'mesa_shader_cache/***' \
+    --exclude 'gstreamer-1.0/***' \
+    --exclude 'dconf/***' \
+    --exclude '*.tmp' \
+    --exclude '*.lock' \
+    "$SRC_HOME/.cache/" "$DST_HOME/.cache/" || true
+else
+  mkdir -p "$DST_HOME/.cache"
+fi
+
+if [[ -d "$BASE_ROOT/var/log/qgc" ]]; then
+  rsync -a --delete --ignore-errors "$BASE_ROOT/var/log/qgc/" "$WORKSPACE_ROOT/var/log/qgc/"
+fi
+if [[ -d "$BASE_ROOT/var/log/mavproxy" ]]; then
+  rsync -a --delete --ignore-errors "$BASE_ROOT/var/log/mavproxy/" "$WORKSPACE_ROOT/var/log/mavproxy/"
+fi
+
+chown -R "$LOGIN_USER:honeypot" "$DST_HOME"
+chmod -R u+rwX,go-rwx "$DST_HOME"
 chmod -R go+rX "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy" || true

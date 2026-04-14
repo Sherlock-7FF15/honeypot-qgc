@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+if [[ "${1:-}" == "-lntup" ]]; then
+  cat <<TXT
+Netid State  Recv-Q Send-Q Local Address:Port Peer Address:Port Process
+udp   UNCONN 0      0      0.0.0.0:14550    0.0.0.0:*     users:(("mavproxy.py",pid=4243,fd=8))
+tcp   LISTEN 0      128    0.0.0.0:5760     0.0.0.0:*     users:(("mavproxy.py",pid=4243,fd=9))
+tcp   LISTEN 0      128    0.0.0.0:2222     0.0.0.0:*     users:(("sshd",pid=1,fd=3))
+TXT
+  exit 0
+fi
+exec /usr/bin/ss "$@"

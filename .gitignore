@@ -1,26 +1,10 @@
-# runtime evidence / outputs
+# runtime artifacts
 logs/
 uploads/
-pcap_out/
-
-# qgc runtime state
+shadow/
 qgc/data/
+qgc/app/
 qgc/logs/
-
-# large binaries
-qgc/app/*.AppImage
-qgc/app/*.appimage
-
-# env / secrets
-.env
-*.pem
-*.key
-
-# python/cache
-__pycache__/
-*.pyc
-
-# editor/os
-.DS_Store
-.idea/
-.vscode/
+mavproxy/data/
+docker-compose.yml.bak.*
+.venv-test/

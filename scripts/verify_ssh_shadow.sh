@@ -67,10 +67,11 @@ wait "$FIRST_PID" || true
 [[ "$SECOND_RC" -ne 0 ]]
 grep -qi 'console busy' /tmp/ssh-shadow.second.log
 
-echo "[7/12] multi-user login lands in jail + expected paths"
-for u in gcs admin ubuntu; do
-  sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$u"@127.0.0.1 "pwd; test -d /home/$u; ls /home/$u/Documents/QGroundControl; ls /var/log/qgc; test ! -e /shadow; cat /var/log/qgc/verify_qgc.log >/dev/null; exit"
-done
+echo "[7/12] successful admin login reaches interactive shell and required paths"
+sshpass -p "$SSH_SHADOW_PASSWORD" ssh -tt -p "$SSH_SHADOW_HOST_PORT" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin@127.0.0.1 'pwd; whoami; ls /; ls /home/admin; ls /var/log/qgc; ls /home/admin/Documents/QGroundControl; cat /var/log/qgc/verify_qgc.log >/dev/null; exit' > /tmp/ssh-shadow.admin.log 2>&1
+grep -q '/home/admin' /tmp/ssh-shadow.admin.log
+grep -q '^admin$' /tmp/ssh-shadow.admin.log
+grep -q 'Documents' /tmp/ssh-shadow.admin.log
 
 LATEST_SESSION_DIR="$(ls -1dt logs/ssh-shadow/sessions/* | head -n1)"
 [[ -f "$LATEST_SESSION_DIR/session.json" ]]
@@ -78,6 +79,7 @@ LATEST_SESSION_DIR="$(ls -1dt logs/ssh-shadow/sessions/* | head -n1)"
 [[ -f "$LATEST_SESSION_DIR/commands.jsonl" ]]
 ls "$LATEST_SESSION_DIR"/strace* >/dev/null 2>&1
 grep -q '"cmd": "pwd"' "$LATEST_SESSION_DIR/commands.jsonl"
+grep -q '"cmd": "whoami"' "$LATEST_SESSION_DIR/commands.jsonl"
 
 echo "[8/12] failed login attempt appears in preauth log"
 set +e

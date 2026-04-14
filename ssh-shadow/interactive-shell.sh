@@ -2,16 +2,15 @@
 set -euo pipefail
 
 SESSION_DIR="$1"
-JAIL_ROOT="$2"
+WORKSPACE="$2"
 LOGIN_USER="${3:-gcs}"
 
-export SESSION_DIR
-export WORKSPACE="$JAIL_ROOT"
+export SESSION_DIR WORKSPACE
 export BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
 
-find "$JAIL_ROOT" -xdev -type f -printf '%P\n' | sort > "$BASELINE_FILE"
+find "$WORKSPACE" -xdev -type f -printf '%P\n' | sort > "$BASELINE_FILE"
 
 CMD_LOG="${SESSION_DIR}/commands.jsonl"
 export CMD_LOG
@@ -19,6 +18,14 @@ export CMD_LOG
 cat > "${SESSION_DIR}/bashrc" <<'BRC'
 export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
+
+cd() {
+  if [[ "${1:-}" == /shadow* ]]; then
+    echo "bash: cd: ${1}: Permission denied" >&2
+    return 1
+  fi
+  builtin cd "$@"
+}
 
 __ssh_shadow_log_cmd() {
   local cmd
@@ -48,9 +55,8 @@ PY
 
 PROMPT_COMMAND='history -a; __ssh_shadow_log_cmd'
 PS1='gcs@gcs-shadow:\w$ '
+alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 
-export PROOT_NO_SECCOMP=1
-
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  script -qf "${SESSION_DIR}/tty.transcript" -c "PROOT_NO_SECCOMP=1 proot -R ${JAIL_ROOT} -b /bin:/bin -b /usr/bin:/usr/bin -b /lib:/lib -b /lib64:/lib64 -b /usr/lib:/usr/lib -b /proc:/proc -b /dev:/dev -b /tmp:/tmp -w /home/${LOGIN_USER} /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"
+  script -qf "${SESSION_DIR}/tty.transcript" -c "cd /home/${LOGIN_USER} && /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"

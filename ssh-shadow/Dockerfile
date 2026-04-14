@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     util-linux \
     strace \
     rsync \
-    proot \
     python3 \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*

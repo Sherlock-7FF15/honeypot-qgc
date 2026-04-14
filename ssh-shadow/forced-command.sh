@@ -5,9 +5,9 @@ LOG_ROOT="/logs/ssh-shadow"
 SESS_ROOT="${LOG_ROOT}/sessions"
 STATE_ROOT="/shadow/state"
 BASE_ROOT="/shadow/base"
-JAILS_ROOT="/shadow/jails"
+SESS_WORK_ROOT="/shadow/sessions"
 
-mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$JAILS_ROOT"
+mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$SESS_WORK_ROOT"
 
 REMOTE_IP="unknown"
 REMOTE_PORT="0"
@@ -22,8 +22,8 @@ LOGIN_USER="${USER:-gcs}"
 NOW_TS="$(date -u +%s)"
 SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
-JAIL_ROOT="${JAILS_ROOT}/${SESSION_ID}/rootfs"
-mkdir -p "$SESSION_DIR" "$JAIL_ROOT"
+WORKSPACE="${SESS_WORK_ROOT}/${SESSION_ID}/workspace"
+mkdir -p "$SESSION_DIR" "$WORKSPACE"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
@@ -32,7 +32,8 @@ cat > "$META_FILE" <<JSON
   "username": "${LOGIN_USER}",
   "remote_ip": "${REMOTE_IP}",
   "remote_port": ${REMOTE_PORT},
-  "jail_root": "${JAIL_ROOT}",
+  "workspace": "${WORKSPACE}",
+  "isolation_mode": "session-workspace-no-proot",
   "login_time_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "ssh_original_command": $(python3 - <<'PY' "${SSH_ORIGINAL_COMMAND:-}"
 import json,sys
@@ -55,6 +56,42 @@ PY
   exit 1
 fi
 
+HOME_DOCS="/home/${LOGIN_USER}/Documents/QGroundControl"
+VAR_QGC_LOG="/var/log/qgc"
+VAR_MAV_LOG="/var/log/mavproxy"
+ORIG_DOCS_DIR="/home/${LOGIN_USER}/Documents/QGroundControl.__orig"
+
+setup_projection() {
+  /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$WORKSPACE" "$LOGIN_USER"
+
+  mkdir -p "/home/${LOGIN_USER}/Documents"
+  rm -rf "$ORIG_DOCS_DIR"
+  if [[ -e "$HOME_DOCS" && ! -L "$HOME_DOCS" ]]; then
+    mv "$HOME_DOCS" "$ORIG_DOCS_DIR"
+  else
+    rm -rf "$HOME_DOCS"
+  fi
+  ln -s "$WORKSPACE/home/${LOGIN_USER}/Documents/QGroundControl" "$HOME_DOCS"
+
+  rm -rf "$VAR_QGC_LOG"
+  ln -s "$WORKSPACE/var/log/qgc" "$VAR_QGC_LOG"
+
+  rm -rf "$VAR_MAV_LOG"
+  ln -s "$WORKSPACE/var/log/mavproxy" "$VAR_MAV_LOG"
+}
+
+cleanup_projection() {
+  rm -f "$HOME_DOCS"
+  if [[ -d "$ORIG_DOCS_DIR" ]]; then
+    mv "$ORIG_DOCS_DIR" "$HOME_DOCS"
+  else
+    mkdir -p "$HOME_DOCS"
+  fi
+
+  rm -f "$VAR_QGC_LOG" "$VAR_MAV_LOG"
+  mkdir -p "$VAR_QGC_LOG" "$VAR_MAV_LOG"
+}
+
 cleanup() {
   local rc=$?
   local reason="normal_exit"
@@ -65,6 +102,7 @@ cleanup() {
   fi
 
   /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
+  cleanup_projection || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time
@@ -81,7 +119,7 @@ trap cleanup EXIT
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   if [[ "${SSH_ORIGINAL_COMMAND}" =~ (^|[[:space:]])(scp|sftp)([[:space:]]|$) ]]; then
-    export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
+    export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
     echo "blocked_ssh_original_command:${SSH_ORIGINAL_COMMAND}" > "${SESSION_DIR}/termination_reason.txt"
     /opt/ssh-shadow/trace-agent.sh check-command "${SSH_ORIGINAL_COMMAND}" >/dev/null 2>&1 || true
     echo "[ssh-shadow] file transfer channels are disabled."
@@ -89,9 +127,8 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   fi
 fi
 
-/opt/ssh-shadow/build-jail.sh "${BASE_ROOT}" "${JAIL_ROOT}"
-
-export SESSION_DIR WORKSPACE="$JAIL_ROOT" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
+setup_projection
+export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
 
 echo "[ssh-shadow] connected to shadow GCS workstation"
-/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$JAIL_ROOT" "$LOGIN_USER"
+/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER"

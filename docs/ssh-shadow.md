@@ -55,15 +55,15 @@ ssh -p ${SSH_SHADOW_HOST_PORT:-22} admin@<host-ip>
 
 Timestamps are preserved with `rsync -a`.
 
-## Session model (current proot jail)
+## Session model (current workspace projection)
 
 For each accepted SSH session:
 
-1. create `./shadow/jails/<session_id>/rootfs`
-2. copy mirrored base data into that jail root
-3. launch attacker shell through `proot -R <jail_root>`
+1. create `./shadow/sessions/<session_id>/workspace` from mirrored `./shadow/base`
+2. project user-visible writable paths (`/home/<user>/Documents/QGroundControl`, `/var/log/qgc`, `/var/log/mavproxy`) to that workspace for the active session
+3. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
 
-This is the single session filesystem source of truth (legacy `active-workspace` logic removed). Attacker writes remain inside the session jail and do not modify `./qgc/data`.
+This removes the failing `proot`/`ptrace` dependency while keeping per-session writable isolation and preserving live `./qgc/data` integrity.
 
 ## Logs and evidence
 
@@ -125,6 +125,6 @@ Verifier coverage:
 
 ## Limitations / non-goals
 
-- Jailing currently uses `proot` for portability; this is not kernel `chroot` isolation.
+- Isolation currently uses per-session workspace projection (not kernel `chroot` and not `proot`).
 - Process/service realism is lightweight (`fakebin` wrappers for `ps`, `systemctl`, `ss`).
 - Designed for interaction capture and containment, not full host emulation.

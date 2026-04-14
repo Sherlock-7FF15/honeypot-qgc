@@ -19,14 +19,6 @@ cat > "${SESSION_DIR}/bashrc" <<'BRC'
 export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
 
-cd() {
-  if [[ "${1:-}" == /shadow* ]]; then
-    echo "bash: cd: ${1}: Permission denied" >&2
-    return 1
-  fi
-  builtin cd "$@"
-}
-
 __ssh_shadow_log_cmd() {
   local cmd
   cmd="$(history 1 | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//')"
@@ -34,10 +26,7 @@ __ssh_shadow_log_cmd() {
   [[ "$cmd" == "$__SSH_SHADOW_LAST" ]] && return 0
   __SSH_SHADOW_LAST="$cmd"
 
-  /opt/ssh-shadow/trace-agent.sh check-command "$cmd" || {
-    echo "[ssh-shadow] sensitive behavior detected, disconnecting" >&2
-    exit 99
-  }
+  /opt/ssh-shadow/trace-agent.sh check-command "$cmd" || exit 99
 
   python3 - <<'PY' "$CMD_LOG" "$cmd" "$PWD"
 import json,sys,time
@@ -47,14 +36,11 @@ with open(path,"a",encoding="utf-8") as f:
     f.write(json.dumps(obj,ensure_ascii=False)+"\n")
 PY
 
-  /opt/ssh-shadow/trace-agent.sh post-command || {
-    echo "[ssh-shadow] suspicious file behavior detected, disconnecting" >&2
-    exit 98
-  }
+  /opt/ssh-shadow/trace-agent.sh post-command || exit 98
 }
 
 PROMPT_COMMAND='history -a; __ssh_shadow_log_cmd'
-PS1='gcs@gcs-shadow:\w$ '
+PS1='\u@qgc-shadow:\w$ '
 alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 

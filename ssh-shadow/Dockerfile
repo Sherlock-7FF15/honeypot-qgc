@@ -25,6 +25,7 @@ RUN useradd -m -s /bin/bash gcs \
 COPY sshd_config /etc/ssh/sshd_config
 COPY entrypoint.sh /opt/ssh-shadow/entrypoint.sh
 COPY forced-command.sh /opt/ssh-shadow/forced-command.sh
+COPY exec-original-command.sh /opt/ssh-shadow/exec-original-command.sh
 COPY interactive-shell.sh /opt/ssh-shadow/interactive-shell.sh
 COPY trace-agent.sh /opt/ssh-shadow/trace-agent.sh
 COPY build-jail.sh /opt/ssh-shadow/build-jail.sh

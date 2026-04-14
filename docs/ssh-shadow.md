@@ -50,6 +50,11 @@ ssh -p ${SSH_SHADOW_HOST_PORT:-22} admin@<host-ip>
 
 > Only one active interactive session is allowed. Additional connections receive a short `console busy` message and disconnect.
 
+### SSH exec semantics
+
+- If `SSH_ORIGINAL_COMMAND` is present (for example `ssh admin@host "uname -a"`), `ssh-shadow` now runs a non-interactive exec path and returns real stdout/stderr + exit code from `/bin/bash -lc "<command>"`.
+- If `SSH_ORIGINAL_COMMAND` is empty, `ssh-shadow` starts the interactive shell path.
+
 ## Mirrored sources
 
 `shadow-sync` mirrors into `./shadow/base`:
@@ -71,6 +76,7 @@ For each accepted SSH session:
 3. project `/home/<user>/Documents/QGroundControl` to the per-session workspace path and map common absolute read paths via `fakebin` wrappers (for example `find /home/<user>/Documents/QGroundControl` and `ls /var/log/qgc`)
 4. expose `/var/log/qgc` and `/var/log/mavproxy` via stable symlinks to `/shadow/base/var/log/...` (read-focused workstation view)
 5. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
+6. non-interactive SSH exec requests use the same session workspace but run via `exec-original-command.sh` (not the interactive shell wrapper)
 
 This removes the failing `proot`/`ptrace` dependency and avoids heavy full-tree login-time cloning.
 

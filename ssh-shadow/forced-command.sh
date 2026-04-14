@@ -181,18 +181,14 @@ PY
 }
 trap cleanup EXIT
 
-if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
-  if [[ "${SSH_ORIGINAL_COMMAND}" =~ (^|[[:space:]])(scp|sftp)([[:space:]]|$) ]]; then
-    export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
-    echo "blocked_ssh_original_command:${SSH_ORIGINAL_COMMAND}" > "${SESSION_DIR}/termination_reason.txt"
-    /opt/ssh-shadow/trace-agent.sh check-command "${SSH_ORIGINAL_COMMAND}" >/dev/null 2>&1 || true
-    echo "[ssh-shadow] file transfer channels are disabled."
-    exit 1
-  fi
-fi
-
 setup_projection
 export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER SHADOW_WORKSPACE="$WORKSPACE" SHADOW_LOGIN_USER="$LOGIN_USER"
 
-echo "[ssh-shadow] connected to shadow GCS workstation"
-/opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER"
+if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
+  echo "non_interactive_exec" > "${SESSION_DIR}/session_mode.txt"
+  /opt/ssh-shadow/exec-original-command.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER" "$SSH_ORIGINAL_COMMAND"
+else
+  echo "interactive_shell" > "${SESSION_DIR}/session_mode.txt"
+  echo "[ssh-shadow] connected to shadow GCS workstation"
+  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER"
+fi

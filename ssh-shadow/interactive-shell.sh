@@ -50,5 +50,7 @@ PROMPT_COMMAND='history -a; __ssh_shadow_log_cmd'
 PS1='gcs@gcs-shadow:\w$ '
 BRC
 
+export PROOT_NO_SECCOMP=1
+
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  script -qf "${SESSION_DIR}/tty.transcript" -c "proot -R ${JAIL_ROOT} -b /bin:/bin -b /usr/bin:/usr/bin -b /lib:/lib -b /lib64:/lib64 -b /usr/lib:/usr/lib -b /proc:/proc -b /dev:/dev -b /tmp:/tmp -w /home/${LOGIN_USER} /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"
+  script -qf "${SESSION_DIR}/tty.transcript" -c "PROOT_NO_SECCOMP=1 proot -R ${JAIL_ROOT} -b /bin:/bin -b /usr/bin:/usr/bin -b /lib:/lib -b /lib64:/lib64 -b /usr/lib:/usr/lib -b /proc:/proc -b /dev:/dev -b /tmp:/tmp -w /home/${LOGIN_USER} /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"

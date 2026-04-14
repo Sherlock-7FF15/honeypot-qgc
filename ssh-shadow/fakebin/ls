@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+set -e
+
+if [[ "${1:-}" == "/var/log/qgc" && -n "${SHADOW_WORKSPACE:-}" ]]; then
+  exec /bin/ls "${SHADOW_WORKSPACE}/var/log/qgc"
+fi
+if [[ "${1:-}" == "/var/log/mavproxy" && -n "${SHADOW_WORKSPACE:-}" ]]; then
+  exec /bin/ls "${SHADOW_WORKSPACE}/var/log/mavproxy"
+fi
 if [[ "$#" -gt 0 && ( "$1" == "/" || "$1" == "/"/ ) ]]; then
   /bin/ls "$@" | awk '$0 != "shadow"'
   exit ${PIPESTATUS[0]}

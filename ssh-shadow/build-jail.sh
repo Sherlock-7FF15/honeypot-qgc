@@ -6,7 +6,7 @@ WORKSPACE_ROOT="${2:?workspace_root}"
 LOGIN_USER="${3:?login_user}"
 
 rm -rf "$WORKSPACE_ROOT"
-mkdir -p "$WORKSPACE_ROOT/home/$LOGIN_USER" "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy"
+mkdir -p "$WORKSPACE_ROOT/home/$LOGIN_USER/Documents/QGroundControl" "$WORKSPACE_ROOT/home/$LOGIN_USER/.config" "$WORKSPACE_ROOT/home/$LOGIN_USER/.cache" "$WORKSPACE_ROOT/var/log/qgc" "$WORKSPACE_ROOT/var/log/mavproxy"
 
 SRC_HOME="$BASE_ROOT/home/gcs"
 DST_HOME="$WORKSPACE_ROOT/home/$LOGIN_USER"
@@ -14,14 +14,10 @@ DST_HOME="$WORKSPACE_ROOT/home/$LOGIN_USER"
 # Keep login-time build light: copy only what the attacker workflow needs.
 if [[ -d "$SRC_HOME/Documents/QGroundControl" ]]; then
   rsync -a --delete --ignore-errors "$SRC_HOME/Documents/QGroundControl/" "$DST_HOME/Documents/QGroundControl/"
-else
-  mkdir -p "$DST_HOME/Documents/QGroundControl"
 fi
 
 if [[ -d "$SRC_HOME/.config" ]]; then
   rsync -a --delete --ignore-errors "$SRC_HOME/.config/" "$DST_HOME/.config/"
-else
-  mkdir -p "$DST_HOME/.config"
 fi
 
 # Cache is noisy and can contain unreadable runtime artifacts; keep only sanitized subset.
@@ -33,8 +29,6 @@ if [[ -d "$SRC_HOME/.cache" ]]; then
     --exclude '*.tmp' \
     --exclude '*.lock' \
     "$SRC_HOME/.cache/" "$DST_HOME/.cache/" || true
-else
-  mkdir -p "$DST_HOME/.cache"
 fi
 
 if [[ -d "$BASE_ROOT/var/log/qgc" ]]; then

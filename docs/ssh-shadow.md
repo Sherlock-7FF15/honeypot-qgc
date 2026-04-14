@@ -68,7 +68,7 @@ For each accepted SSH session:
 
 1. create `./shadow/sessions/<session_id>/workspace` from a **light subset** of mirrored base data
 2. only copy required session data (`Documents/QGroundControl`, `.config`, sanitized `.cache`, qgc/mavproxy logs)
-3. project user-visible writable paths (`/home/<user>/Documents/QGroundControl`, `/var/log/qgc`, `/var/log/mavproxy`) to that workspace for the active session
+3. project `/home/<user>/Documents/QGroundControl` to workspace and expose session log views at `/var/log/qgc` + `/var/log/mavproxy` via shell wrappers
 4. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
 
 This removes the failing `proot`/`ptrace` dependency and avoids heavy full-tree login-time cloning.

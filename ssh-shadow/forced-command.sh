@@ -57,8 +57,6 @@ PY
 fi
 
 HOME_DOCS="/home/${LOGIN_USER}/Documents/QGroundControl"
-VAR_QGC_LOG="/var/log/qgc"
-VAR_MAV_LOG="/var/log/mavproxy"
 ORIG_DOCS_DIR="/home/${LOGIN_USER}/Documents/QGroundControl.__orig"
 
 setup_projection() {
@@ -66,30 +64,27 @@ setup_projection() {
 
   mkdir -p "/home/${LOGIN_USER}/Documents"
   rm -rf "$ORIG_DOCS_DIR"
-  if [[ -e "$HOME_DOCS" && ! -L "$HOME_DOCS" ]]; then
+
+  if [[ -L "$HOME_DOCS" ]]; then
+    rm -f "$HOME_DOCS"
+  elif [[ -d "$HOME_DOCS" ]]; then
     mv "$HOME_DOCS" "$ORIG_DOCS_DIR"
   else
-    rm -rf "$HOME_DOCS"
+    rm -f "$HOME_DOCS" || true
   fi
+
   ln -s "$WORKSPACE/home/${LOGIN_USER}/Documents/QGroundControl" "$HOME_DOCS"
-
-  rm -rf "$VAR_QGC_LOG"
-  ln -s "$WORKSPACE/var/log/qgc" "$VAR_QGC_LOG"
-
-  rm -rf "$VAR_MAV_LOG"
-  ln -s "$WORKSPACE/var/log/mavproxy" "$VAR_MAV_LOG"
 }
 
 cleanup_projection() {
-  rm -f "$HOME_DOCS"
+  if [[ -L "$HOME_DOCS" ]]; then
+    rm -f "$HOME_DOCS"
+  fi
   if [[ -d "$ORIG_DOCS_DIR" ]]; then
     mv "$ORIG_DOCS_DIR" "$HOME_DOCS"
   else
     mkdir -p "$HOME_DOCS"
   fi
-
-  rm -f "$VAR_QGC_LOG" "$VAR_MAV_LOG"
-  mkdir -p "$VAR_QGC_LOG" "$VAR_MAV_LOG"
 }
 
 cleanup() {
@@ -128,7 +123,7 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
 fi
 
 setup_projection
-export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER
+export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER SHADOW_WORKSPACE="$WORKSPACE" SHADOW_LOGIN_USER="$LOGIN_USER"
 
 echo "[ssh-shadow] connected to shadow GCS workstation"
 /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER"

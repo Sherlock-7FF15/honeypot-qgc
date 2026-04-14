@@ -15,14 +15,22 @@ WATCH_DIRS = [p for p in os.getenv("WATCH_DIRS", "/qgc-data/Documents/QGroundCon
 MAX_BYTES = int(os.getenv("MAX_BYTES", str(50 * 1024 * 1024)))        # 50MB
 MOD_COOLDOWN_SEC = float(os.getenv("MOD_COOLDOWN_SEC", "2.0"))        # debounce per path
 HASH_ON_MODIFY = os.getenv("HASH_ON_MODIFY", "true").lower() == "true"
+DEDUP_TTL_SEC = float(os.getenv("DEDUP_TTL_SEC", "300"))
+MAX_TRACKED_PATHS = int(os.getenv("MAX_TRACKED_PATHS", "20000"))
 
 # ignore patterns (simple substring / prefix checks)
 IGNORE_SUBSTRINGS = [
     "/qgc-data/tmp/qipc_",     # noisy QGC IPC artifacts
     "/qgc-data/tmp/.",
     "/qgc-data/Documents/QGroundControl/tmp",
+    "/qgc-data/.cache/",
+    "/qgc-data/.config/QGroundControl.org/QGroundControl/Cache",
 ]
-IGNORE_SUFFIXES = [".lock", ".tmp", ".swp", ".part"]
+IGNORE_SUFFIXES = [
+    ".lock", ".tmp", ".swp", ".part",
+    ".wal", ".shm", ".journal", ".db-wal", ".db-shm",
+    ".png~", ".autosave"
+]
 
 def now_ts() -> float:
     return time.time()
@@ -74,6 +82,7 @@ class Handler(FileSystemEventHandler):
     def __init__(self):
         super().__init__()
         self.last_handled = {}  # path -> ts
+        self.last_saved = {}    # (path, mtime, size) -> ts
 
     def _debounced(self, path: str) -> bool:
         t = now_ts()
@@ -81,7 +90,20 @@ class Handler(FileSystemEventHandler):
         if t - last < MOD_COOLDOWN_SEC:
             return True
         self.last_handled[path] = t
+        if len(self.last_handled) > MAX_TRACKED_PATHS:
+            cutoff = t - max(MOD_COOLDOWN_SEC * 10, 60.0)
+            self.last_handled = {k: v for k, v in self.last_handled.items() if v >= cutoff}
         return False
+
+    def _already_saved_recently(self, path: str, mtime: float, size: int) -> bool:
+        key = (path, float(mtime), int(size))
+        t = now_ts()
+        last = self.last_saved.get(key, 0.0)
+        self.last_saved[key] = t
+        if len(self.last_saved) > MAX_TRACKED_PATHS:
+            cutoff = t - DEDUP_TTL_SEC
+            self.last_saved = {k: v for k, v in self.last_saved.items() if v >= cutoff}
+        return (t - last) < DEDUP_TTL_SEC
 
     def _handle_file_event(self, op: str, src_path: str, dest_path: str | None = None):
         if not src_path or should_ignore(src_path):
@@ -129,6 +151,9 @@ class Handler(FileSystemEventHandler):
             try:
                 fsize = os.path.getsize(target)
                 if fsize <= 0 or fsize > MAX_BYTES:
+                    return
+                mtime = os.path.getmtime(target)
+                if self._already_saved_recently(target, mtime, fsize):
                     return
                 digest = sha256_file(target)
                 stored = copy_out(target, digest)
@@ -179,6 +204,8 @@ def main():
         "max_bytes": MAX_BYTES,
         "mod_cooldown_sec": MOD_COOLDOWN_SEC,
         "hash_on_modify": HASH_ON_MODIFY,
+        "dedup_ttl_sec": DEDUP_TTL_SEC,
+        "max_tracked_paths": MAX_TRACKED_PATHS,
     })
 
     observer = Observer()

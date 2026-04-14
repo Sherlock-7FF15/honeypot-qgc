@@ -23,6 +23,7 @@ NOW_TS="$(date -u +%s)"
 SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
 WORKSPACE="${SESS_WORK_ROOT}/${SESSION_ID}/workspace"
+SESSION_WORK_DIR="${SESS_WORK_ROOT}/${SESSION_ID}"
 mkdir -p "$SESSION_DIR" "$WORKSPACE"
 
 META_FILE="${SESSION_DIR}/session.json"
@@ -69,6 +70,22 @@ setup_projection() {
     rm -f "$HOME_DOCS" || true
   fi
   ln -s "$WORKSPACE/home/${LOGIN_USER}/Documents/QGroundControl" "$HOME_DOCS"
+
+  BASELINE_META="${SESSION_DIR}/baseline_meta.json"
+  python3 - <<'PY' "$WORKSPACE" "$BASELINE_META"
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1])
+out=Path(sys.argv[2])
+rows={}
+for p in root.rglob('*'):
+    if not p.is_file():
+        continue
+    rel=str(p.relative_to(root))
+    st=p.stat()
+    rows[rel]={"size":st.st_size,"mtime_ns":st.st_mtime_ns}
+out.write_text(json.dumps(rows,ensure_ascii=False),encoding='utf-8')
+PY
 }
 
 cleanup_projection() {
@@ -89,7 +106,67 @@ cleanup() {
   fi
 
   /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
+  python3 - <<'PY' "$WORKSPACE" "${SESSION_DIR}/baseline_meta.json" "${SESSION_DIR}/diff"
+import json,sys,shutil
+from pathlib import Path
+
+workspace=Path(sys.argv[1])
+baseline_path=Path(sys.argv[2])
+diff_dir=Path(sys.argv[3])
+files_dir=diff_dir/"files"
+files_dir.mkdir(parents=True,exist_ok=True)
+
+baseline={}
+if baseline_path.exists():
+    baseline=json.loads(baseline_path.read_text(encoding='utf-8',errors='replace'))
+
+current={}
+for p in workspace.rglob('*'):
+    if not p.is_file():
+        continue
+    rel=str(p.relative_to(workspace))
+    st=p.stat()
+    current[rel]={"size":st.st_size,"mtime_ns":st.st_mtime_ns}
+
+created=[]
+modified=[]
+deleted=[]
+
+for rel,meta in current.items():
+    b=baseline.get(rel)
+    if b is None:
+        created.append(rel)
+    elif b.get("size")!=meta.get("size") or b.get("mtime_ns")!=meta.get("mtime_ns"):
+        modified.append(rel)
+
+for rel in baseline.keys():
+    if rel not in current:
+        deleted.append(rel)
+
+for rel in created+modified:
+    src=workspace/rel
+    dst=files_dir/rel
+    dst.parent.mkdir(parents=True,exist_ok=True)
+    try:
+        shutil.copy2(src,dst)
+    except Exception:
+        pass
+
+summary={
+    "created": sorted(created),
+    "modified": sorted(modified),
+    "deleted": sorted(deleted),
+    "counts": {
+        "created": len(created),
+        "modified": len(modified),
+        "deleted": len(deleted),
+    }
+}
+(diff_dir/"diff_summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+PY
   cleanup_projection || true
+
+  rm -rf "$SESSION_WORK_DIR" "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time

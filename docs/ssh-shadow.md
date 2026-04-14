@@ -84,6 +84,10 @@ Successful sessions:
 - `./logs/ssh-shadow/sessions/<session_id>/events.jsonl`
 - `./logs/ssh-shadow/sessions/<session_id>/strace*`
 - `./logs/ssh-shadow/sessions/<session_id>/evidence/*`
+- `./logs/ssh-shadow/sessions/<session_id>/diff/diff_summary.json`
+- `./logs/ssh-shadow/sessions/<session_id>/diff/files/...` (only created/modified files)
+
+Session workspaces are **not retained** after session end. `ssh-shadow` captures diff/evidence artifacts and then removes `shadow/sessions/<session_id>` (and any matching `shadow/jails/<session_id>` path if present) to avoid disk bloat.
 
 Pre-auth / scan / failed-auth activity:
 

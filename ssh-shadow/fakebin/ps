@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+/bin/ps "$@"
+printf '%s\n' "gcs      4242  1.2  3.7 335544 145000 ?        Sl   10:00   0:21 QGroundControl --appimage"
+printf '%s\n' "gcs      4243  0.6  0.8  77224  32144 ?        Sl   10:00   0:09 mavproxy.py --master=tcp:127.0.0.1:5760"

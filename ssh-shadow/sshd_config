@@ -1,0 +1,25 @@
+Port 2222
+Protocol 2
+ListenAddress 0.0.0.0
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+PermitRootLogin no
+PasswordAuthentication yes
+ChallengeResponseAuthentication no
+UsePAM no
+X11Forwarding no
+AllowTcpForwarding no
+PermitTunnel no
+AllowAgentForwarding no
+GatewayPorts no
+PermitUserEnvironment no
+AllowUsers gcs admin ubuntu pi support operator guest test
+Subsystem sftp /bin/false
+ClientAliveInterval 300
+ClientAliveCountMax 2
+PrintMotd no
+LogLevel VERBOSE
+
+Match Group honeypot
+    ForceCommand /opt/ssh-shadow/forced-command.sh

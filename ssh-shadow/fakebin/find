@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -e
+
+args=()
+for a in "$@"; do
+  case "$a" in
+    "/home/${SHADOW_LOGIN_USER:-}/Documents/QGroundControl")
+      if [[ -n "${SHADOW_WORKSPACE:-}" ]]; then
+        args+=("${SHADOW_WORKSPACE}/home/${SHADOW_LOGIN_USER}/Documents/QGroundControl")
+      else
+        args+=("$a")
+      fi
+      ;;
+    /var/log/qgc)
+      args+=("/shadow/base/var/log/qgc")
+      ;;
+    /var/log/mavproxy)
+      args+=("/shadow/base/var/log/mavproxy")
+      ;;
+    *)
+      args+=("$a")
+      ;;
+  esac
+done
+
+exec /usr/bin/find "${args[@]}"

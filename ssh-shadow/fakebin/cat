@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+VISIBLE_HOST="${HONEYPOT_HOSTNAME:-gcs-shadow}"
+
+if [[ "$#" -eq 1 && "$1" == "/etc/hostname" ]]; then
+  echo "$VISIBLE_HOST"
+  exit 0
+fi
+
+exec /bin/cat "$@"

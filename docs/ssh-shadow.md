@@ -107,20 +107,19 @@ Observed preauth event types:
 - `invalid_user`
 - `auth_failed`
 - `auth_success`
+- `auth_attempt` (when sshd emits userauth-request lines)
 - `disconnect`
 
 ## Sensitive behavior policy
 
-The trace agent terminates sessions on sensitive behavior, including:
+The trace agent now uses staged policy signals:
 
-- `scp` / `sftp`
-- downloaders: `wget`, `curl`, `tftp`
-- `chmod +x`
-- inline execution: `python -c`, `bash -c`, `sh -c`
-- reverse-shell-like patterns
-- newly created executable/script/binary artifacts in the jailed workspace
+- `suspicious` events (observe only): `scp` / `sftp`, downloaders (`wget`, `curl`, `tftp`, `nc`), `chmod +x`, inline `*-c`, reverse-shell-like syntax
+- `payload_captured` (terminate): newly created payload-like artifacts (ELF/script/executable) in attacker-controlled paths such as `home/*`, `tmp`, `var/tmp`, `opt`, `usr/local`
+- ignore noisy mirrored log churn for payload decisions (`var/log/qgc`, `var/log/mavproxy`, common `*.stdout` / `*.stderr` log files)
+- `idle_timeout` (terminate): interactive shell inactivity timeout via `TMOUT`
 
-On detection it records events, captures hashes/files to evidence, writes termination reason, and disconnects.
+On high-confidence payload capture or idle timeout, `ssh-shadow` writes `termination_reason`, records events, and captures evidence hashes/files.
 
 ## Automated verifier
 
@@ -139,7 +138,7 @@ Verifier coverage:
 5. successful jail login for multiple weak usernames
 6. command/tty/trace logs
 7. preauth auth-failure + auth-success logging
-8. sensitive-command disconnect (`wget`)
+8. payload-capture disconnect (for example create + chmod executable script in `/tmp`)
 9. session write isolation from live `./qgc/data`
 10. watcher health check
 

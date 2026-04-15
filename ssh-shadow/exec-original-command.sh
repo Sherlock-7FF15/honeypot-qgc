@@ -18,6 +18,9 @@ with open(path,"a",encoding="utf-8") as f:
     f.write(json.dumps({"ts":time.time(),"event":event,"cmd":cmd,"cwd":cwd},ensure_ascii=False)+"\n")
 PY
 
+
+/opt/ssh-shadow/trace-agent.sh check-command "$ORIG_CMD" >/dev/null 2>&1 || true
+
 OUT_FILE="${SESSION_DIR}/exec.stdout"
 ERR_FILE="${SESSION_DIR}/exec.stderr"
 : > "$OUT_FILE"

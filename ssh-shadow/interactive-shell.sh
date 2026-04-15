@@ -10,14 +10,21 @@ export BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
 
-find "$WORKSPACE" -xdev -type f -printf '%P\n' | sort > "$BASELINE_FILE"
-
 CMD_LOG="${SESSION_DIR}/commands.jsonl"
 export CMD_LOG
 
 cat > "${SESSION_DIR}/bashrc" <<'BRC'
 export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
+export TMOUT="${SSH_SHADOW_IDLE_TIMEOUT:-900}"
+
+__ssh_shadow_mark_idle_timeout() {
+  if [[ ! -f "${SESSION_DIR}/termination_reason.txt" ]]; then
+    /opt/ssh-shadow/trace-agent.sh log-idle-timeout >/dev/null 2>&1 || true
+  fi
+}
+
+trap '__ssh_shadow_mark_idle_timeout' ALRM
 
 __ssh_shadow_log_cmd() {
   local cmd
@@ -26,7 +33,7 @@ __ssh_shadow_log_cmd() {
   [[ "$cmd" == "$__SSH_SHADOW_LAST" ]] && return 0
   __SSH_SHADOW_LAST="$cmd"
 
-  /opt/ssh-shadow/trace-agent.sh check-command "$cmd" || exit 99
+  /opt/ssh-shadow/trace-agent.sh check-command "$cmd" || true
 
   python3 - <<'PY' "$CMD_LOG" "$cmd" "$PWD"
 import json,sys,time

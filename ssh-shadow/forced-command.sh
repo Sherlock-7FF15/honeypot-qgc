@@ -106,7 +106,9 @@ cleanup() {
     reason="exit_code_${rc}"
   fi
 
-  /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
+  if [[ "$reason" == payload_captured:* || "$reason" == *"sensitive"* ]]; then
+    /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
+  fi
   python3 - <<'PY' "$WORKSPACE" "${SESSION_DIR}/baseline_meta.json" "${SESSION_DIR}/diff"
 import json,sys,shutil
 from pathlib import Path

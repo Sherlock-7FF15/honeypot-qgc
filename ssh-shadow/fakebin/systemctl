@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+if [[ "${1:-}" == "status" && "${2:-}" == "qgc.service" ]]; then
+  cat <<TXT
+● qgc.service - QGroundControl Service
+     Loaded: loaded (/etc/systemd/system/qgc.service; enabled)
+     Active: active (running) since $(date -u '+%a %Y-%m-%d %H:%M:%S UTC'); 12min ago
+   Main PID: 4242 (QGroundControl)
+TXT
+  exit 0
+fi
+if [[ "${1:-}" == "status" && "${2:-}" == "mavproxy.service" ]]; then
+  cat <<TXT
+● mavproxy.service - MAVProxy Service
+     Loaded: loaded (/etc/systemd/system/mavproxy.service; enabled)
+     Active: active (running) since $(date -u '+%a %Y-%m-%d %H:%M:%S UTC'); 12min ago
+   Main PID: 4243 (mavproxy.py)
+TXT
+  exit 0
+fi
+echo "System has not been booted with systemd as init system." >&2
+exit 1

@@ -1,0 +1,74 @@
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+NOISE_PATTERNS = [
+    re.compile(r"^no script honeypot/mavinit\.scr$", re.IGNORECASE),
+    re.compile(r"^waiting for heartbeat from 0\.0\.0\.0:\d+$", re.IGNORECASE),
+    re.compile(r"^link \d+ down$", re.IGNORECASE),
+    re.compile(r"^link \d+ no link$", re.IGNORECASE),
+]
+TRACEBACK_CONTINUATION_PATTERNS = [
+    re.compile(r"^\s+File "),
+    re.compile(r"^\s*self\."),
+    re.compile(r"^\s*res = "),
+    re.compile(r"^\s*buf = "),
+    re.compile(r"^\s*raise "),
+    re.compile(r"^Traceback "),
+    re.compile(r"^[A-Za-z_]+Error$"),
+]
+
+
+def is_noise(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return True
+    return any(pattern.match(stripped) for pattern in NOISE_PATTERNS)
+
+
+def is_traceback_continuation(line: str) -> bool:
+    stripped = line.rstrip()
+    return any(pattern.match(stripped) for pattern in TRACEBACK_CONTINUATION_PATTERNS)
+
+
+def main() -> int:
+    if len(sys.argv) < 3:
+        print("usage: run_logged.py <logfile> <command> [args...]", file=sys.stderr)
+        return 2
+
+    log_path = Path(sys.argv[1])
+    cmd = sys.argv[2:]
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with log_path.open("a", encoding="utf-8") as log_file:
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+
+        assert proc.stdout is not None
+        skip_traceback = False
+        for line in proc.stdout:
+            if skip_traceback:
+                if is_traceback_continuation(line):
+                    continue
+                skip_traceback = False
+
+            if line.startswith("Exception in thread log_writer:"):
+                skip_traceback = True
+                continue
+
+            if is_noise(line):
+                continue
+            log_file.write(line)
+            log_file.flush()
+
+        return proc.wait()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

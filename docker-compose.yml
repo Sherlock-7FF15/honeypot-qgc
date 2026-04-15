@@ -110,10 +110,12 @@ services:
     build:
       context: ./ssh-shadow
     container_name: ssh-shadow
+    hostname: ${HONEYPOT_HOSTNAME:-gcs-shadow}
     restart: always
     depends_on:
       - shadow-sync
     environment:
+      - HONEYPOT_HOSTNAME=${HONEYPOT_HOSTNAME:-gcs-shadow}
       - SSH_SHADOW_PASSWORD=${SSH_SHADOW_PASSWORD:-gcs123!}
       - SSH_SHADOW_HOST_PORT=${SSH_SHADOW_HOST_PORT:-22}
     ports:

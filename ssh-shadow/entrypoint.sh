@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Space-separated username:password weak credential pairs.
 SSH_SHADOW_CREDENTIALS="${SSH_SHADOW_CREDENTIALS:-gcs:gcs123! admin:admin ubuntu:ubuntu pi:raspberry support:support operator:operator guest:guest test:test}"
+HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}"
 
 if ! getent group honeypot >/dev/null; then
   groupadd --system honeypot
@@ -26,6 +27,10 @@ done
 mkdir -p /run/sshd /shadow/base /shadow/sessions /shadow/state /shadow/jails /logs/ssh-shadow/sessions /var/log/ssh-shadow
 chown -R root:honeypot /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 chmod -R g+rwX /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
+
+# Keep kernel nodename, /etc/hostname and shell-visible identity aligned.
+echo "$HONEYPOT_HOSTNAME" > /etc/hostname
+hostname "$HONEYPOT_HOSTNAME" >/dev/null 2>&1 || true
 
 # Keep attacker-visible workstation log paths stable and readable.
 mkdir -p /shadow/base/var/log/qgc /shadow/base/var/log/mavproxy

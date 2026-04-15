@@ -237,6 +237,11 @@ def main():
         "summary_interval_sec": SUMMARY_INTERVAL_SEC,
     })
 
+    if not WATCH_DIRS:
+        append_event({"event": "watcher_disabled", "msg": "WATCH_DIRS empty; global fs monitoring disabled"})
+        while True:
+            time.sleep(5)
+
     observer = Observer()
     handler = Handler()
 

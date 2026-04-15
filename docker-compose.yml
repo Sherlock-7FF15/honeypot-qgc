@@ -299,7 +299,8 @@ services:
     depends_on:
       - qgc
     environment:
-      - WATCH_DIRS=/qgc-data/Documents/QGroundControl:/qgc-data/tmp:/qgc-logs
+      # Disable global FS monitoring/copy-out by default to avoid low-value log churn in uploads/fs.
+      - WATCH_DIRS=
       - WATCHER_LOG=/logs/watcher/events.fs.jsonl
       - UPLOAD_ROOT=/uploads/fs
       - MAX_BYTES=52428800

@@ -115,8 +115,9 @@ Observed preauth event types:
 The trace agent now uses staged policy signals:
 
 - `suspicious` events (observe only): `scp` / `sftp`, downloaders (`wget`, `curl`, `tftp`, `nc`), `chmod +x`, inline `*-c`, reverse-shell-like syntax
-- `payload_captured` (terminate): newly created payload-like artifacts (ELF/script/executable) in attacker-controlled paths such as `home/*`, `tmp`, `var/tmp`, `opt`, `usr/local`
-- ignore noisy mirrored log churn for payload decisions (`var/log/qgc`, `var/log/mavproxy`, common `*.stdout` / `*.stderr` log files)
+- `payload_captured` (terminate): attacker-provenance artifacts only (downloaded/dropped via shell command provenance) in attacker-controlled paths such as `home/<user>`, `tmp`, `var/tmp`, `opt`
+- payload confidence requires provenance (`download` or `shell_create`) plus preparation/execution context (`chmod +x` or execution), not just new-file heuristics
+- hard exclusions for payload logic: `home/<user>/.cache/**`, `var/log/**` (including qgc/mavproxy), `*.stdout`, `*.stderr`, ffmpeg log churn
 - `idle_timeout` (terminate): interactive shell inactivity timeout via `TMOUT`
 
 On high-confidence payload capture or idle timeout, `ssh-shadow` writes `termination_reason`, records events, and captures evidence hashes/files.

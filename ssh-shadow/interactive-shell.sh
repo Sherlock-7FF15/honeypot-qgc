@@ -5,7 +5,7 @@ SESSION_DIR="$1"
 WORKSPACE="$2"
 LOGIN_USER="${3:-gcs}"
 
-export SESSION_DIR WORKSPACE
+export SESSION_DIR WORKSPACE LOGIN_USER
 export BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
@@ -33,7 +33,7 @@ __ssh_shadow_log_cmd() {
   [[ "$cmd" == "$__SSH_SHADOW_LAST" ]] && return 0
   __SSH_SHADOW_LAST="$cmd"
 
-  /opt/ssh-shadow/trace-agent.sh check-command "$cmd" || true
+  /opt/ssh-shadow/trace-agent.sh check-command "$cmd" "$PWD" || true
 
   python3 - <<'PY' "$CMD_LOG" "$cmd" "$PWD"
 import json,sys,time

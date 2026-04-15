@@ -40,7 +40,7 @@ PY
 }
 
 PROMPT_COMMAND='history -a; __ssh_shadow_log_cmd'
-PS1='\u@qgc-shadow:\w$ '
+PS1="\u@${HONEYPOT_HOSTNAME:-gcs-shadow}:\w$ "
 alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 

@@ -6,6 +6,7 @@ SESS_ROOT="${LOG_ROOT}/sessions"
 STATE_ROOT="/shadow/state"
 BASE_ROOT="/shadow/base"
 SESS_WORK_ROOT="/shadow/sessions"
+HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}"
 
 mkdir -p "$SESS_ROOT" "$STATE_ROOT" "$SESS_WORK_ROOT"
 
@@ -182,7 +183,7 @@ PY
 trap cleanup EXIT
 
 setup_projection
-export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER SHADOW_WORKSPACE="$WORKSPACE" SHADOW_LOGIN_USER="$LOGIN_USER"
+export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER SHADOW_WORKSPACE="$WORKSPACE" SHADOW_LOGIN_USER="$LOGIN_USER" HONEYPOT_HOSTNAME
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   echo "non_interactive_exec" > "${SESSION_DIR}/session_mode.txt"

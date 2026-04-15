@@ -54,6 +54,7 @@ ssh -p ${SSH_SHADOW_HOST_PORT:-22} admin@<host-ip>
 
 - If `SSH_ORIGINAL_COMMAND` is present (for example `ssh admin@host "uname -a"`), `ssh-shadow` now runs a non-interactive exec path and returns real stdout/stderr + exit code from `/bin/bash -lc "<command>"`.
 - If `SSH_ORIGINAL_COMMAND` is empty, `ssh-shadow` starts the interactive shell path.
+- `fakebin` shims keep identity output consistent across both modes (`hostname`, `uname -n`, `cat /etc/hostname`) using `gcs-shadow` by default.
 
 ## Mirrored sources
 

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+svc="${1:-}"
+action="${2:-status}"
+if [[ -z "$svc" ]]; then
+  echo "usage: service <name> <action>" >&2
+  exit 1
+fi
+exec /opt/ssh-shadow/fakebin/systemctl "$action" "${svc}.service"

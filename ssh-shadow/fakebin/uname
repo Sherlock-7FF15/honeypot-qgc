@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+VISIBLE_HOST="${HONEYPOT_HOSTNAME:-gcs-shadow}"
+REAL_HOST="$(/bin/uname -n)"
+
+if [[ "${1:-}" == "-n" || "${1:-}" == "--nodename" ]]; then
+  echo "$VISIBLE_HOST"
+  exit 0
+fi
+
+if [[ "${1:-}" == "-a" || "${1:-}" == "--all" ]]; then
+  /bin/uname -a | sed "s/${REAL_HOST}/${VISIBLE_HOST}/g"
+  exit 0
+fi
+
+OUT="$(/bin/uname "$@")"
+echo "$OUT" | sed "s/${REAL_HOST}/${VISIBLE_HOST}/g"

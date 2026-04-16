@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Space-separated username:password weak credential pairs.
-SSH_SHADOW_CREDENTIALS="${SSH_SHADOW_CREDENTIALS:-gcs:gcs123! admin:admin ubuntu:ubuntu pi:raspberry support:support operator:operator guest:guest test:test}"
+SSH_SHADOW_CREDENTIALS="${SSH_SHADOW_CREDENTIALS:-gcs:gcs123! admin:admin ubuntu:ubuntu pi:raspberry support:support operator:operator guest:guest test:test user:user deploy:deploy postgres:postgres debian:debian oracle:oracle openclaw:openclaw odoo:odoo mysql:mysql web:web}"
 HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}"
 
 if ! getent group honeypot >/dev/null; then

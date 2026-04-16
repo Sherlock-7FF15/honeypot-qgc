@@ -127,7 +127,7 @@ On high-confidence payload capture or idle timeout, `ssh-shadow` writes `termina
 
 `ssh-shadow` now exposes a session-local fake privilege escalation surface:
 
-- `sudo -l` returns plausible NOPASSWD output
+- `sudo -l` returns a plausible restricted NOPASSWD command set (not full `ALL`)
 - `sudo su -`, `sudo -s`, `sudo bash`, `sudo sh -c ...` enter/execute in fake-root mode
 - fake-root identity surface: `whoami -> root`, `id -> uid=0(root) gid=0(root) groups=0(root)`, root-style prompt
 - root-sensitive writes are mapped into session workspace only (`/root/**`, `/etc/ssh/sshd_config`, `/etc/crontab`, fake service state)

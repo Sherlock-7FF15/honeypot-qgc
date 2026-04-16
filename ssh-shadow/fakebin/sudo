@@ -23,7 +23,7 @@ Matching Defaults entries for ${LOGIN_USER} on ${HOST}:
     env_reset, secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 User ${LOGIN_USER} may run the following commands on ${HOST}:
-    (ALL) NOPASSWD: ALL
+    (root) NOPASSWD: /bin/sh, /bin/bash, /usr/bin/systemctl, /usr/bin/service, /bin/mkdir, /usr/bin/tee, /bin/chmod, /bin/chown, /bin/cp, /bin/mv, /bin/rm, /bin/cat
 TXT
   exit 0
 fi

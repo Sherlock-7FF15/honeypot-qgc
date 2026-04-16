@@ -14,7 +14,7 @@ PermitTunnel no
 AllowAgentForwarding no
 GatewayPorts no
 PermitUserEnvironment no
-AllowUsers gcs admin ubuntu pi support operator guest test
+AllowUsers gcs admin ubuntu pi support operator guest test user deploy openclaw
 Subsystem sftp /bin/false
 ClientAliveInterval 300
 ClientAliveCountMax 2

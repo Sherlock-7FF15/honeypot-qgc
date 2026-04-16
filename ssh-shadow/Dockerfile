@@ -30,6 +30,7 @@ COPY interactive-shell.sh /opt/ssh-shadow/interactive-shell.sh
 COPY trace-agent.sh /opt/ssh-shadow/trace-agent.sh
 COPY build-jail.sh /opt/ssh-shadow/build-jail.sh
 COPY preauth_logger.py /opt/ssh-shadow/preauth_logger.py
+COPY fake-root.bashrc /opt/ssh-shadow/fake-root.bashrc
 COPY fakebin/ /opt/ssh-shadow/fakebin/
 
 RUN chmod +x /opt/ssh-shadow/*.sh /opt/ssh-shadow/fakebin/*

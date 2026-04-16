@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_path_map.sh"
 args=()
 for a in "$@"; do
   case "$a" in
@@ -11,15 +13,9 @@ for a in "$@"; do
         args+=("$a")
       fi
       ;;
-    /var/log/qgc)
-      args+=("/shadow/base/var/log/qgc")
-      ;;
-    /var/log/mavproxy)
-      args+=("/shadow/base/var/log/mavproxy")
-      ;;
-    *)
-      args+=("$a")
-      ;;
+    /var/log/qgc) args+=("/shadow/base/var/log/qgc") ;;
+    /var/log/mavproxy) args+=("/shadow/base/var/log/mavproxy") ;;
+    *) args+=("$(map_shadow_path "$a")") ;;
   esac
 done
 

@@ -122,6 +122,19 @@ The trace agent now uses staged policy signals:
 
 On high-confidence payload capture or idle timeout, `ssh-shadow` writes `termination_reason`, records events, and captures evidence hashes/files.
 
+
+## Fake sudo / fake root behavior
+
+`ssh-shadow` now exposes a session-local fake privilege escalation surface:
+
+- `sudo -l` returns plausible NOPASSWD output
+- `sudo su -`, `sudo -s`, `sudo bash`, `sudo sh -c ...` enter/execute in fake-root mode
+- fake-root identity surface: `whoami -> root`, `id -> uid=0(root) gid=0(root) groups=0(root)`, root-style prompt
+- root-sensitive writes are mapped into session workspace only (`/root/**`, `/etc/ssh/sshd_config`, `/etc/crontab`, fake service state)
+- service operations (`systemctl`, `service`, `pkill -HUP sshd`) update session-local fake state and do not affect container init/services
+
+This does **not** grant real root or real sudo privileges.
+
 ## Automated verifier
 
 Run:

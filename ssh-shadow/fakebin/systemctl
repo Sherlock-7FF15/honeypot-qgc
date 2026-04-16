@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state_file="${SHADOW_WORKSPACE:-/tmp}/var/run/fake-service-state.json"
+mkdir -p "$(dirname "$state_file")"
+
+service_name() {
+  local raw="${1:-}"
+  raw="${raw%.service}"
+  case "$raw" in
+    ssh|sshd) echo "sshd" ;;
+    qgc) echo "qgc" ;;
+    mavproxy) echo "mavproxy" ;;
+    *) echo "$raw" ;;
+  esac
+}
+
+read_state() {
+  local svc="$1"
+  python3 - <<'PY' "$state_file" "$svc"
+import json,sys
+p,svc=sys.argv[1:]
+try:
+    obj=json.loads(open(p,'r',encoding='utf-8').read())
+except Exception:
+    obj={}
+default={
+  'qgc': {'state':'active (running)','pid':4242},
+  'mavproxy': {'state':'active (running)','pid':4243},
+  'sshd': {'state':'active (running)','pid':1},
+}
+svc_obj=obj.get(svc, default.get(svc, {'state':'active (running)','pid':9999}))
+print(json.dumps(svc_obj))
+PY
+}
+
+write_state() {
+  local svc="$1"
+  local state="$2"
+  local ts
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  python3 - <<'PY' "$state_file" "$svc" "$state" "$ts"
+import json,sys
+p,svc,state,ts=sys.argv[1:]
+try:
+    obj=json.loads(open(p,'r',encoding='utf-8').read())
+except Exception:
+    obj={}
+entry=obj.setdefault(svc,{})
+entry['state']=state
+entry['updated_utc']=ts
+if 'pid' not in entry:
+    entry['pid']=1 if svc=='sshd' else 9999
+open(p,'w',encoding='utf-8').write(json.dumps(obj,ensure_ascii=False,indent=2))
+PY
+}
+
+action="${1:-status}"
+target="${2:-sshd.service}"
+svc="$(service_name "$target")"
+
+case "$action" in
+  status)
+    info="$(read_state "$svc")"
+    python3 - <<'PY' "$svc" "$info"
+import json,sys,time
+svc,raw=sys.argv[1:]
+obj=json.loads(raw)
+state=obj.get('state','active (running)')
+pid=int(obj.get('pid',1))
+label=f"{svc}.service"
+desc={
+    'sshd':'OpenSSH Daemon',
+    'qgc':'QGroundControl Service',
+    'mavproxy':'MAVProxy Service',
+}.get(svc,f'{svc} Service')
+print(f"● {label} - {desc}")
+print(f"     Loaded: loaded (/etc/systemd/system/{label}; enabled)")
+print(f"     Active: {state} since {time.strftime('%a %Y-%m-%d %H:%M:%S UTC', time.gmtime())}; 7min ago")
+print(f"   Main PID: {pid} ({svc})")
+PY
+    ;;
+  restart|reload|start)
+    write_state "$svc" "active (running)"
+    echo "${action^}ed ${svc}.service."
+    ;;
+  stop)
+    write_state "$svc" "inactive (dead)"
+    echo "Stopped ${svc}.service."
+    ;;
+  *)
+    echo "System has not been booted with systemd as init system." >&2
+    exit 1
+    ;;
+esac

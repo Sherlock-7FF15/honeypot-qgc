@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_path_map.sh"
+VISIBLE_HOST="${HONEYPOT_HOSTNAME:-gcs-shadow}"
+
+if [[ "$#" -eq 1 && "$1" == "/etc/hostname" ]]; then
+  echo "$VISIBLE_HOST"
+  exit 0
+fi
+
+mapped=()
+while IFS= read -r line; do mapped+=("$line"); done < <(map_shadow_args "$@")
+exec /bin/cat "${mapped[@]}"

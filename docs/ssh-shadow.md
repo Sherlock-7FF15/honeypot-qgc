@@ -195,6 +195,12 @@ docker exec -u 0 ssh-shadow /bin/bash -lc 'mkdir -p /etc/sudoers.d; command -v s
 
 If login shows `sudo: effective uid is not 0 ... nosuid ...`, your host runtime blocks setuid elevation in container. Current `sandbox-run.sh` will automatically fall back to direct session mode with a warning so login remains usable.
 
+If your running container still uses an older `sandbox-run.sh` and disconnects immediately, force-patch it:
+
+```bash
+./scripts/force_patch_nosuid_fallback.sh ssh-shadow
+```
+
 Verifier coverage:
 
 1. compose config/build/up

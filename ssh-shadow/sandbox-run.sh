@@ -11,8 +11,9 @@ if [[ ! -x /opt/ssh-shadow/root-session-launch.sh ]]; then
   exit 127
 fi
 
-if ! /usr/bin/sudo -n true >/dev/null 2>&1; then
-  echo "[ssh-shadow] root-managed chroot is required but sudo elevation is unavailable" >&2
+# Validate sudo policy against the exact allowed helper command (not generic `true`).
+if ! /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --selftest "$SESSION_ROOTFS" >/dev/null 2>&1; then
+  echo "[ssh-shadow] root-managed chroot is required but sudo policy/elevation for root-session-launch is unavailable" >&2
   exit 125
 fi
 

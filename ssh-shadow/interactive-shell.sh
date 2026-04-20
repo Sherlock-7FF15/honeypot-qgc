@@ -22,6 +22,10 @@ export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
 export TMOUT="${SSH_SHADOW_IDLE_TIMEOUT:-900}"
 
+if [[ -n "${HOME:-}" && -d "${HOME}" ]]; then
+  cd "${HOME}" 2>/dev/null || true
+fi
+
 __ssh_shadow_mark_idle_timeout() {
   if [[ ! -f "${SESSION_DIR}/termination_reason.txt" ]]; then
     /opt/ssh-shadow/trace-agent.sh log-idle-timeout >/dev/null 2>&1 || true
@@ -56,4 +60,5 @@ alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" /bin/bash --noprofile --rcfile /tmp/.session_bashrc -i
+  /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" \
+    /usr/bin/script -q -c "/bin/bash --noprofile --rcfile /tmp/.session_bashrc -i" /dev/null

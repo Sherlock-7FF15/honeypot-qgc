@@ -52,4 +52,4 @@ alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  script -qf "${SESSION_DIR}/tty.transcript" -c "cd /home/${LOGIN_USER} && /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"
+  script -qf "${SESSION_DIR}/tty.transcript" -c "/opt/ssh-shadow/sandbox-run.sh ${WORKSPACE} ${SESSION_DIR} ${LOGIN_USER} /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"

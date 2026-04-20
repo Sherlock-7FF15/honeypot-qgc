@@ -76,10 +76,10 @@ For each accepted SSH session:
 2. only copy required session data (`Documents/QGroundControl`, `.config`, sanitized `.cache`, qgc/mavproxy logs)
 3. project `/home/<user>/Documents/QGroundControl` to the per-session workspace path and map common absolute read paths via `fakebin` wrappers (for example `find /home/<user>/Documents/QGroundControl` and `ls /var/log/qgc`)
 4. expose `/var/log/qgc` and `/var/log/mavproxy` via stable symlinks to `/shadow/base/var/log/...` (read-focused workstation view)
-5. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
-6. non-interactive SSH exec requests use the same session workspace but run via `exec-original-command.sh` (not the interactive shell wrapper)
+5. create a per-session rootfs in `./shadow/sessions/<session_id>/workspace` from an immutable template and project session data into it
+6. execute interactive shell and non-interactive SSH exec via a root-owned `root-session-launch.sh` helper (invoked through restricted sudoers) that `chroot()`s into that workspace and runs as the login user
 
-This removes the failing `proot`/`ptrace` dependency and avoids heavy full-tree login-time cloning.
+This removes `bwrap`/`proot` runtime dependency and makes attacker execution paths and diff/evidence scanning operate on the same filesystem view.
 
 ## Logs and evidence
 
@@ -143,6 +143,24 @@ Run:
 SSH_SHADOW_HOST_PORT=2222 ./scripts/verify_ssh_shadow.sh
 ```
 
+## Build troubleshooting (important)
+
+If you still see build errors mentioning:
+
+- `gcc -O2 ... /opt/ssh-shadow/session-exec.c`
+- `gcc: not found`
+
+then your working tree is still on an older revision. Current `ssh-shadow/Dockerfile` no longer compiles `session-exec.c`; it uses `sudo` + `root-session-launch.sh` instead.
+
+Before rebuilding, run:
+
+```bash
+git rev-parse --short HEAD
+git log --oneline -n 3
+rg -n "session-exec|gcc -O2" ssh-shadow/Dockerfile
+docker compose --profile ssh-shadow build --no-cache ssh-shadow
+```
+
 Verifier coverage:
 
 1. compose config/build/up
@@ -158,6 +176,6 @@ Verifier coverage:
 
 ## Limitations / non-goals
 
-- Isolation currently uses per-session workspace projection (not kernel `chroot` and not `proot`).
+- Isolation uses per-session workspace projection with a root-managed `chroot` launcher (no `proot`).
 - Process/service realism is lightweight (`fakebin` wrappers for `ps`, `systemctl`, `ss`).
 - Designed for interaction capture and containment, not full host emulation.

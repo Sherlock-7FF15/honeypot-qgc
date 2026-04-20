@@ -28,6 +28,19 @@ mkdir -p /run/sshd /shadow/base /shadow/sessions /shadow/state /shadow/jails /lo
 chown -R root:honeypot /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 chmod -R g+rwX /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 
+# Build immutable minimal rootfs template used for per-session chroot execution.
+/opt/ssh-shadow/prepare-rootfs.sh /opt/ssh-shadow/session-rootfs
+
+# Allow honeypot users to invoke root-owned session launcher only.
+cat > /etc/sudoers.d/ssh-shadow-session-launch <<'SUDOERS'
+Defaults:%honeypot !requiretty
+%honeypot ALL=(root) NOPASSWD: /opt/ssh-shadow/root-session-launch.sh
+SUDOERS
+chmod 0440 /etc/sudoers.d/ssh-shadow-session-launch
+
+# Fail-fast if root chroot path is unusable on this host.
+/opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs
+
 # Keep kernel nodename, /etc/hostname and shell-visible identity aligned.
 echo "$HONEYPOT_HOSTNAME" > /etc/hostname
 hostname "$HONEYPOT_HOSTNAME" >/dev/null 2>&1 || true

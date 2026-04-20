@@ -1,3 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TARGET="${1:-ssh-shadow/Dockerfile}"
+
+mkdir -p "$(dirname "$TARGET")"
+cp -f "$TARGET" "${TARGET}.bak.$(date -u +%Y%m%dT%H%M%SZ)" 2>/dev/null || true
+
+cat > "$TARGET" <<'DOCKERFILE'
 FROM debian:12-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -65,3 +74,11 @@ RUN chmod +x /opt/ssh-shadow/*.sh /opt/ssh-shadow/fakebin/*
 
 EXPOSE 2222
 ENTRYPOINT ["/opt/ssh-shadow/entrypoint.sh"]
+DOCKERFILE
+
+echo "[repair] rewrote $TARGET to canonical chroot/sudo version."
+grep -nE "session-exec|gcc -O2" "$TARGET" && {
+  echo "[repair] unexpected stale patterns still present" >&2
+  exit 2
+} || true
+echo "[repair] OK."

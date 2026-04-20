@@ -59,7 +59,10 @@ PY
 fi
 
 setup_projection() {
-  /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"
+  if ! /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --prepare-session-rootfs "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"; then
+    echo "[ssh-shadow] failed to prepare session rootfs" >&2
+    exit 125
+  fi
 
   BASELINE_META="${SESSION_DIR}/baseline_meta.json"
   python3 - <<'PY' "$SESSION_ROOTFS" "$BASELINE_META" "${SESSION_DIR}/baseline_files.txt"
@@ -156,7 +159,8 @@ summary={
 PY
   cleanup_projection || true
 
-  rm -rf "$SESSION_WORK_DIR" "/shadow/jails/${SESSION_ID}" || true
+  /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --cleanup-session-rootfs "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
+  rm -rf "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time

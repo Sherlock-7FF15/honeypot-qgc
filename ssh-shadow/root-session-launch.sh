@@ -7,14 +7,33 @@ if [[ "${1:-}" == "--selftest" ]]; then
   exec chroot "$ws" /bin/bash -lc "true"
 fi
 
-SESSION_ROOTFS="${1:?session_rootfs}"
-LOGIN_USER="${2:?login_user}"
-shift 2
-
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "[ssh-shadow] root-session-launch must run as root" >&2
   exit 126
 fi
+
+if [[ "${1:-}" == "--prepare-session-rootfs" ]]; then
+  BASE_ROOT="${2:?base_root}"
+  SESSION_ROOTFS="${3:?session_rootfs}"
+  LOGIN_USER="${4:?login_user}"
+  exec /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"
+fi
+
+if [[ "${1:-}" == "--cleanup-session-rootfs" ]]; then
+  SESSION_WORK_DIR="${2:?session_work_dir}"
+  case "$SESSION_WORK_DIR" in
+    /shadow/sessions/*) ;;
+    *)
+      echo "[ssh-shadow] refusing cleanup outside /shadow/sessions: $SESSION_WORK_DIR" >&2
+      exit 124
+      ;;
+  esac
+  exec rm -rf -- "$SESSION_WORK_DIR"
+fi
+
+SESSION_ROOTFS="${1:?session_rootfs}"
+LOGIN_USER="${2:?login_user}"
+shift 2
 
 if [[ ! -d "$SESSION_ROOTFS" ]]; then
   echo "[ssh-shadow] session rootfs not found: $SESSION_ROOTFS" >&2

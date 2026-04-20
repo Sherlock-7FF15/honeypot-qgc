@@ -57,6 +57,8 @@ COPY build-jail.sh /opt/ssh-shadow/build-jail.sh
 COPY sandbox-run.sh /opt/ssh-shadow/sandbox-run.sh
 COPY prepare-rootfs.sh /opt/ssh-shadow/prepare-rootfs.sh
 COPY root-session-launch.sh /opt/ssh-shadow/root-session-launch.sh
+COPY root-session-daemon.py /opt/ssh-shadow/root-session-daemon.py
+COPY root-session-client.py /opt/ssh-shadow/root-session-client.py
 COPY preauth_logger.py /opt/ssh-shadow/preauth_logger.py
 COPY fake-root.bashrc /opt/ssh-shadow/fake-root.bashrc
 COPY fakebin/ /opt/ssh-shadow/fakebin/

@@ -11,5 +11,9 @@ if [[ ! -x /opt/ssh-shadow/root-session-launch.sh ]]; then
   exit 127
 fi
 
-# Invoke the only allowed sudo command directly so the caller sees the real failure reason.
-exec /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh "$SESSION_ROOTFS" "$LOGIN_USER" "$@"
+if [[ ! -S /run/ssh-shadow/root-launch.sock ]]; then
+  echo "[ssh-shadow] root-session-daemon socket missing; cannot start session chroot" >&2
+  exit 127
+fi
+
+exec /usr/bin/python3 /opt/ssh-shadow/root-session-client.py launch "$SESSION_ROOTFS" "$LOGIN_USER" "$@"

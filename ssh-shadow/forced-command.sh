@@ -60,7 +60,7 @@ fi
 
 setup_projection() {
   local prep_err="${SESSION_DIR}/prepare.stderr"
-  if ! /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --prepare-session-rootfs "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
+  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
     echo "[ssh-shadow] failed to prepare session rootfs" >&2
     cat "$prep_err" >&2 || true
     exit 125
@@ -161,7 +161,7 @@ summary={
 PY
   cleanup_projection || true
 
-  /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --cleanup-session-rootfs "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
+  /usr/bin/python3 /opt/ssh-shadow/root-session-client.py cleanup "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
   rm -rf "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"

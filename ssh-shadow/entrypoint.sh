@@ -31,6 +31,20 @@ chmod -R g+rwX /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || 
 # Build immutable minimal rootfs template used for per-session chroot execution.
 /opt/ssh-shadow/prepare-rootfs.sh /opt/ssh-shadow/session-rootfs
 
+# Start root-managed launch daemon (avoids sudo/setuid dependency on nosuid filesystems).
+mkdir -p /run/ssh-shadow
+/usr/bin/python3 /opt/ssh-shadow/root-session-daemon.py > /var/log/ssh-shadow/root-session-daemon.log 2>&1 &
+ROOT_DAEMON_PID=$!
+
+for _ in $(seq 1 50); do
+  [[ -S /run/ssh-shadow/root-launch.sock ]] && break
+  sleep 0.1
+done
+if [[ ! -S /run/ssh-shadow/root-launch.sock ]]; then
+  echo "[ssh-shadow] fatal: root-session-daemon socket did not appear" >&2
+  exit 43
+fi
+
 # Allow honeypot users to invoke root-owned session launcher only.
 cat > /etc/sudoers.d/ssh-shadow-session-launch <<'SUDOERS'
 Defaults:%honeypot !requiretty
@@ -40,8 +54,8 @@ chmod 0440 /etc/sudoers.d/ssh-shadow-session-launch
 
 # Fail-fast if root chroot path is unusable on this host.
 /opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs
-if ! su -s /bin/bash -c "sudo -n /opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs" gcs >/dev/null 2>&1; then
-  echo "[ssh-shadow] fatal: honeypot user cannot start required root-managed chroot session" >&2
+if ! su -s /bin/bash -c "/usr/bin/python3 /opt/ssh-shadow/root-session-client.py selftest /opt/ssh-shadow/session-rootfs" gcs >/dev/null 2>&1; then
+  echo "[ssh-shadow] fatal: honeypot user cannot reach required root-managed chroot launcher" >&2
   exit 42
 fi
 

@@ -33,7 +33,8 @@ chmod -R g+rwX /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || 
 
 # Start root-managed launch daemon (avoids sudo/setuid dependency on nosuid filesystems).
 mkdir -p /run/ssh-shadow
-/usr/bin/python3 /opt/ssh-shadow/root-session-daemon.py > /var/log/ssh-shadow/root-session-daemon.log 2>&1 &
+touch /var/log/ssh-shadow/root-session-daemon.log
+/usr/bin/python3 /opt/ssh-shadow/root-session-daemon.py >> /var/log/ssh-shadow/root-session-daemon.log 2>&1 &
 ROOT_DAEMON_PID=$!
 
 for _ in $(seq 1 50); do

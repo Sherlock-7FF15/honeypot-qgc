@@ -6,9 +6,9 @@ SESSION_DIR="${2:?session_dir}"
 LOGIN_USER="${3:?login_user}"
 shift 3
 
-if [[ ! -x /opt/ssh-shadow/session-exec ]]; then
-  echo "[ssh-shadow] session-exec helper missing; cannot start session sandbox" >&2
+if [[ ! -x /opt/ssh-shadow/root-session-launch.sh ]]; then
+  echo "[ssh-shadow] root-session-launch helper missing; cannot start session sandbox" >&2
   exit 127
 fi
 
-exec /opt/ssh-shadow/session-exec "$WORKSPACE" "$LOGIN_USER" "$@"
+exec /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh "$WORKSPACE" "$LOGIN_USER" "$@"

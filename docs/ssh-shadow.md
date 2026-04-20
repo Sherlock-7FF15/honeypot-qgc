@@ -77,7 +77,7 @@ For each accepted SSH session:
 3. project `/home/<user>/Documents/QGroundControl` to the per-session workspace path and map common absolute read paths via `fakebin` wrappers (for example `find /home/<user>/Documents/QGroundControl` and `ls /var/log/qgc`)
 4. expose `/var/log/qgc` and `/var/log/mavproxy` via stable symlinks to `/shadow/base/var/log/...` (read-focused workstation view)
 5. create a per-session rootfs in `./shadow/sessions/<session_id>/workspace` from an immutable template and project session data into it
-6. execute interactive shell and non-interactive SSH exec via a root-owned `session-exec` helper that `chroot()`s into that workspace and drops privileges to the login user
+6. execute interactive shell and non-interactive SSH exec via a root-owned `root-session-launch.sh` helper (invoked through restricted sudoers) that `chroot()`s into that workspace and runs as the login user
 
 This removes `bwrap`/`proot` runtime dependency and makes attacker execution paths and diff/evidence scanning operate on the same filesystem view.
 

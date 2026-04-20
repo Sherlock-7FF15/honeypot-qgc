@@ -16,13 +16,7 @@ if [[ "${1:-}" == "--prepare-session-rootfs" ]]; then
   BASE_ROOT="${2:?base_root}"
   SESSION_ROOTFS="${3:?session_rootfs}"
   LOGIN_USER="${4:?login_user}"
-  SESSION_DIR_ABS="${5:-}"
   /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"
-  if [[ -n "$SESSION_DIR_ABS" ]]; then
-    mkdir -p "${SESSION_ROOTFS}${SESSION_DIR_ABS}"
-    chown -R "${LOGIN_USER}:honeypot" "${SESSION_ROOTFS}${SESSION_DIR_ABS}" >/dev/null 2>&1 || chown -R "${LOGIN_USER}:${LOGIN_USER}" "${SESSION_ROOTFS}${SESSION_DIR_ABS}" >/dev/null 2>&1 || true
-    chmod -R u+rwX,go-rwx "${SESSION_ROOTFS}${SESSION_DIR_ABS}" >/dev/null 2>&1 || true
-  fi
   exit 0
 fi
 
@@ -46,6 +40,10 @@ if [[ ! -d "$SESSION_ROOTFS" ]]; then
   echo "[ssh-shadow] session rootfs not found: $SESSION_ROOTFS" >&2
   exit 127
 fi
+
+mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
+chown -R "${LOGIN_USER}:honeypot" "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || chown -R "${LOGIN_USER}:${LOGIN_USER}" "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
+chmod -R u+rwX,go-rwx "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
 
 HOME_IN_CHROOT="/home/${LOGIN_USER}"
 if [[ ! -d "${SESSION_ROOTFS}${HOME_IN_CHROOT}" ]]; then

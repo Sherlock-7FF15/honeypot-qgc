@@ -39,7 +39,7 @@ def main():
         req = {"action": "selftest", "session_rootfs": sys.argv[2]}
         resp = send(req)
     elif action == "prepare":
-        session_dir = sys.argv[5] if len(sys.argv) > 5 else os.environ.get("SESSION_DIR", "")
+        session_dir = os.environ.get("SESSION_DIR", "")
         req = {
             "action": "prepare",
             "base_root": sys.argv[2],
@@ -69,10 +69,10 @@ def main():
             "honeypot_hostname": os.environ.get("HONEYPOT_HOSTNAME", "gcs-shadow"),
             "session_dir": os.environ.get("SESSION_DIR", ""),
             "workspace": "/",
-            "baseline_file": os.environ.get("BASELINE_FILE", ""),
-            "baseline_meta": os.environ.get("BASELINE_META", ""),
+            "baseline_file": "/tmp/ssh-shadow/session/baseline_files.txt",
+            "baseline_meta": "/tmp/ssh-shadow/session/baseline_meta.json",
             "shadow_workspace": "/",
-            "cmd_log": os.environ.get("CMD_LOG", ""),
+            "cmd_log": "/tmp/ssh-shadow/session/commands.jsonl",
             "tty_path": tty_path,
         }
         resp = send(req, pass_stdio=True)

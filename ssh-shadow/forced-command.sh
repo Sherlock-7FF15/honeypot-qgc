@@ -60,7 +60,7 @@ fi
 
 setup_projection() {
   local prep_err="${SESSION_DIR}/prepare.stderr"
-  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" "$SESSION_DIR" 2>"$prep_err"; then
+  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
     echo "[ssh-shadow] failed to prepare session rootfs" >&2
     cat "$prep_err" >&2 || true
     exit 125
@@ -84,6 +84,9 @@ for p in root.rglob('*'):
 out.write_text(json.dumps(rows,ensure_ascii=False),encoding='utf-8')
 list_out.write_text('\n'.join(sorted(rows.keys())) + ('\n' if rows else ''), encoding='utf-8')
 PY
+
+  mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
+  cp -f "$BASELINE_META" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" || true
 }
 
 cleanup_projection() {
@@ -99,8 +102,8 @@ cleanup() {
     reason="exit_code_${rc}"
   fi
 
-  if [[ -d "${SESSION_ROOTFS}${SESSION_DIR}" ]]; then
-    rsync -a --ignore-errors "${SESSION_ROOTFS}${SESSION_DIR}/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
+  if [[ -d "${SESSION_ROOTFS}/tmp/ssh-shadow/session" ]]; then
+    rsync -a --ignore-errors "${SESSION_ROOTFS}/tmp/ssh-shadow/session/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
   fi
 
   if [[ "$reason" == payload_captured:* || "$reason" == *"sensitive"* ]]; then

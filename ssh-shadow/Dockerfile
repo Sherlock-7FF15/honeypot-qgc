@@ -4,16 +4,40 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-server \
+    openssh-client \
     bash \
     coreutils \
     findutils \
     grep \
     sed \
+    gawk \
     procps \
     iproute2 \
+    net-tools \
+    lsof \
     util-linux \
     strace \
     rsync \
+    wget \
+    curl \
+    netcat-openbsd \
+    iputils-ping \
+    dnsutils \
+    ftp \
+    file \
+    binutils \
+    which \
+    less \
+    vim-tiny \
+    nano \
+    zip \
+    unzip \
+    xz-utils \
+    bzip2 \
+    tar \
+    gzip \
+    perl \
+    git \
     python3 \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*

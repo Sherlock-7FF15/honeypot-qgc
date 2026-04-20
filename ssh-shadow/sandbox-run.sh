@@ -37,7 +37,7 @@ if command -v bwrap >/dev/null 2>&1; then
   echo "[ssh-shadow] bwrap unavailable in current kernel policy; falling back to proot" >&2
 fi
 
-exec env SSH_SHADOW_SANDBOX=1 proot -R "$WORKSPACE" \
+exec env SSH_SHADOW_SANDBOX=1 PROOT_NO_SECCOMP=1 proot -R "$WORKSPACE" \
   -b /bin:/bin \
   -b /sbin:/sbin \
   -b /usr:/usr \

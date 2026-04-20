@@ -125,6 +125,11 @@ services:
       - ./shadow/sessions:/shadow/sessions:rw
       - ./shadow/state:/shadow/state:rw
       - ./logs/ssh-shadow:/logs/ssh-shadow:rw
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
     networks:
       - internal_net
 

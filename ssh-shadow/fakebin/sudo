@@ -6,6 +6,11 @@ source "$SCRIPT_DIR/_path_map.sh"
 
 HOST="${HONEYPOT_HOSTNAME:-gcs-shadow}"
 LOGIN_USER="${SHADOW_LOGIN_USER:-gcs}"
+
+if [[ "${SSH_SHADOW_SANDBOX:-0}" != "1" ]]; then
+  echo "sudo: session rootfs unavailable; refusing non-chroot execution path" >&2
+  exit 70
+fi
 FAKE_ROOT_HOME="$(map_shadow_path /root)"
 mkdir -p "$FAKE_ROOT_HOME/.ssh"
 

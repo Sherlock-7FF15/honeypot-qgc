@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_path_map.sh"
+
+HOST="${HONEYPOT_HOSTNAME:-gcs-shadow}"
+LOGIN_USER="${SHADOW_LOGIN_USER:-gcs}"
+FAKE_ROOT_HOME="$(map_shadow_path /root)"
+mkdir -p "$FAKE_ROOT_HOME/.ssh"
+
+fake_root_env() {
+  export SSH_SHADOW_FAKE_ROOT=1
+  export USER=root
+  export LOGNAME=root
+  export HOME=/root
+  export SHADOW_FAKE_ROOT_HOME="$FAKE_ROOT_HOME"
+}
+
+if [[ "${1:-}" == "-l" ]]; then
+  cat <<TXT
+Matching Defaults entries for ${LOGIN_USER} on ${HOST}:
+    env_reset, secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+User ${LOGIN_USER} may run the following commands on ${HOST}:
+    (root) NOPASSWD: /bin/sh, /bin/bash, /usr/bin/systemctl, /usr/bin/service, /bin/mkdir, /usr/bin/tee, /bin/chmod, /bin/chown, /bin/cp, /bin/mv, /bin/rm, /bin/cat
+TXT
+  exit 0
+fi
+
+if [[ "$#" -eq 0 ]]; then
+  set -- /bin/bash
+fi
+
+case "${1:-}" in
+  su)
+    shift
+    if [[ "${1:-}" == "-" ]]; then
+      shift
+    fi
+    fake_root_env
+    cd "$FAKE_ROOT_HOME"
+    exec /bin/bash --noprofile --rcfile /opt/ssh-shadow/fake-root.bashrc -i
+    ;;
+  -s)
+    shift
+    fake_root_env
+    cd "$FAKE_ROOT_HOME"
+    exec /bin/bash --noprofile --rcfile /opt/ssh-shadow/fake-root.bashrc -i
+    ;;
+  bash|sh)
+    shell_bin="$1"
+    shift
+    fake_root_env
+    if [[ "${1:-}" == "-c" && -n "${2:-}" ]]; then
+      cmd="$2"
+      cmd="${cmd//\/root/$(map_shadow_path /root)}"
+      cmd="${cmd//\/etc\/ssh\/sshd_config/$(map_shadow_path /etc/ssh/sshd_config)}"
+      cmd="${cmd//\/etc\/crontab/$(map_shadow_path /etc/crontab)}"
+      exec "/bin/${shell_bin}" -c "$cmd"
+    fi
+    cd "$FAKE_ROOT_HOME"
+    exec /bin/bash --noprofile --rcfile /opt/ssh-shadow/fake-root.bashrc -i
+    ;;
+esac
+
+fake_root_env
+mapped=()
+while IFS= read -r line; do mapped+=("$line"); done < <(map_shadow_args "$@")
+exec "${mapped[@]}"

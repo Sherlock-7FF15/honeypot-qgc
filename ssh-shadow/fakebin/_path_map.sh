@@ -4,7 +4,7 @@ set -euo pipefail
 map_shadow_path() {
   local p="${1:-}"
 
-  # When running inside session sandbox rootfs, absolute paths are already sandbox-local.
+  # Core isolation is the per-session chroot. Path mapping is realism-only and disabled in chroot.
   if [[ "${SSH_SHADOW_SANDBOX:-0}" == "1" ]]; then
     printf '%s' "$p"
     return 0

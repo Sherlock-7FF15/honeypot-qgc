@@ -162,6 +162,14 @@ grep -nE "session-exec|gcc -O2" ssh-shadow/Dockerfile || true
 docker compose --profile ssh-shadow build --no-cache ssh-shadow
 ```
 
+If your branch history is messy and you cannot cherry-pick known fix commits, use:
+
+```bash
+./scripts/repair_ssh_shadow_dockerfile.sh
+./scripts/check_ssh_shadow_dockerfile.sh
+docker compose --profile ssh-shadow build --no-cache ssh-shadow
+```
+
 Verifier coverage:
 
 1. compose config/build/up

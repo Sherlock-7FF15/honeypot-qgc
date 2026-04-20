@@ -55,11 +55,12 @@ def main():
         if len(sys.argv) < 5:
             print("usage: root-session-client.py launch <session_rootfs> <login_user> <cmd> [args...]", file=sys.stderr)
             return 2
-        tty_path = None
-        try:
-            tty_path = os.ttyname(0)
-        except Exception:
-            tty_path = None
+        tty_path = os.environ.get("SSH_TTY") or None
+        if not tty_path:
+            try:
+                tty_path = os.ttyname(0)
+            except Exception:
+                tty_path = None
         req = {
             "action": "launch",
             "session_rootfs": sys.argv[2],

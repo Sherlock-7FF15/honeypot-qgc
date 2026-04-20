@@ -2,15 +2,16 @@
 set -euo pipefail
 
 SESSION_DIR="$1"
-WORKSPACE="$2"
+SESSION_ROOTFS="$2"
 LOGIN_USER="$3"
 ORIG_CMD="$4"
 
-export SESSION_DIR WORKSPACE LOGIN_USER
+export SESSION_DIR SESSION_ROOTFS WORKSPACE="$SESSION_ROOTFS" LOGIN_USER
 export BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
+export BASELINE_META="${SESSION_DIR}/baseline_meta.json"
 export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
-export SHADOW_WORKSPACE="$WORKSPACE"
+export SHADOW_WORKSPACE="$SESSION_ROOTFS"
 export SHADOW_LOGIN_USER="$LOGIN_USER"
 
 python3 - <<'PY' "$SESSION_DIR/commands.jsonl" "$ORIG_CMD" "/home/${LOGIN_USER}" "ssh_exec"
@@ -29,7 +30,7 @@ ERR_FILE="${SESSION_DIR}/exec.stderr"
 
 set +e
 strace -ff -tt -s 256 -o "${SESSION_DIR}/strace_exec" -e trace=%file,execve \
-  /opt/ssh-shadow/sandbox-run.sh "$WORKSPACE" "$SESSION_DIR" "$LOGIN_USER" /bin/bash -lc "$ORIG_CMD" >"$OUT_FILE" 2>"$ERR_FILE"
+  /opt/ssh-shadow/sandbox-run.sh "$SESSION_ROOTFS" "$SESSION_DIR" "$LOGIN_USER" /bin/bash -lc "$ORIG_CMD" >"$OUT_FILE" 2>"$ERR_FILE"
 RC=$?
 set -e
 

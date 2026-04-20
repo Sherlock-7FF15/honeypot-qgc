@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+import array
+import json
+import os
+import socket
+import sys
+
+SOCK_PATH = "/run/ssh-shadow/root-launch.sock"
+
+
+def send(req, pass_stdio=False):
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(SOCK_PATH)
+    payload = (json.dumps(req, ensure_ascii=False) + "\n").encode("utf-8")
+    if pass_stdio:
+        fds = array.array("i", [0, 1, 2])
+        s.sendmsg([payload], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, fds.tobytes())])
+    else:
+        s.sendall(payload)
+    data = b""
+    while not data.endswith(b"\n"):
+        chunk = s.recv(65536)
+        if not chunk:
+            break
+        data += chunk
+    s.close()
+    if not data:
+        return {"ok": False, "rc": 98, "stderr": "empty response from root-session-daemon"}
+    return json.loads(data.decode("utf-8").strip())
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("usage: root-session-client.py {selftest|prepare|cleanup|launch} ...", file=sys.stderr)
+        return 2
+
+    action = sys.argv[1]
+    if action == "selftest":
+        req = {"action": "selftest", "session_rootfs": sys.argv[2]}
+        resp = send(req)
+    elif action == "prepare":
+        req = {
+            "action": "prepare",
+            "base_root": sys.argv[2],
+            "session_rootfs": sys.argv[3],
+            "login_user": sys.argv[4],
+        }
+        resp = send(req)
+    elif action == "cleanup":
+        req = {"action": "cleanup", "session_work_dir": sys.argv[2]}
+        resp = send(req)
+    elif action == "launch":
+        if len(sys.argv) < 5:
+            print("usage: root-session-client.py launch <session_rootfs> <login_user> <cmd> [args...]", file=sys.stderr)
+            return 2
+        req = {
+            "action": "launch",
+            "session_rootfs": sys.argv[2],
+            "login_user": sys.argv[3],
+            "argv": sys.argv[4:],
+            "home": f"/home/{sys.argv[3]}",
+            "honeypot_hostname": os.environ.get("HONEYPOT_HOSTNAME", "gcs-shadow"),
+            "session_dir": os.environ.get("SESSION_DIR", ""),
+            "workspace": "/",
+            "baseline_file": os.environ.get("BASELINE_FILE", ""),
+            "baseline_meta": os.environ.get("BASELINE_META", ""),
+            "shadow_workspace": "/",
+            "cmd_log": os.environ.get("CMD_LOG", ""),
+        }
+        resp = send(req, pass_stdio=True)
+    else:
+        print(f"unknown action: {action}", file=sys.stderr)
+        return 2
+
+    if not resp.get("ok"):
+        msg = resp.get("stderr") or resp.get("stdout") or "request failed"
+        if msg:
+            print(msg, file=sys.stderr)
+        return int(resp.get("rc", 1))
+
+    out = resp.get("stdout")
+    if out:
+        print(out, end="")
+    return int(resp.get("rc", 0))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -11,16 +11,15 @@ export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
 export SHADOW_WORKSPACE="$WORKSPACE"
 export SHADOW_LOGIN_USER="$LOGIN_USER"
-export BASH_ENV="/opt/ssh-shadow/session-paths.sh"
 
 CMD_LOG="${SESSION_DIR}/commands.jsonl"
 export CMD_LOG
 
-cat > "${SESSION_DIR}/bashrc" <<'BRC'
+CHROOT_BASHRC="${WORKSPACE}/tmp/.session_bashrc"
+cat > "${CHROOT_BASHRC}" <<'BRC'
 export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
 export TMOUT="${SSH_SHADOW_IDLE_TIMEOUT:-900}"
-source /opt/ssh-shadow/session-paths.sh
 
 __ssh_shadow_mark_idle_timeout() {
   if [[ ! -f "${SESSION_DIR}/termination_reason.txt" ]]; then
@@ -56,4 +55,4 @@ alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  script -qf "${SESSION_DIR}/tty.transcript" -c "/opt/ssh-shadow/sandbox-run.sh ${WORKSPACE} ${SESSION_DIR} ${LOGIN_USER} /bin/bash --noprofile --rcfile ${SESSION_DIR}/bashrc -i"
+  script -qf "${SESSION_DIR}/tty.transcript" -c "/opt/ssh-shadow/sandbox-run.sh ${WORKSPACE} ${SESSION_DIR} ${LOGIN_USER} /bin/bash --noprofile --rcfile /tmp/.session_bashrc -i"

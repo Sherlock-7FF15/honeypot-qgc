@@ -6,36 +6,9 @@ SESSION_DIR="${2:?session_dir}"
 LOGIN_USER="${3:?login_user}"
 shift 3
 
-# Prefer bubblewrap when available. If kernel/userns policy blocks bwrap,
-# run directly in the container namespace (no proot fallback).
-if command -v bwrap >/dev/null 2>&1; then
-  set +e
-  env SSH_SHADOW_SANDBOX=1 bwrap \
-    --die-with-parent \
-    --new-session \
-    --unshare-pid \
-    --bind "$WORKSPACE" / \
-    --ro-bind /bin /bin \
-    --ro-bind /sbin /sbin \
-    --ro-bind /usr /usr \
-    --ro-bind /lib /lib \
-    --ro-bind /lib64 /lib64 \
-    --ro-bind /opt/ssh-shadow /opt/ssh-shadow \
-    --ro-bind /etc/resolv.conf /etc/resolv.conf \
-    --ro-bind /etc/hosts /etc/hosts \
-    --bind "$WORKSPACE/dev/shm" /dev/shm \
-    --dev-bind /dev /dev \
-    --proc /proc \
-    --bind "$SESSION_DIR" "$SESSION_DIR" \
-    --chdir "/home/${LOGIN_USER}" \
-    "$@"
-  rc=$?
-  set -e
-  if [[ $rc -eq 0 ]]; then
-    exit 0
-  fi
-  echo "[ssh-shadow] bwrap unavailable in current kernel policy; falling back to direct shell mode" >&2
+if [[ ! -x /opt/ssh-shadow/session-exec ]]; then
+  echo "[ssh-shadow] session-exec helper missing; cannot start session sandbox" >&2
+  exit 127
 fi
 
-cd "/home/${LOGIN_USER}"
-exec env SSH_SHADOW_SANDBOX=0 "$@"
+exec /opt/ssh-shadow/session-exec "$WORKSPACE" "$LOGIN_USER" "$@"

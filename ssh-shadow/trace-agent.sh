@@ -44,11 +44,13 @@ if baseline.exists():
         if line.strip():
             known.add(line.strip())
 
+login_user = "${LOGIN_USER}"
+
 def excluded(rel: str) -> bool:
     lower=rel.lower()
     if rel.startswith('var/log/'):
         return True
-    if rel.startswith('home/admin/.cache/'):
+    if rel.startswith(f'home/{login_user}/.cache/'):
         return True
     if '/.cache/' in rel:
         return True

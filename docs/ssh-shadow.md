@@ -76,10 +76,10 @@ For each accepted SSH session:
 2. only copy required session data (`Documents/QGroundControl`, `.config`, sanitized `.cache`, qgc/mavproxy logs)
 3. project `/home/<user>/Documents/QGroundControl` to the per-session workspace path and map common absolute read paths via `fakebin` wrappers (for example `find /home/<user>/Documents/QGroundControl` and `ls /var/log/qgc`)
 4. expose `/var/log/qgc` and `/var/log/mavproxy` via stable symlinks to `/shadow/base/var/log/...` (read-focused workstation view)
-5. launch shell with a session-local path virtualization layer (`session-paths.sh`) so `/tmp`, `/var/tmp`, `/root`, and `/home/<user>` resolve into the session workspace
-6. non-interactive SSH exec requests use the same workspace mapping via `BASH_ENV` and run through `exec-original-command.sh`
+5. create a per-session rootfs in `./shadow/sessions/<session_id>/workspace` from an immutable template and project session data into it
+6. execute interactive shell and non-interactive SSH exec via a root-owned `session-exec` helper that `chroot()`s into that workspace and drops privileges to the login user
 
-This removes the failing `proot`/`ptrace` dependency and keeps attacker execution paths aligned with workspace diff/evidence capture.
+This removes `bwrap`/`proot` runtime dependency and makes attacker execution paths and diff/evidence scanning operate on the same filesystem view.
 
 ## Logs and evidence
 

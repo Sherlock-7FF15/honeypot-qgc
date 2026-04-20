@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lsof \
     util-linux \
     strace \
-    proot \
-    bubblewrap \
+    gcc \
+    libc6-dev \
     rsync \
     wget \
     curl \
@@ -56,12 +56,16 @@ COPY interactive-shell.sh /opt/ssh-shadow/interactive-shell.sh
 COPY trace-agent.sh /opt/ssh-shadow/trace-agent.sh
 COPY build-jail.sh /opt/ssh-shadow/build-jail.sh
 COPY sandbox-run.sh /opt/ssh-shadow/sandbox-run.sh
-COPY session-paths.sh /opt/ssh-shadow/session-paths.sh
+COPY prepare-rootfs.sh /opt/ssh-shadow/prepare-rootfs.sh
+COPY session-exec.c /opt/ssh-shadow/session-exec.c
 COPY preauth_logger.py /opt/ssh-shadow/preauth_logger.py
 COPY fake-root.bashrc /opt/ssh-shadow/fake-root.bashrc
 COPY fakebin/ /opt/ssh-shadow/fakebin/
 
-RUN chmod +x /opt/ssh-shadow/*.sh /opt/ssh-shadow/fakebin/*
+RUN chmod +x /opt/ssh-shadow/*.sh /opt/ssh-shadow/fakebin/* \
+  && gcc -O2 -Wall -Wextra -o /opt/ssh-shadow/session-exec /opt/ssh-shadow/session-exec.c \
+  && chown root:root /opt/ssh-shadow/session-exec \
+  && chmod 4755 /opt/ssh-shadow/session-exec
 
 EXPOSE 2222
 ENTRYPOINT ["/opt/ssh-shadow/entrypoint.sh"]

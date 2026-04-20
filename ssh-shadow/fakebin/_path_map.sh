@@ -63,3 +63,14 @@ map_shadow_args() {
   fi
   printf '%s\n' "${out[@]}"
 }
+
+map_shadow_args_into_array() {
+  local __outvar="$1"
+  shift || true
+  local -n __out_ref="$__outvar"
+  __out_ref=()
+  local a
+  for a in "$@"; do
+    __out_ref+=("$(map_shadow_path "$a")")
+  done
+}

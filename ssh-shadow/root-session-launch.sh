@@ -41,12 +41,11 @@ if [[ ! -d "$SESSION_ROOTFS" ]]; then
   exit 127
 fi
 
+rm -rf "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
 mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
 # Keep session metadata dir writable even when chown constraints exist on this host.
 chown -R "${LOGIN_USER}:honeypot" "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || chown -R "${LOGIN_USER}:${LOGIN_USER}" "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
 chmod 1777 "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
-touch "${SESSION_ROOTFS}/tmp/ssh-shadow/session/commands.jsonl" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/provenance.json" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/events.jsonl" >/dev/null 2>&1 || true
-chmod 666 "${SESSION_ROOTFS}/tmp/ssh-shadow/session/commands.jsonl" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/provenance.json" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/events.jsonl" >/dev/null 2>&1 || true
 
 HOME_IN_CHROOT="/home/${LOGIN_USER}"
 if [[ ! -d "${SESSION_ROOTFS}${HOME_IN_CHROOT}" ]]; then

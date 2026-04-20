@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_path_map.sh"
+if [[ "$#" -eq 0 ]]; then
+  exec /bin/ls
+fi
+
+args=()
+for a in "$@"; do
+  case "$a" in
+    /var/log/qgc) args+=("/shadow/base/var/log/qgc") ;;
+    /var/log/mavproxy) args+=("/shadow/base/var/log/mavproxy") ;;
+    *) args+=("$(map_shadow_path "$a")") ;;
+  esac
+done
+
+if [[ "${args[0]:-}" == "/" || "${args[0]:-}" == "//" ]]; then
+  /bin/ls "${args[@]}" | awk '$0 != "shadow"'
+  exit ${PIPESTATUS[0]}
+fi
+
+exec /bin/ls "${args[@]}"

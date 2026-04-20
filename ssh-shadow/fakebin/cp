@@ -3,5 +3,5 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_path_map.sh"
 mapped=()
-while IFS= read -r line; do mapped+=("$line"); done < <(map_shadow_args "$@")
+map_shadow_args_into_array mapped "$@"
 exec /bin/cp "${mapped[@]}"

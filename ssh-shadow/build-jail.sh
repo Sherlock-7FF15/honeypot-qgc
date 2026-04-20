@@ -4,29 +4,22 @@ set -euo pipefail
 BASE_ROOT="${1:?base_root}"
 WORKSPACE_ROOT="${2:?workspace_root}"
 LOGIN_USER="${3:?login_user}"
+ROOTFS_TEMPLATE="${ROOTFS_TEMPLATE:-/opt/ssh-shadow/session-rootfs}"
 
 rm -rf "$WORKSPACE_ROOT"
+mkdir -p "$WORKSPACE_ROOT"
+rsync -a --delete "$ROOTFS_TEMPLATE"/ "$WORKSPACE_ROOT"/
+
 mkdir -p \
   "$WORKSPACE_ROOT/home/$LOGIN_USER/Documents/QGroundControl" \
   "$WORKSPACE_ROOT/home/$LOGIN_USER/.config" \
   "$WORKSPACE_ROOT/home/$LOGIN_USER/.cache" \
   "$WORKSPACE_ROOT/root/.ssh" \
   "$WORKSPACE_ROOT/etc/ssh" \
-  "$WORKSPACE_ROOT/tmp" \
-  "$WORKSPACE_ROOT/var/tmp" \
   "$WORKSPACE_ROOT/dev/shm" \
   "$WORKSPACE_ROOT/var/log/qgc" \
   "$WORKSPACE_ROOT/var/log/mavproxy" \
-  "$WORKSPACE_ROOT/var/run" \
-  "$WORKSPACE_ROOT/opt/ssh-shadow" \
-  "$WORKSPACE_ROOT/bin" \
-  "$WORKSPACE_ROOT/sbin" \
-  "$WORKSPACE_ROOT/usr" \
-  "$WORKSPACE_ROOT/lib" \
-  "$WORKSPACE_ROOT/lib64" \
-  "$WORKSPACE_ROOT/proc" \
-  "$WORKSPACE_ROOT/sys" \
-  "$WORKSPACE_ROOT/dev"
+  "$WORKSPACE_ROOT/var/run"
 
 chmod 1777 "$WORKSPACE_ROOT/tmp" "$WORKSPACE_ROOT/var/tmp" "$WORKSPACE_ROOT/dev/shm"
 
@@ -78,9 +71,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 CRON
 fi
 : > "$WORKSPACE_ROOT/root/.ssh/authorized_keys"
-
-# Ensure workspace-visible /opt/ssh-shadow exists for realism; actual scripts are bind-mounted by launcher.
-ln -sfn /opt/ssh-shadow/fakebin "$WORKSPACE_ROOT/opt/ssh-shadow/fakebin" || true
 
 chown -R "$LOGIN_USER:honeypot" "$DST_HOME" "$WORKSPACE_ROOT/root" "$WORKSPACE_ROOT/etc" "$WORKSPACE_ROOT/tmp" "$WORKSPACE_ROOT/var/tmp" "$WORKSPACE_ROOT/dev/shm" "$WORKSPACE_ROOT/var/run"
 chmod -R u+rwX,go-rwx "$DST_HOME" "$WORKSPACE_ROOT/root" "$WORKSPACE_ROOT/etc" "$WORKSPACE_ROOT/var/run"

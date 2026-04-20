@@ -40,6 +40,10 @@ chmod 0440 /etc/sudoers.d/ssh-shadow-session-launch
 
 # Fail-fast if root chroot path is unusable on this host.
 /opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs
+if ! su -s /bin/bash -c "sudo -n /opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs" gcs >/dev/null 2>&1; then
+  echo "[ssh-shadow] fatal: honeypot user cannot start required root-managed chroot session" >&2
+  exit 42
+fi
 
 # Keep kernel nodename, /etc/hostname and shell-visible identity aligned.
 echo "$HONEYPOT_HOSTNAME" > /etc/hostname

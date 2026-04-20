@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
+import fcntl
 import json
 import os
 import socket
 import struct
 import subprocess
+import termios
 import traceback
 
 SOCK_PATH = "/run/ssh-shadow/root-launch.sock"
 
 
-def run_cmd(argv, env=None, pass_fds=None, stdin_fd=None, stdout_fd=None, stderr_fd=None):
+def run_cmd(argv, env=None, pass_fds=None, stdin_fd=None, stdout_fd=None, stderr_fd=None, preexec_fn=None):
     proc = subprocess.Popen(
         argv,
         env=env,
@@ -18,8 +20,13 @@ def run_cmd(argv, env=None, pass_fds=None, stdin_fd=None, stdout_fd=None, stderr
         stdout=stdout_fd if stdout_fd is not None else subprocess.PIPE,
         stderr=stderr_fd if stderr_fd is not None else subprocess.PIPE,
         text=False,
+        preexec_fn=preexec_fn,
     )
-    out, err = proc.communicate() if stdout_fd is None and stderr_fd is None else (b"", b"")
+    if stdout_fd is None and stderr_fd is None:
+        out, err = proc.communicate()
+    else:
+        proc.wait()
+        out, err = b"", b""
     return proc.returncode, out.decode("utf-8", "replace"), err.decode("utf-8", "replace")
 
 
@@ -83,8 +90,27 @@ def handle(req, fds):
             "SSH_SHADOW_SANDBOX": "1",
         }
         argv = [launcher, req["session_rootfs"], req["login_user"], *req.get("argv", [])]
-        rc, _, _ = run_cmd(argv, env=env, pass_fds=[stdin_fd, stdout_fd, stderr_fd], stdin_fd=stdin_fd, stdout_fd=stdout_fd, stderr_fd=stderr_fd)
-        return {"ok": rc == 0, "rc": rc}
+
+        def preexec_attach_tty():
+            try:
+                os.setsid()
+            except Exception:
+                pass
+            try:
+                fcntl.ioctl(stdin_fd, termios.TIOCSCTTY, 0)
+            except Exception:
+                pass
+
+        rc, _, _ = run_cmd(
+            argv,
+            env=env,
+            pass_fds=[stdin_fd, stdout_fd, stderr_fd],
+            stdin_fd=stdin_fd,
+            stdout_fd=stdout_fd,
+            stderr_fd=stderr_fd,
+            preexec_fn=preexec_attach_tty,
+        )
+        return {"ok": rc == 0, "rc": int(rc)}
     return {"ok": False, "rc": 2, "stderr": f"unknown action: {action}"}
 
 

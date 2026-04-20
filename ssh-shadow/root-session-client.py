@@ -76,12 +76,20 @@ def main():
         msg = resp.get("stderr") or resp.get("stdout") or "request failed"
         if msg:
             print(msg, file=sys.stderr)
-        return int(resp.get("rc", 1))
+        rc = resp.get("rc", 1)
+        try:
+            return int(1 if rc is None else rc)
+        except Exception:
+            return 1
 
     out = resp.get("stdout")
     if out:
         print(out, end="")
-    return int(resp.get("rc", 0))
+    rc = resp.get("rc", 0)
+    try:
+        return int(0 if rc is None else rc)
+    except Exception:
+        return 0
 
 
 if __name__ == "__main__":

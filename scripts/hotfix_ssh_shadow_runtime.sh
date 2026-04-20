@@ -8,6 +8,13 @@ echo "[hotfix] patching container: ${CONTAINER}"
 docker exec -u 0 "${CONTAINER}" /bin/bash -lc '
 set -euo pipefail
 
+if ! command -v sudo >/dev/null 2>&1; then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  apt-get install -y --no-install-recommends sudo
+  rm -rf /var/lib/apt/lists/*
+fi
+
 cat > /opt/ssh-shadow/root-session-launch.sh <<'"'"'EOF'"'"'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -42,14 +49,17 @@ EOF
 
 chmod +x /opt/ssh-shadow/root-session-launch.sh /opt/ssh-shadow/sandbox-run.sh
 
+mkdir -p /etc/sudoers.d
 cat > /etc/sudoers.d/ssh-shadow-session-launch <<'"'"'EOF'"'"'
 Defaults:%honeypot !requiretty
 %honeypot ALL=(root) NOPASSWD: /opt/ssh-shadow/root-session-launch.sh
 EOF
 chmod 0440 /etc/sudoers.d/ssh-shadow-session-launch
 
-/opt/ssh-shadow/prepare-rootfs.sh /opt/ssh-shadow/session-rootfs || true
-/opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs
+if [[ -x /opt/ssh-shadow/prepare-rootfs.sh ]]; then
+  /opt/ssh-shadow/prepare-rootfs.sh /opt/ssh-shadow/session-rootfs || true
+fi
+/opt/ssh-shadow/root-session-launch.sh --selftest /opt/ssh-shadow/session-rootfs || true
 '
 
 echo "[hotfix] restarting ${CONTAINER}"

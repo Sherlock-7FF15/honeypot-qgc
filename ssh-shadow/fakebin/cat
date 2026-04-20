@@ -11,5 +11,5 @@ if [[ "$#" -eq 1 && "$1" == "/etc/hostname" ]]; then
 fi
 
 mapped=()
-while IFS= read -r line; do mapped+=("$line"); done < <(map_shadow_args "$@")
+map_shadow_args_into_array mapped "$@"
 exec /bin/cat "${mapped[@]}"

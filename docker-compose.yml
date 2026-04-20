@@ -118,6 +118,7 @@ services:
       - HONEYPOT_HOSTNAME=${HONEYPOT_HOSTNAME:-gcs-shadow}
       - SSH_SHADOW_PASSWORD=${SSH_SHADOW_PASSWORD:-gcs123!}
       - SSH_SHADOW_HOST_PORT=${SSH_SHADOW_HOST_PORT:-22}
+      - SSH_SHADOW_REQUIRE_CHROOT=1
     ports:
       - "${SSH_SHADOW_HOST_PORT:-22}:2222/tcp"
     volumes:

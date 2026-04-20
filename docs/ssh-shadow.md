@@ -172,6 +172,14 @@ docker compose --profile ssh-shadow build --no-cache ssh-shadow
 
 If `./scripts/repair_ssh_shadow_dockerfile.sh` is missing, your current branch does not include the fix scripts yet. Either merge the fix branch or create the script from the docs/PR patch first.
 
+To switch to the latest Codex fix branch automatically:
+
+```bash
+latest_branch="$(git for-each-ref --sort=-creatordate --format='%(refname:short)' 'refs/remotes/origin/codex/review-repository-for-understanding-*' | head -n1)"
+echo "$latest_branch"
+git checkout -B codex-fix-ssh-shadow "$latest_branch"
+```
+
 If you still get runtime error `session-exec error: chroot(workspace): Operation not permitted` on an already-running deployment, apply emergency container patch:
 
 ```bash

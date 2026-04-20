@@ -6,7 +6,9 @@ ensure_devpts_bind() {
   local pts_dir="${rootfs}/dev/pts"
   mkdir -p "$pts_dir"
   if ! mountpoint -q "$pts_dir" >/dev/null 2>&1; then
-    mount --bind /dev/pts "$pts_dir"
+    if ! mount --bind /dev/pts "$pts_dir" >/dev/null 2>&1; then
+      echo "[ssh-shadow] warning: unable to bind-mount /dev/pts into session rootfs; continuing without devpts bind" >&2
+    fi
   fi
   ln -sfn pts/ptmx "${rootfs}/dev/ptmx" >/dev/null 2>&1 || true
 }

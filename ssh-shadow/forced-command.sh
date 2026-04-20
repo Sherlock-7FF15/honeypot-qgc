@@ -66,6 +66,8 @@ setup_projection() {
     exit 125
   fi
 
+  mkdir -p "${SESSION_ROOTFS}${SESSION_DIR}"
+
   BASELINE_META="${SESSION_DIR}/baseline_meta.json"
   python3 - <<'PY' "$SESSION_ROOTFS" "$BASELINE_META" "${SESSION_DIR}/baseline_files.txt"
 import json,sys
@@ -96,6 +98,10 @@ cleanup() {
     reason="$(cat "${SESSION_DIR}/termination_reason.txt")"
   elif [[ $rc -ne 0 ]]; then
     reason="exit_code_${rc}"
+  fi
+
+  if [[ -d "${SESSION_ROOTFS}${SESSION_DIR}" ]]; then
+    rsync -a --ignore-errors "${SESSION_ROOTFS}${SESSION_DIR}/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
   fi
 
   if [[ "$reason" == payload_captured:* || "$reason" == *"sensitive"* ]]; then

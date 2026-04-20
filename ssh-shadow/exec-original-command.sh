@@ -10,6 +10,8 @@ export SESSION_DIR WORKSPACE LOGIN_USER
 export BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
+export SHADOW_WORKSPACE="$WORKSPACE"
+export SHADOW_LOGIN_USER="$LOGIN_USER"
 
 python3 - <<'PY' "$SESSION_DIR/commands.jsonl" "$ORIG_CMD" "/home/${LOGIN_USER}" "ssh_exec"
 import json,sys,time

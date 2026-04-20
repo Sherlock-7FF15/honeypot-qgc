@@ -28,6 +28,9 @@ mkdir -p /run/sshd /shadow/base /shadow/sessions /shadow/state /shadow/jails /lo
 chown -R root:honeypot /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 chmod -R g+rwX /shadow/sessions /logs/ssh-shadow /shadow/state /shadow/jails || true
 
+# Build immutable minimal rootfs template used for per-session chroot execution.
+/opt/ssh-shadow/prepare-rootfs.sh /opt/ssh-shadow/session-rootfs
+
 # Keep kernel nodename, /etc/hostname and shell-visible identity aligned.
 echo "$HONEYPOT_HOSTNAME" > /etc/hostname
 hostname "$HONEYPOT_HOSTNAME" >/dev/null 2>&1 || true

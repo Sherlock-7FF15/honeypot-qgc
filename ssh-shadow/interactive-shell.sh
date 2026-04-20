@@ -22,6 +22,10 @@ export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
 export TMOUT="${SSH_SHADOW_IDLE_TIMEOUT:-900}"
 
+if [[ -n "${HOME:-}" && -d "${HOME}" ]]; then
+  cd "${HOME}" 2>/dev/null || true
+fi
+
 __ssh_shadow_mark_idle_timeout() {
   if [[ ! -f "${SESSION_DIR}/termination_reason.txt" ]]; then
     /opt/ssh-shadow/trace-agent.sh log-idle-timeout >/dev/null 2>&1 || true

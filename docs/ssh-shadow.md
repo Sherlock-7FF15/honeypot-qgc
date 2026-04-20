@@ -186,6 +186,13 @@ If you still get runtime error `session-exec error: chroot(workspace): Operation
 ./scripts/hotfix_ssh_shadow_runtime.sh ssh-shadow
 ```
 
+If your local hotfix script is an older copy and fails with `/etc/sudoers.d/...: No such file or directory`, run this pre-step and retry:
+
+```bash
+docker exec -u 0 ssh-shadow /bin/bash -lc 'mkdir -p /etc/sudoers.d; command -v sudo >/dev/null 2>&1 || (apt-get update && apt-get install -y --no-install-recommends sudo && rm -rf /var/lib/apt/lists/*)'
+./scripts/hotfix_ssh_shadow_runtime.sh ssh-shadow
+```
+
 Verifier coverage:
 
 1. compose config/build/up

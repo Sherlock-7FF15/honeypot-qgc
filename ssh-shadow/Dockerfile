@@ -56,6 +56,7 @@ COPY interactive-shell.sh /opt/ssh-shadow/interactive-shell.sh
 COPY trace-agent.sh /opt/ssh-shadow/trace-agent.sh
 COPY build-jail.sh /opt/ssh-shadow/build-jail.sh
 COPY sandbox-run.sh /opt/ssh-shadow/sandbox-run.sh
+COPY session-paths.sh /opt/ssh-shadow/session-paths.sh
 COPY preauth_logger.py /opt/ssh-shadow/preauth_logger.py
 COPY fake-root.bashrc /opt/ssh-shadow/fake-root.bashrc
 COPY fakebin/ /opt/ssh-shadow/fakebin/

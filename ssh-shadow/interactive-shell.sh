@@ -9,6 +9,9 @@ export SESSION_DIR WORKSPACE LOGIN_USER
 export BASELINE_FILE="${SESSION_DIR}/baseline_files.txt"
 export PATH="/opt/ssh-shadow/fakebin:${PATH}"
 export HOME="/home/${LOGIN_USER}"
+export SHADOW_WORKSPACE="$WORKSPACE"
+export SHADOW_LOGIN_USER="$LOGIN_USER"
+export BASH_ENV="/opt/ssh-shadow/session-paths.sh"
 
 CMD_LOG="${SESSION_DIR}/commands.jsonl"
 export CMD_LOG
@@ -17,6 +20,7 @@ cat > "${SESSION_DIR}/bashrc" <<'BRC'
 export HISTFILE=/dev/null
 __SSH_SHADOW_LAST=""
 export TMOUT="${SSH_SHADOW_IDLE_TIMEOUT:-900}"
+source /opt/ssh-shadow/session-paths.sh
 
 __ssh_shadow_mark_idle_timeout() {
   if [[ ! -f "${SESSION_DIR}/termination_reason.txt" ]]; then

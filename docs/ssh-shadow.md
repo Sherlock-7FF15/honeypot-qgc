@@ -76,10 +76,10 @@ For each accepted SSH session:
 2. only copy required session data (`Documents/QGroundControl`, `.config`, sanitized `.cache`, qgc/mavproxy logs)
 3. project `/home/<user>/Documents/QGroundControl` to the per-session workspace path and map common absolute read paths via `fakebin` wrappers (for example `find /home/<user>/Documents/QGroundControl` and `ls /var/log/qgc`)
 4. expose `/var/log/qgc` and `/var/log/mavproxy` via stable symlinks to `/shadow/base/var/log/...` (read-focused workstation view)
-5. launch interactive shell directly (no `proot`) for Docker/seccomp reliability
-6. non-interactive SSH exec requests use the same session workspace but run via `exec-original-command.sh` (not the interactive shell wrapper)
+5. launch shell with a session-local path virtualization layer (`session-paths.sh`) so `/tmp`, `/var/tmp`, `/root`, and `/home/<user>` resolve into the session workspace
+6. non-interactive SSH exec requests use the same workspace mapping via `BASH_ENV` and run through `exec-original-command.sh`
 
-This removes the failing `proot`/`ptrace` dependency and avoids heavy full-tree login-time cloning.
+This removes the failing `proot`/`ptrace` dependency and keeps attacker execution paths aligned with workspace diff/evidence capture.
 
 ## Logs and evidence
 

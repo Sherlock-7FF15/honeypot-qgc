@@ -73,6 +73,14 @@ def handle(req, fds):
         if len(fds) < 3:
             return {"ok": False, "rc": 125, "stderr": "missing stdio file descriptors"}
         stdin_fd, stdout_fd, stderr_fd = fds[:3]
+        tty_fd = None
+        tty_path = req.get("tty_path")
+        if tty_path:
+            try:
+                tty_fd = os.open(tty_path, os.O_RDWR | os.O_NOCTTY)
+                stdin_fd = stdout_fd = stderr_fd = tty_fd
+            except Exception:
+                tty_fd = None
         env = {
             "HOME": req.get("home", f"/home/{req['login_user']}"),
             "USER": req["login_user"],
@@ -101,15 +109,24 @@ def handle(req, fds):
             except Exception:
                 pass
 
+        pass_fds = [stdin_fd, stdout_fd, stderr_fd]
+        if tty_fd is not None:
+            pass_fds.append(tty_fd)
+
         rc, _, _ = run_cmd(
             argv,
             env=env,
-            pass_fds=[stdin_fd, stdout_fd, stderr_fd],
+            pass_fds=pass_fds,
             stdin_fd=stdin_fd,
             stdout_fd=stdout_fd,
             stderr_fd=stderr_fd,
             preexec_fn=preexec_attach_tty,
         )
+        if tty_fd is not None:
+            try:
+                os.close(tty_fd)
+            except Exception:
+                pass
         return {"ok": rc == 0, "rc": int(rc)}
     return {"ok": False, "rc": 2, "stderr": f"unknown action: {action}"}
 

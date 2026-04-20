@@ -3,11 +3,13 @@ set -euo pipefail
 
 ROOTFS="${1:-/opt/ssh-shadow/session-rootfs}"
 STAMP="${ROOTFS}/.prepared"
+ROOTFS_VERSION="v2"
 
-if [[ -f "$STAMP" ]]; then
+if [[ -f "$STAMP" ]] && [[ "$(cat "$STAMP" 2>/dev/null || true)" == "$ROOTFS_VERSION" ]]; then
   exit 0
 fi
 
+rm -rf "$ROOTFS"
 mkdir -p "$ROOTFS"
 
 copy_file() {
@@ -15,6 +17,13 @@ copy_file() {
   [[ -e "$src" ]] || return 0
   mkdir -p "$ROOTFS$(dirname "$src")"
   cp -L --preserve=mode,timestamps "$src" "$ROOTFS$src"
+}
+
+copy_tree() {
+  local src="$1"
+  [[ -e "$src" ]] || return 0
+  mkdir -p "$ROOTFS$(dirname "$src")"
+  cp -a "$src" "$ROOTFS$src"
 }
 
 copy_bin_with_libs() {
@@ -45,9 +54,14 @@ for f in /etc/passwd /etc/group /etc/nsswitch.conf /etc/hosts /etc/resolv.conf /
   copy_file "$f"
 done
 
+copy_tree /usr/lib/python3.11
+copy_tree /usr/lib/python3
+copy_tree /usr/lib/x86_64-linux-gnu/python3.11 || true
+
 mkdir -p "$ROOTFS/opt/ssh-shadow"
 cp -a /opt/ssh-shadow/fakebin "$ROOTFS/opt/ssh-shadow/"
 cp -a /opt/ssh-shadow/fake-root.bashrc "$ROOTFS/opt/ssh-shadow/fake-root.bashrc"
+cp -a /opt/ssh-shadow/trace-agent.sh "$ROOTFS/opt/ssh-shadow/trace-agent.sh"
 
 # Minimal device nodes for chroot userland.
 mknod -m 666 "$ROOTFS/dev/null" c 1 3
@@ -60,4 +74,4 @@ chmod 1777 "$ROOTFS/tmp" "$ROOTFS/var/tmp" "$ROOTFS/dev/shm"
 # chroot sees these as writable mount points from host namespace.
 mkdir -p "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/dev/pts"
 
-date -u +"%Y-%m-%dT%H:%M:%SZ" > "$STAMP"
+echo "$ROOTFS_VERSION" > "$STAMP"

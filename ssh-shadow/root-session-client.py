@@ -53,6 +53,11 @@ def main():
         if len(sys.argv) < 5:
             print("usage: root-session-client.py launch <session_rootfs> <login_user> <cmd> [args...]", file=sys.stderr)
             return 2
+        tty_path = None
+        try:
+            tty_path = os.ttyname(0)
+        except Exception:
+            tty_path = None
         req = {
             "action": "launch",
             "session_rootfs": sys.argv[2],
@@ -66,6 +71,7 @@ def main():
             "baseline_meta": os.environ.get("BASELINE_META", ""),
             "shadow_workspace": "/",
             "cmd_log": os.environ.get("CMD_LOG", ""),
+            "tty_path": tty_path,
         }
         resp = send(req, pass_stdio=True)
     else:

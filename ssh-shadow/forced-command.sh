@@ -87,6 +87,7 @@ PY
 
   mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
   cp -f "$BASELINE_META" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" || true
+  chmod 666 "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" >/dev/null 2>&1 || true
 }
 
 cleanup_projection() {

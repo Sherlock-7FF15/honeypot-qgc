@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOTFS="${1:-/opt/ssh-shadow/session-rootfs}"
 STAMP="${ROOTFS}/.prepared"
-ROOTFS_VERSION="v2"
+ROOTFS_VERSION="v3"
 
 if [[ -f "$STAMP" ]] && [[ "$(cat "$STAMP" 2>/dev/null || true)" == "$ROOTFS_VERSION" ]]; then
   exit 0

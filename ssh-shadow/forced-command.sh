@@ -23,9 +23,9 @@ LOGIN_USER="${USER:-gcs}"
 NOW_TS="$(date -u +%s)"
 SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
-WORKSPACE="${SESS_WORK_ROOT}/${SESSION_ID}/workspace"
+SESSION_ROOTFS="${SESS_WORK_ROOT}/${SESSION_ID}/rootfs"
 SESSION_WORK_DIR="${SESS_WORK_ROOT}/${SESSION_ID}"
-mkdir -p "$SESSION_DIR" "$WORKSPACE"
+mkdir -p "$SESSION_DIR" "$SESSION_ROOTFS"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
@@ -34,7 +34,7 @@ cat > "$META_FILE" <<JSON
   "username": "${LOGIN_USER}",
   "remote_ip": "${REMOTE_IP}",
   "remote_port": ${REMOTE_PORT},
-  "workspace": "${WORKSPACE}",
+  "session_rootfs": "${SESSION_ROOTFS}",
   "isolation_mode": "session-chroot-rootfs",
   "login_time_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "ssh_original_command": $(python3 - <<'PY' "${SSH_ORIGINAL_COMMAND:-}"
@@ -59,14 +59,18 @@ PY
 fi
 
 setup_projection() {
-  /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$WORKSPACE" "$LOGIN_USER"
+  if ! /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --prepare-session-rootfs "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"; then
+    echo "[ssh-shadow] failed to prepare session rootfs" >&2
+    exit 125
+  fi
 
   BASELINE_META="${SESSION_DIR}/baseline_meta.json"
-  python3 - <<'PY' "$WORKSPACE" "$BASELINE_META"
+  python3 - <<'PY' "$SESSION_ROOTFS" "$BASELINE_META" "${SESSION_DIR}/baseline_files.txt"
 import json,sys
 from pathlib import Path
 root=Path(sys.argv[1])
 out=Path(sys.argv[2])
+list_out=Path(sys.argv[3])
 rows={}
 for p in root.rglob('*'):
     if not p.is_file():
@@ -75,6 +79,7 @@ for p in root.rglob('*'):
     st=p.stat()
     rows[rel]={"size":st.st_size,"mtime_ns":st.st_mtime_ns}
 out.write_text(json.dumps(rows,ensure_ascii=False),encoding='utf-8')
+list_out.write_text('\n'.join(sorted(rows.keys())) + ('\n' if rows else ''), encoding='utf-8')
 PY
 }
 
@@ -94,11 +99,11 @@ cleanup() {
   if [[ "$reason" == payload_captured:* || "$reason" == *"sensitive"* ]]; then
     /opt/ssh-shadow/trace-agent.sh capture-evidence >/dev/null 2>&1 || true
   fi
-  python3 - <<'PY' "$WORKSPACE" "${SESSION_DIR}/baseline_meta.json" "${SESSION_DIR}/diff"
+  python3 - <<'PY' "$SESSION_ROOTFS" "${SESSION_DIR}/baseline_meta.json" "${SESSION_DIR}/diff"
 import json,sys,shutil
 from pathlib import Path
 
-workspace=Path(sys.argv[1])
+rootfs=Path(sys.argv[1])
 baseline_path=Path(sys.argv[2])
 diff_dir=Path(sys.argv[3])
 files_dir=diff_dir/"files"
@@ -109,10 +114,10 @@ if baseline_path.exists():
     baseline=json.loads(baseline_path.read_text(encoding='utf-8',errors='replace'))
 
 current={}
-for p in workspace.rglob('*'):
+for p in rootfs.rglob('*'):
     if not p.is_file():
         continue
-    rel=str(p.relative_to(workspace))
+    rel=str(p.relative_to(rootfs))
     st=p.stat()
     current[rel]={"size":st.st_size,"mtime_ns":st.st_mtime_ns}
 
@@ -132,7 +137,7 @@ for rel in baseline.keys():
         deleted.append(rel)
 
 for rel in created+modified:
-    src=workspace/rel
+    src=rootfs/rel
     dst=files_dir/rel
     dst.parent.mkdir(parents=True,exist_ok=True)
     try:
@@ -154,7 +159,8 @@ summary={
 PY
   cleanup_projection || true
 
-  rm -rf "$SESSION_WORK_DIR" "/shadow/jails/${SESSION_ID}" || true
+  /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --cleanup-session-rootfs "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
+  rm -rf "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
 import json,sys,time
@@ -170,13 +176,13 @@ PY
 trap cleanup EXIT
 
 setup_projection
-export SESSION_DIR WORKSPACE BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" LOGIN_USER SHADOW_WORKSPACE="$WORKSPACE" SHADOW_LOGIN_USER="$LOGIN_USER" HONEYPOT_HOSTNAME
+export SESSION_DIR SESSION_ROOTFS WORKSPACE="$SESSION_ROOTFS" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" BASELINE_META="${SESSION_DIR}/baseline_meta.json" LOGIN_USER SHADOW_WORKSPACE="$SESSION_ROOTFS" SHADOW_LOGIN_USER="$LOGIN_USER" HONEYPOT_HOSTNAME
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
   echo "non_interactive_exec" > "${SESSION_DIR}/session_mode.txt"
-  /opt/ssh-shadow/exec-original-command.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER" "$SSH_ORIGINAL_COMMAND"
+  /opt/ssh-shadow/exec-original-command.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER" "$SSH_ORIGINAL_COMMAND"
 else
   echo "interactive_shell" > "${SESSION_DIR}/session_mode.txt"
   echo "[ssh-shadow] connected to shadow GCS workstation"
-  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$WORKSPACE" "$LOGIN_USER"
+  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER"
 fi

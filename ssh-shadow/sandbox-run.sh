@@ -6,8 +6,11 @@ SESSION_DIR="${2:?session_dir}"
 LOGIN_USER="${3:?login_user}"
 shift 3
 
+# Prefer bubblewrap when available, but gracefully fall back to proot if
+# kernel/userns policy rejects unprivileged namespaces.
 if command -v bwrap >/dev/null 2>&1; then
-  exec env SSH_SHADOW_SANDBOX=1 bwrap \
+  set +e
+  env SSH_SHADOW_SANDBOX=1 bwrap \
     --die-with-parent \
     --new-session \
     --unshare-pid \
@@ -26,9 +29,14 @@ if command -v bwrap >/dev/null 2>&1; then
     --bind "$SESSION_DIR" "$SESSION_DIR" \
     --chdir "/home/${LOGIN_USER}" \
     "$@"
+  rc=$?
+  set -e
+  if [[ $rc -eq 0 ]]; then
+    exit 0
+  fi
+  echo "[ssh-shadow] bwrap unavailable in current kernel policy; falling back to proot" >&2
 fi
 
-# Fallback for environments where unprivileged bwrap is unavailable.
 exec env SSH_SHADOW_SANDBOX=1 proot -R "$WORKSPACE" \
   -b /bin:/bin \
   -b /sbin:/sbin \

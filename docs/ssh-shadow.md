@@ -158,6 +158,7 @@ Before rebuilding, run:
 git rev-parse --short HEAD
 git log --oneline -n 3
 grep -nE "session-exec|gcc -O2" ssh-shadow/Dockerfile || true
+./scripts/check_ssh_shadow_dockerfile.sh
 docker compose --profile ssh-shadow build --no-cache ssh-shadow
 ```
 

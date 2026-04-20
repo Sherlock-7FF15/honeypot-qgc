@@ -127,6 +127,7 @@ services:
       - ./logs/ssh-shadow:/logs/ssh-shadow:rw
     cap_add:
       - SYS_PTRACE
+      - SYS_CHROOT
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined

@@ -66,5 +66,5 @@ esac
 
 fake_root_env
 mapped=()
-while IFS= read -r line; do mapped+=("$line"); done < <(map_shadow_args "$@")
+map_shadow_args_into_array mapped "$@"
 exec "${mapped[@]}"

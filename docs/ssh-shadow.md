@@ -170,6 +170,14 @@ If your branch history is messy and you cannot cherry-pick known fix commits, us
 docker compose --profile ssh-shadow build --no-cache ssh-shadow
 ```
 
+If `./scripts/repair_ssh_shadow_dockerfile.sh` is missing, your current branch does not include the fix scripts yet. Either merge the fix branch or create the script from the docs/PR patch first.
+
+If you still get runtime error `session-exec error: chroot(workspace): Operation not permitted` on an already-running deployment, apply emergency container patch:
+
+```bash
+./scripts/hotfix_ssh_shadow_runtime.sh ssh-shadow
+```
+
 Verifier coverage:
 
 1. compose config/build/up

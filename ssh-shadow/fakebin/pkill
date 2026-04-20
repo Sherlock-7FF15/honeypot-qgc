@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+state_file="${SHADOW_WORKSPACE:-/tmp}/var/run/fake-service-state.json"
+mkdir -p "$(dirname "$state_file")"
+if [[ "${1:-}" == "-HUP" && "${2:-}" == "sshd" ]]; then
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  python3 - <<'PY' "$state_file" "$ts"
+import json,sys
+p,ts=sys.argv[1:]
+try:
+    obj=json.loads(open(p,'r',encoding='utf-8').read())
+except Exception:
+    obj={}
+obj.setdefault('sshd',{})['last_hup_utc']=ts
+obj.setdefault('sshd',{})['state']='active (running)'
+open(p,'w',encoding='utf-8').write(json.dumps(obj,ensure_ascii=False,indent=2))
+PY
+  echo ""
+  exit 0
+fi
+exec /usr/bin/pkill "$@"

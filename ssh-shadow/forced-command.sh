@@ -35,7 +35,7 @@ cat > "$META_FILE" <<JSON
   "remote_ip": "${REMOTE_IP}",
   "remote_port": ${REMOTE_PORT},
   "workspace": "${WORKSPACE}",
-  "isolation_mode": "session-workspace-no-proot",
+  "isolation_mode": "session-chroot-rootfs",
   "login_time_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "ssh_original_command": $(python3 - <<'PY' "${SSH_ORIGINAL_COMMAND:-}"
 import json,sys
@@ -58,19 +58,8 @@ PY
   exit 1
 fi
 
-HOME_DOCS="/home/${LOGIN_USER}/Documents/QGroundControl"
-
 setup_projection() {
   /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$WORKSPACE" "$LOGIN_USER"
-  mkdir -p "/home/${LOGIN_USER}/Documents"
-  if [[ -L "$HOME_DOCS" ]]; then
-    rm -f "$HOME_DOCS"
-  elif [[ -d "$HOME_DOCS" ]]; then
-    rm -rf "$HOME_DOCS"
-  else
-    rm -f "$HOME_DOCS" || true
-  fi
-  ln -s "$WORKSPACE/home/${LOGIN_USER}/Documents/QGroundControl" "$HOME_DOCS"
 
   BASELINE_META="${SESSION_DIR}/baseline_meta.json"
   python3 - <<'PY' "$WORKSPACE" "$BASELINE_META"
@@ -90,11 +79,7 @@ PY
 }
 
 cleanup_projection() {
-  if [[ -L "$HOME_DOCS" ]]; then
-    rm -f "$HOME_DOCS"
-  fi
-  mkdir -p "$HOME_DOCS"
-  chown "${LOGIN_USER}:honeypot" "$HOME_DOCS" || true
+  true
 }
 
 cleanup() {

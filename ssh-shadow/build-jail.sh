@@ -85,8 +85,8 @@ CRON
 fi
 : > "$SESSION_ROOTFS/root/.ssh/authorized_keys"
 
-chown -R root:root "$SESSION_ROOTFS/etc" "$SESSION_ROOTFS/root"
-chmod -R go-w "$SESSION_ROOTFS/etc" "$SESSION_ROOTFS/root"
-chown -R "$LOGIN_USER:honeypot" "$DST_HOME"
-chmod -R u+rwX,go-rwx "$DST_HOME"
-chmod -R go+rX "$SESSION_ROOTFS/var/log/qgc" "$SESSION_ROOTFS/var/log/mavproxy" || true
+chown -R root:root "$SESSION_ROOTFS/etc" "$SESSION_ROOTFS/root" >/dev/null 2>&1 || true
+chmod -R go-w "$SESSION_ROOTFS/etc" "$SESSION_ROOTFS/root" >/dev/null 2>&1 || true
+chown -R "$LOGIN_USER:honeypot" "$DST_HOME" >/dev/null 2>&1 || true
+chmod -R u+rwX,go-rwx "$DST_HOME" >/dev/null 2>&1 || true
+chmod -R go+rX "$SESSION_ROOTFS/var/log/qgc" "$SESSION_ROOTFS/var/log/mavproxy" >/dev/null 2>&1 || true

@@ -59,8 +59,10 @@ PY
 fi
 
 setup_projection() {
-  if ! /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --prepare-session-rootfs "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"; then
+  local prep_err="${SESSION_DIR}/prepare.stderr"
+  if ! /usr/bin/sudo -n /opt/ssh-shadow/root-session-launch.sh --prepare-session-rootfs "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
     echo "[ssh-shadow] failed to prepare session rootfs" >&2
+    cat "$prep_err" >&2 || true
     exit 125
   fi
 

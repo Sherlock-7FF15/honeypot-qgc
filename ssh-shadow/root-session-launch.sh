@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ensure_devpts_bind() {
+  local rootfs="$1"
+  local pts_dir="${rootfs}/dev/pts"
+  mkdir -p "$pts_dir"
+  if ! mountpoint -q "$pts_dir" >/dev/null 2>&1; then
+    mount --bind /dev/pts "$pts_dir"
+  fi
+  ln -sfn pts/ptmx "${rootfs}/dev/ptmx" >/dev/null 2>&1 || true
+}
+
+cleanup_devpts_bind() {
+  local rootfs="$1"
+  local pts_dir="${rootfs}/dev/pts"
+  if mountpoint -q "$pts_dir" >/dev/null 2>&1; then
+    umount "$pts_dir" >/dev/null 2>&1 || umount -l "$pts_dir" >/dev/null 2>&1 || true
+  fi
+}
+
 if [[ "${1:-}" == "--selftest" ]]; then
   ws="${2:-/opt/ssh-shadow/session-rootfs}"
   [[ -d "$ws" ]] || { echo "[ssh-shadow] selftest failed: missing rootfs $ws" >&2; exit 1; }
@@ -17,6 +35,7 @@ if [[ "${1:-}" == "--prepare-session-rootfs" ]]; then
   SESSION_ROOTFS="${3:?session_rootfs}"
   LOGIN_USER="${4:?login_user}"
   /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"
+  ensure_devpts_bind "$SESSION_ROOTFS"
   exit 0
 fi
 
@@ -29,6 +48,7 @@ if [[ "${1:-}" == "--cleanup-session-rootfs" ]]; then
       exit 124
       ;;
   esac
+  cleanup_devpts_bind "${SESSION_WORK_DIR}/rootfs"
   exec rm -rf -- "$SESSION_WORK_DIR"
 fi
 

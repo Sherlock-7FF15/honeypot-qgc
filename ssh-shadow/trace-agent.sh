@@ -3,7 +3,8 @@ set -euo pipefail
 
 SESSION_DIR="${SESSION_DIR:?}"
 WORKSPACE="${WORKSPACE:?}"
-BASELINE_FILE="${BASELINE_FILE:?}"
+BASELINE_FILE="${BASELINE_FILE:-}"
+BASELINE_META="${BASELINE_META:-${SESSION_DIR}/baseline_meta.json}"
 LOGIN_USER="${LOGIN_USER:-admin}"
 
 EVENTS_FILE="${SESSION_DIR}/events.jsonl"
@@ -32,19 +33,21 @@ PY
 
 capture_evidence() {
   mkdir -p "$EVIDENCE_DIR/files"
-  python3 - <<'PY' "$WORKSPACE" "$BASELINE_FILE" "$EVIDENCE_DIR"
+  python3 - <<'PY' "$WORKSPACE" "$BASELINE_META" "$EVIDENCE_DIR" "$LOGIN_USER"
 import sys,hashlib,json,shutil
 from pathlib import Path
 workspace=Path(sys.argv[1])
-baseline=Path(sys.argv[2])
+baseline_meta=Path(sys.argv[2])
 ev=Path(sys.argv[3])
+login_user=sys.argv[4]
 known=set()
-if baseline.exists():
-    for line in baseline.read_text(encoding='utf-8',errors='replace').splitlines():
-        if line.strip():
-            known.add(line.strip())
+if baseline_meta.exists():
+    try:
+        meta=json.loads(baseline_meta.read_text(encoding='utf-8',errors='replace'))
+        known.update(meta.keys())
+    except Exception:
+        pass
 
-login_user = "${LOGIN_USER}"
 
 def excluded(rel: str) -> bool:
     lower=rel.lower()
@@ -256,17 +259,20 @@ PY
 }
 
 scan_workspace_payload() {
-  python3 - <<'PY' "$WORKSPACE" "$BASELINE_FILE" "$PROVENANCE_FILE" "$LOGIN_USER"
+  python3 - <<'PY' "$WORKSPACE" "$BASELINE_META" "$PROVENANCE_FILE" "$LOGIN_USER"
 import json,sys
 from pathlib import Path
 
 ws=Path(sys.argv[1])
-baseline=Path(sys.argv[2])
+baseline_meta=Path(sys.argv[2])
 prov_path=Path(sys.argv[3])
 login_user=sys.argv[4]
 known=set()
-if baseline.exists():
-    known=set(x.strip() for x in baseline.read_text(encoding='utf-8',errors='replace').splitlines() if x.strip())
+if baseline_meta.exists():
+    try:
+        known=set(json.loads(baseline_meta.read_text(encoding='utf-8',errors='replace')).keys())
+    except Exception:
+        known=set()
 
 prov={}
 if prov_path.exists():

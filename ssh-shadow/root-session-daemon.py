@@ -64,7 +64,7 @@ def handle(req, fds):
         rc, out, err = run_cmd([launcher, "--selftest", req["session_rootfs"]])
         return {"ok": rc == 0, "rc": rc, "stdout": out, "stderr": err}
     if action == "prepare":
-        rc, out, err = run_cmd([launcher, "--prepare-session-rootfs", req["base_root"], req["session_rootfs"], req["login_user"]])
+        rc, out, err = run_cmd([launcher, "--prepare-session-rootfs", req["base_root"], req["session_rootfs"], req["login_user"], req.get("session_dir", "")])
         return {"ok": rc == 0, "rc": rc, "stdout": out, "stderr": err}
     if action == "cleanup":
         rc, out, err = run_cmd([launcher, "--cleanup-session-rootfs", req["session_work_dir"]])

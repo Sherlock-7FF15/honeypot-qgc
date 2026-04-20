@@ -39,11 +39,13 @@ def main():
         req = {"action": "selftest", "session_rootfs": sys.argv[2]}
         resp = send(req)
     elif action == "prepare":
+        session_dir = sys.argv[5] if len(sys.argv) > 5 else os.environ.get("SESSION_DIR", "")
         req = {
             "action": "prepare",
             "base_root": sys.argv[2],
             "session_rootfs": sys.argv[3],
             "login_user": sys.argv[4],
+            "session_dir": session_dir,
         }
         resp = send(req)
     elif action == "cleanup":

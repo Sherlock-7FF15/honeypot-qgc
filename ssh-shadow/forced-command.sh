@@ -60,13 +60,12 @@ fi
 
 setup_projection() {
   local prep_err="${SESSION_DIR}/prepare.stderr"
-  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
+  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" "$SESSION_DIR" 2>"$prep_err"; then
     echo "[ssh-shadow] failed to prepare session rootfs" >&2
     cat "$prep_err" >&2 || true
     exit 125
   fi
 
-  mkdir -p "${SESSION_ROOTFS}${SESSION_DIR}"
 
   BASELINE_META="${SESSION_DIR}/baseline_meta.json"
   python3 - <<'PY' "$SESSION_ROOTFS" "$BASELINE_META" "${SESSION_DIR}/baseline_files.txt"

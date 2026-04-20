@@ -6,8 +6,8 @@ SESSION_DIR="${2:?session_dir}"
 LOGIN_USER="${3:?login_user}"
 shift 3
 
-# Prefer bubblewrap when available, but gracefully fall back to proot if
-# kernel/userns policy rejects unprivileged namespaces.
+# Prefer bubblewrap when available. If kernel/userns policy blocks bwrap,
+# run directly in the container namespace (no proot fallback).
 if command -v bwrap >/dev/null 2>&1; then
   set +e
   env SSH_SHADOW_SANDBOX=1 bwrap \
@@ -34,21 +34,8 @@ if command -v bwrap >/dev/null 2>&1; then
   if [[ $rc -eq 0 ]]; then
     exit 0
   fi
-  echo "[ssh-shadow] bwrap unavailable in current kernel policy; falling back to proot" >&2
+  echo "[ssh-shadow] bwrap unavailable in current kernel policy; falling back to direct shell mode" >&2
 fi
 
-exec env SSH_SHADOW_SANDBOX=1 PROOT_NO_SECCOMP=1 proot -R "$WORKSPACE" \
-  -b /bin:/bin \
-  -b /sbin:/sbin \
-  -b /usr:/usr \
-  -b /lib:/lib \
-  -b /lib64:/lib64 \
-  -b /opt/ssh-shadow:/opt/ssh-shadow \
-  -b /dev:/dev \
-  -b /proc:/proc \
-  -b /sys:/sys \
-  -b /etc/resolv.conf:/etc/resolv.conf \
-  -b /etc/hosts:/etc/hosts \
-  -b "$SESSION_DIR":"$SESSION_DIR" \
-  -w "/home/${LOGIN_USER}" \
-  "$@"
+cd "/home/${LOGIN_USER}"
+exec env SSH_SHADOW_SANDBOX=0 "$@"

@@ -65,6 +65,7 @@ if [[ "${1:-}" == "--cleanup-session-rootfs" ]]; then
       exit 124
       ;;
   esac
+  cleanup_devpts_bind "${SESSION_WORK_DIR}/rootfs"
   exec rm -rf -- "$SESSION_WORK_DIR"
 fi
 

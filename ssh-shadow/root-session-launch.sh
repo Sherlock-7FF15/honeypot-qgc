@@ -102,29 +102,60 @@ if [[ -n "${HOST_SESSION_DIR:-}" ]]; then
   bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "start" "launching chroot command"
 fi
 
-chroot --userspec="${LOGIN_USER}" "$SESSION_ROOTFS" \
-  /usr/bin/env -i \
-    HOME="$HOME_IN_CHROOT" \
-    USER="${LOGIN_USER}" \
-    LOGNAME="${LOGIN_USER}" \
-    PATH="/opt/ssh-shadow/fakebin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    SSH_SHADOW_SANDBOX=1 \
-    HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}" \
-    SESSION_DIR="${SESSION_DIR:-}" \
-    WORKSPACE="/" \
-    BASELINE_FILE="${BASELINE_FILE:-}" \
-    BASELINE_META="${BASELINE_META:-}" \
-    LOGIN_USER="${LOGIN_USER}" \
-    SHADOW_WORKSPACE="/" \
-    SHADOW_LOGIN_USER="${LOGIN_USER}" \
-    CMD_LOG="${CMD_LOG:-}" \
-    "$@"
+launch_stderr_file=""
+if [[ -n "${HOST_SESSION_DIR:-}" ]]; then
+  launch_stderr_file="${HOST_SESSION_DIR}/chroot_launch.stderr"
+  : > "$launch_stderr_file" || true
+fi
+
+if [[ -n "$launch_stderr_file" ]]; then
+  chroot --userspec="${LOGIN_USER}" "$SESSION_ROOTFS" \
+    /usr/bin/env -i \
+      HOME="$HOME_IN_CHROOT" \
+      USER="${LOGIN_USER}" \
+      LOGNAME="${LOGIN_USER}" \
+      PATH="/opt/ssh-shadow/fakebin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+      SSH_SHADOW_SANDBOX=1 \
+      HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}" \
+      SESSION_DIR="${SESSION_DIR:-}" \
+      WORKSPACE="/" \
+      BASELINE_FILE="${BASELINE_FILE:-}" \
+      BASELINE_META="${BASELINE_META:-}" \
+      LOGIN_USER="${LOGIN_USER}" \
+      SHADOW_WORKSPACE="/" \
+      SHADOW_LOGIN_USER="${LOGIN_USER}" \
+      CMD_LOG="${CMD_LOG:-}" \
+      "$@" \
+      2> >(tee -a "$launch_stderr_file" >&2)
+else
+  chroot --userspec="${LOGIN_USER}" "$SESSION_ROOTFS" \
+    /usr/bin/env -i \
+      HOME="$HOME_IN_CHROOT" \
+      USER="${LOGIN_USER}" \
+      LOGNAME="${LOGIN_USER}" \
+      PATH="/opt/ssh-shadow/fakebin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+      SSH_SHADOW_SANDBOX=1 \
+      HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}" \
+      SESSION_DIR="${SESSION_DIR:-}" \
+      WORKSPACE="/" \
+      BASELINE_FILE="${BASELINE_FILE:-}" \
+      BASELINE_META="${BASELINE_META:-}" \
+      LOGIN_USER="${LOGIN_USER}" \
+      SHADOW_WORKSPACE="/" \
+      SHADOW_LOGIN_USER="${LOGIN_USER}" \
+      CMD_LOG="${CMD_LOG:-}" \
+      "$@"
+fi
 rc=$?
 if [[ -n "${HOST_SESSION_DIR:-}" ]]; then
   if [[ $rc -eq 0 ]]; then
     bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "ok" "chroot command exited cleanly" "$rc"
   else
-    bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "fail" "chroot command failed" "$rc"
+    summary=""
+    if [[ -n "$launch_stderr_file" ]]; then
+      summary="$(tail -n 20 "$launch_stderr_file" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+    fi
+    bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "fail" "${summary:-chroot command failed}" "$rc"
   fi
 fi
 exit "$rc"

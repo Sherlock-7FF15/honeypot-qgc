@@ -59,6 +59,28 @@ PS1="\u@${HONEYPOT_HOSTNAME:-gcs-shadow}:\w$ "
 alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 
+launch_cmd=(
+  /opt/ssh-shadow/sandbox-run.sh
+  "${SESSION_ROOTFS}"
+  "${SESSION_DIR}"
+  "${LOGIN_USER}"
+  /bin/bash
+  --noprofile
+  --rcfile
+  /tmp/.session_bashrc
+  -i
+)
+
+if [[ -t 0 && -t 1 ]]; then
+  exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
+    "${launch_cmd[@]}"
+fi
+
+if command -v /usr/bin/script >/dev/null 2>&1; then
+  printf -v launch_cmd_str '%q ' "${launch_cmd[@]}"
+  exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
+    /usr/bin/script -q -c "${launch_cmd_str}" /dev/null
+fi
+
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" \
-    /usr/bin/script -q -c "/bin/bash --noprofile --rcfile /tmp/.session_bashrc -i" /dev/null
+  "${launch_cmd[@]}"

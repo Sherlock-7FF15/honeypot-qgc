@@ -60,6 +60,5 @@ alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 chmod 0644 "${CHROOT_BASHRC}" >/dev/null 2>&1 || true
 
-exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" \
+exec /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" \
   /bin/bash --noprofile --rcfile /tmp/.session_bashrc -i

@@ -112,6 +112,12 @@ def handle(req, fds):
                     tty_control_fd = stdin_fd
             except Exception:
                 tty_control_fd = None
+        append_bootstrap(
+            host_session_dir,
+            "root_managed_tty_attach",
+            "ok" if tty_control_fd is not None else "fail",
+            f"tty_path={tty_path or ''} control_fd={'set' if tty_control_fd is not None else 'none'}",
+        )
         env = {
             "HOME": req.get("home", f"/home/{req['login_user']}"),
             "USER": req["login_user"],

@@ -100,15 +100,18 @@ def handle(req, fds):
         }
         argv = [launcher, req["session_rootfs"], req["login_user"], *req.get("argv", [])]
 
-        def preexec_attach_tty():
-            try:
-                os.setsid()
-            except Exception:
-                pass
-            try:
-                fcntl.ioctl(stdin_fd, termios.TIOCSCTTY, 0)
-            except Exception:
-                pass
+        preexec_fn = None
+        if tty_fd is not None:
+            def preexec_attach_tty():
+                try:
+                    os.setsid()
+                except Exception:
+                    pass
+                try:
+                    fcntl.ioctl(tty_fd, termios.TIOCSCTTY, 0)
+                except Exception:
+                    pass
+            preexec_fn = preexec_attach_tty
 
         pass_fds = [stdin_fd, stdout_fd, stderr_fd]
         if tty_fd is not None:
@@ -121,7 +124,7 @@ def handle(req, fds):
             stdin_fd=stdin_fd,
             stdout_fd=stdout_fd,
             stderr_fd=stderr_fd,
-            preexec_fn=preexec_attach_tty,
+            preexec_fn=preexec_fn,
         )
         if tty_fd is not None:
             try:

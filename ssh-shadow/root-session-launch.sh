@@ -79,6 +79,12 @@ if [[ ! -d "$SESSION_ROOTFS" ]]; then
   exit 127
 fi
 
+# Ensure /dev/tty is a real character device inside session rootfs.
+if [[ ! -c "${SESSION_ROOTFS}/dev/tty" ]]; then
+  rm -f "${SESSION_ROOTFS}/dev/tty" >/dev/null 2>&1 || true
+  mknod -m 666 "${SESSION_ROOTFS}/dev/tty" c 5 0 >/dev/null 2>&1 || true
+fi
+
 rm -rf "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
 mkdir -p "${CHROOT_SESSION_DIR}"
 # Keep session metadata dir writable for the in-chroot login uid/gid (1000:1000),

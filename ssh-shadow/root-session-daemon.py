@@ -150,9 +150,22 @@ def handle(req, fds):
         }
         argv = [launcher, req["session_rootfs"], req["login_user"], *req.get("argv", [])]
         launch_argv = list(argv)
+        interactive_shell = False
+        user_argv = req.get("argv", [])
+        if user_argv and user_argv[0] == "/bin/bash" and "-i" in user_argv:
+            interactive_shell = True
 
         preexec_fn = None
-        if tty_control_fd is not None:
+        if interactive_shell and os.path.exists("/usr/bin/script"):
+            transcript = os.path.join(host_session_dir, "tty.transcript") if host_session_dir else "/dev/null"
+            launch_argv = [
+                "/usr/bin/script",
+                "-qefc",
+                " ".join(shlex.quote(a) for a in argv),
+                transcript,
+            ]
+            append_bootstrap(host_session_dir, "root_managed_tty_attach", "ok", "interactive=script-pty")
+        elif tty_control_fd is not None:
             def preexec_attach_tty():
                 try:
                     os.setsid()

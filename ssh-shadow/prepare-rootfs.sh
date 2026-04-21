@@ -64,6 +64,7 @@ cp -a /opt/ssh-shadow/fake-root.bashrc "$ROOTFS/opt/ssh-shadow/fake-root.bashrc"
 cp -a /opt/ssh-shadow/trace-agent.sh "$ROOTFS/opt/ssh-shadow/trace-agent.sh"
 
 # Minimal device nodes for chroot userland.
+rm -f "$ROOTFS/dev/null" "$ROOTFS/dev/zero" "$ROOTFS/dev/random" "$ROOTFS/dev/urandom" "$ROOTFS/dev/tty" "$ROOTFS/dev/ptmx"
 mknod -m 666 "$ROOTFS/dev/null" c 1 3
 mknod -m 666 "$ROOTFS/dev/zero" c 1 5
 mknod -m 666 "$ROOTFS/dev/random" c 1 8

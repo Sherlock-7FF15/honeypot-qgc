@@ -72,9 +72,4 @@ launch_cmd=(
   -i
 )
 
-if command -v /usr/bin/script >/dev/null 2>&1; then
-  printf -v launch_cmd_str '%q ' "${launch_cmd[@]}"
-  exec /usr/bin/script -qf -c "${launch_cmd_str}" "${SESSION_DIR}/tty.transcript"
-fi
-
 exec "${launch_cmd[@]}"

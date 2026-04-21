@@ -18,4 +18,10 @@ PY
   echo ""
   exit 0
 fi
-exec /usr/bin/pkill "$@"
+for real_pkill in /usr/bin/pkill /bin/pkill; do
+  if [[ -x "$real_pkill" ]]; then
+    exec "$real_pkill" "$@"
+  fi
+done
+echo "pkill: command not found" >&2
+exit 127

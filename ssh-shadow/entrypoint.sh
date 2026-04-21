@@ -5,6 +5,21 @@ set -euo pipefail
 SSH_SHADOW_CREDENTIALS="${SSH_SHADOW_CREDENTIALS:-gcs:gcs123! admin:admin ubuntu:ubuntu pi:raspberry support:support operator:operator guest:guest test:test user:user deploy:deploy openclaw:openclaw}"
 HONEYPOT_HOSTNAME="${HONEYPOT_HOSTNAME:-gcs-shadow}"
 
+# Compatibility self-heal: older images/scripts used `/usr/bin/script` wrapper in
+# interactive-shell, which can fail on restricted runtimes (`failed to create pseudo-terminal`).
+if grep -q '/usr/bin/script -q -c "/bin/bash --noprofile --rcfile /tmp/.session_bashrc -i" /dev/null' /opt/ssh-shadow/interactive-shell.sh 2>/dev/null; then
+  echo "[ssh-shadow] warning: detected legacy script(1) PTY wrapper; auto-patching to direct bash launch" >&2
+  python3 - <<'PY'
+from pathlib import Path
+p = Path("/opt/ssh-shadow/interactive-shell.sh")
+s = p.read_text(encoding="utf-8")
+old = '/usr/bin/script -q -c "/bin/bash --noprofile --rcfile /tmp/.session_bashrc -i" /dev/null'
+new = '/bin/bash --noprofile --rcfile /tmp/.session_bashrc -i'
+if old in s:
+    p.write_text(s.replace(old, new), encoding="utf-8")
+PY
+fi
+
 if ! getent group honeypot >/dev/null; then
   groupadd --system honeypot
 fi

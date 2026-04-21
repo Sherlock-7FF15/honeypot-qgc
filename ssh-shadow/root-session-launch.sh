@@ -35,17 +35,26 @@ fi
 SESSION_ROOTFS="${1:?session_rootfs}"
 LOGIN_USER="${2:?login_user}"
 shift 2
+CHROOT_SESSION_DIR="${SESSION_ROOTFS}/tmp/.ssh-shadow/session"
 
 if [[ ! -d "$SESSION_ROOTFS" ]]; then
   echo "[ssh-shadow] session rootfs not found: $SESSION_ROOTFS" >&2
   exit 127
 fi
 
-rm -rf "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
-mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
-# Keep session metadata dir writable even when chown constraints exist on this host.
-chown -R "${LOGIN_USER}:honeypot" "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || chown -R "${LOGIN_USER}:${LOGIN_USER}" "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
-chmod 1777 "${SESSION_ROOTFS}/tmp/ssh-shadow/session" >/dev/null 2>&1 || true
+rm -rf "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
+mkdir -p "${CHROOT_SESSION_DIR}"
+# Keep session metadata dir writable for the in-chroot login uid/gid (1000:1000),
+# independent of host user/group name resolution.
+chown -R 1000:1000 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
+chmod 700 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
+install -o 1000 -g 1000 -m 600 /dev/null "${CHROOT_SESSION_DIR}/commands.jsonl" >/dev/null 2>&1 || true
+install -o 1000 -g 1000 -m 600 /dev/null "${CHROOT_SESSION_DIR}/events.jsonl" >/dev/null 2>&1 || true
+if [[ ! -f "${CHROOT_SESSION_DIR}/provenance.json" ]]; then
+  printf '{}\n' > "${CHROOT_SESSION_DIR}/provenance.json" || true
+fi
+chown 1000:1000 "${CHROOT_SESSION_DIR}/provenance.json" >/dev/null 2>&1 || true
+chmod 600 "${CHROOT_SESSION_DIR}/provenance.json" >/dev/null 2>&1 || true
 
 HOME_IN_CHROOT="/home/${LOGIN_USER}"
 if [[ ! -d "${SESSION_ROOTFS}${HOME_IN_CHROOT}" ]]; then

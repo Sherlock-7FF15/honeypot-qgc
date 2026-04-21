@@ -9,6 +9,7 @@ import termios
 import traceback
 
 SOCK_PATH = "/run/ssh-shadow/root-launch.sock"
+CHROOT_SESSION_DIR = "/tmp/.ssh-shadow/session"
 
 
 def run_cmd(argv, env=None, pass_fds=None, stdin_fd=None, stdout_fd=None, stderr_fd=None, preexec_fn=None):
@@ -87,27 +88,30 @@ def handle(req, fds):
             "LOGNAME": req["login_user"],
             "PATH": os.environ.get("PATH", "/usr/sbin:/usr/bin:/sbin:/bin"),
             "HONEYPOT_HOSTNAME": req.get("honeypot_hostname", "gcs-shadow"),
-            "SESSION_DIR": "/tmp/ssh-shadow/session",
+            "SESSION_DIR": CHROOT_SESSION_DIR,
             "WORKSPACE": "/",
-            "BASELINE_FILE": "/tmp/ssh-shadow/session/baseline_files.txt",
-            "BASELINE_META": "/tmp/ssh-shadow/session/baseline_meta.json",
+            "BASELINE_FILE": f"{CHROOT_SESSION_DIR}/baseline_files.txt",
+            "BASELINE_META": f"{CHROOT_SESSION_DIR}/baseline_meta.json",
             "LOGIN_USER": req.get("login_user", ""),
             "SHADOW_WORKSPACE": "/",
             "SHADOW_LOGIN_USER": req.get("login_user", ""),
-            "CMD_LOG": "/tmp/ssh-shadow/session/commands.jsonl",
+            "CMD_LOG": f"{CHROOT_SESSION_DIR}/commands.jsonl",
             "SSH_SHADOW_SANDBOX": "1",
         }
         argv = [launcher, req["session_rootfs"], req["login_user"], *req.get("argv", [])]
 
-        def preexec_attach_tty():
-            try:
-                os.setsid()
-            except Exception:
-                pass
-            try:
-                fcntl.ioctl(stdin_fd, termios.TIOCSCTTY, 0)
-            except Exception:
-                pass
+        preexec_fn = None
+        if tty_fd is not None:
+            def preexec_attach_tty():
+                try:
+                    os.setsid()
+                except Exception:
+                    pass
+                try:
+                    fcntl.ioctl(tty_fd, termios.TIOCSCTTY, 0)
+                except Exception:
+                    pass
+            preexec_fn = preexec_attach_tty
 
         pass_fds = [stdin_fd, stdout_fd, stderr_fd]
         if tty_fd is not None:
@@ -120,7 +124,7 @@ def handle(req, fds):
             stdin_fd=stdin_fd,
             stdout_fd=stdout_fd,
             stderr_fd=stderr_fd,
-            preexec_fn=preexec_attach_tty,
+            preexec_fn=preexec_fn,
         )
         if tty_fd is not None:
             try:

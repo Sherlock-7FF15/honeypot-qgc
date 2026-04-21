@@ -60,5 +60,21 @@ alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 chmod 0644 "${CHROOT_BASHRC}" >/dev/null 2>&1 || true
 
-exec /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" \
-  /bin/bash --noprofile --rcfile /tmp/.session_bashrc -i
+launch_cmd=(
+  /opt/ssh-shadow/sandbox-run.sh
+  "${SESSION_ROOTFS}"
+  "${SESSION_DIR}"
+  "${LOGIN_USER}"
+  /bin/bash
+  --noprofile
+  --rcfile
+  /tmp/.session_bashrc
+  -i
+)
+
+if command -v /usr/bin/script >/dev/null 2>&1; then
+  printf -v launch_cmd_str '%q ' "${launch_cmd[@]}"
+  exec /usr/bin/script -qf -c "${launch_cmd_str}" "${SESSION_DIR}/tty.transcript"
+fi
+
+exec "${launch_cmd[@]}"

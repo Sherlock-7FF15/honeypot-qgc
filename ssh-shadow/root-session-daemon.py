@@ -157,7 +157,7 @@ def handle(req, fds):
                 except Exception:
                     pass
                 try:
-                    fcntl.ioctl(tty_control_fd, termios.TIOCSCTTY, 0)
+                    fcntl.ioctl(tty_control_fd, termios.TIOCSCTTY, 1)
                 except Exception:
                     pass
                 try:

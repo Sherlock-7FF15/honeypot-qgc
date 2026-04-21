@@ -205,8 +205,24 @@ PY
   cleanup_projection || true
 
   bootstrap_log "cleanup_root_managed" "start" "invoking root-session-client cleanup"
-  /usr/bin/python3 /opt/ssh-shadow/root-session-client.py cleanup "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
-  bootstrap_log "cleanup_root_managed" "ok" "cleanup completed"
+  cleanup_summary=""
+  if /usr/bin/python3 /opt/ssh-shadow/root-session-client.py cleanup "$SESSION_WORK_DIR" >/dev/null 2>"${SESSION_DIR}/cleanup.stderr"; then
+    bootstrap_log "cleanup_root_managed" "ok" "cleanup completed via root-session-client"
+  else
+    cleanup_rc=$?
+    cleanup_summary="$(tail -n 20 "${SESSION_DIR}/cleanup.stderr" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+    bootstrap_log "cleanup_root_managed" "fail" "${cleanup_summary:-root-session-client cleanup failed}" "${cleanup_rc}"
+  fi
+  if [[ -d "${SESSION_WORK_DIR}" ]]; then
+    bootstrap_log "cleanup_root_managed_fallback" "start" "session dir still exists, attempting sudo launcher cleanup"
+    if sudo -n /opt/ssh-shadow/root-session-launch.sh --cleanup-session-rootfs "$SESSION_WORK_DIR" >/dev/null 2>"${SESSION_DIR}/cleanup_fallback.stderr"; then
+      bootstrap_log "cleanup_root_managed_fallback" "ok" "fallback cleanup removed session work dir"
+    else
+      fallback_rc=$?
+      fallback_summary="$(tail -n 20 "${SESSION_DIR}/cleanup_fallback.stderr" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+      bootstrap_log "cleanup_root_managed_fallback" "fail" "${fallback_summary:-fallback cleanup failed}" "${fallback_rc}"
+    fi
+  fi
   rm -rf "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"

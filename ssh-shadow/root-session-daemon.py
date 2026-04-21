@@ -2,6 +2,7 @@
 import fcntl
 import json
 import os
+import shlex
 import socket
 import struct
 import subprocess
@@ -148,6 +149,7 @@ def handle(req, fds):
             "HOST_SESSION_DIR": host_session_dir,
         }
         argv = [launcher, req["session_rootfs"], req["login_user"], *req.get("argv", [])]
+        launch_argv = list(argv)
 
         preexec_fn = None
         if tty_control_fd is not None:
@@ -169,13 +171,23 @@ def handle(req, fds):
                 except Exception:
                     pass
             preexec_fn = preexec_attach_tty
+        elif os.path.exists("/usr/bin/script"):
+            # Fallback: if we still do not have a real tty control fd from sshd,
+            # allocate one via util-linux script(1) at the root-managed launch layer.
+            launch_argv = [
+                "/usr/bin/script",
+                "-qefc",
+                " ".join(shlex.quote(a) for a in argv),
+                "/dev/null",
+            ]
+            append_bootstrap(host_session_dir, "root_managed_tty_attach", "ok", "fallback=script-pty")
 
         pass_fds = [stdin_fd, stdout_fd, stderr_fd]
         if tty_fd is not None:
             pass_fds.append(tty_fd)
 
         rc, _, _ = run_cmd(
-            argv,
+            launch_argv,
             env=env,
             pass_fds=pass_fds,
             stdin_fd=stdin_fd,

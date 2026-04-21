@@ -25,6 +25,7 @@ SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
 SESSION_ROOTFS="${SESS_WORK_ROOT}/${SESSION_ID}/rootfs"
 SESSION_WORK_DIR="${SESS_WORK_ROOT}/${SESSION_ID}"
+CHROOT_SESSION_DIR="${SESSION_ROOTFS}/tmp/.ssh-shadow/session"
 mkdir -p "$SESSION_DIR" "$SESSION_ROOTFS"
 
 META_FILE="${SESSION_DIR}/session.json"
@@ -85,9 +86,9 @@ out.write_text(json.dumps(rows,ensure_ascii=False),encoding='utf-8')
 list_out.write_text('\n'.join(sorted(rows.keys())) + ('\n' if rows else ''), encoding='utf-8')
 PY
 
-  mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
-  cp -f "$BASELINE_META" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" || true
-  chmod 666 "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" >/dev/null 2>&1 || true
+  mkdir -p "${CHROOT_SESSION_DIR}"
+  cp -f "$BASELINE_META" "${CHROOT_SESSION_DIR}/baseline_meta.json" || true
+  chmod 600 "${CHROOT_SESSION_DIR}/baseline_meta.json" >/dev/null 2>&1 || true
 }
 
 cleanup_projection() {
@@ -103,8 +104,8 @@ cleanup() {
     reason="exit_code_${rc}"
   fi
 
-  if [[ -d "${SESSION_ROOTFS}/tmp/ssh-shadow/session" ]]; then
-    rsync -a --ignore-errors "${SESSION_ROOTFS}/tmp/ssh-shadow/session/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
+  if [[ -d "${CHROOT_SESSION_DIR}" ]]; then
+    rsync -a --ignore-errors "${CHROOT_SESSION_DIR}/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
   fi
 
   if [[ "$reason" == payload_captured:* || "$reason" == *"sensitive"* ]]; then
@@ -195,5 +196,6 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
 else
   echo "interactive_shell" > "${SESSION_DIR}/session_mode.txt"
   echo "[ssh-shadow] connected to shadow GCS workstation"
-  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER"
+  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER" \
+    2> >(sed '/^bash: cannot set terminal process group (-1): Inappropriate ioctl for device$/d; /^bash: no job control in this shell$/d' >&2)
 fi

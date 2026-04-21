@@ -66,8 +66,9 @@ fi
 
 rm -rf "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
 mkdir -p "${CHROOT_SESSION_DIR}"
-# Keep session metadata dir writable even when chown constraints exist on this host.
-chown -R "${LOGIN_USER}:honeypot" "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || chown -R "${LOGIN_USER}:${LOGIN_USER}" "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
+# Keep session metadata dir writable for the in-chroot login uid/gid (1000:1000),
+# independent of host user/group name resolution.
+chown -R 1000:1000 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
 chmod 700 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
 
 HOME_IN_CHROOT="/home/${LOGIN_USER}"

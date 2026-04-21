@@ -88,6 +88,7 @@ PY
 
   mkdir -p "${CHROOT_SESSION_DIR}"
   cp -f "$BASELINE_META" "${CHROOT_SESSION_DIR}/baseline_meta.json" || true
+  chown 1000:1000 "${CHROOT_SESSION_DIR}/baseline_meta.json" >/dev/null 2>&1 || true
   chmod 600 "${CHROOT_SESSION_DIR}/baseline_meta.json" >/dev/null 2>&1 || true
 }
 

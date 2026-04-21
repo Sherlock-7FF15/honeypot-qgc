@@ -12,6 +12,23 @@ SOCK_PATH = "/run/ssh-shadow/root-launch.sock"
 CHROOT_SESSION_DIR = "/tmp/.ssh-shadow/session"
 
 
+def append_bootstrap(session_dir, step, status="info", message="", rc=None):
+    if not session_dir:
+        return
+    try:
+        os.makedirs(session_dir, exist_ok=True)
+        out = os.path.join(session_dir, "bootstrap.jsonl")
+        obj = {"ts": __import__("time").time(), "step": step, "status": status}
+        if message:
+            obj["message"] = message
+        if rc is not None:
+            obj["rc"] = int(rc) if isinstance(rc, (int, bool)) or str(rc).isdigit() else rc
+        with open(out, "a", encoding="utf-8") as f:
+            f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
 def run_cmd(argv, env=None, pass_fds=None, stdin_fd=None, stdout_fd=None, stderr_fd=None, preexec_fn=None):
     proc = subprocess.Popen(
         argv,
@@ -65,23 +82,36 @@ def handle(req, fds):
         rc, out, err = run_cmd([launcher, "--selftest", req["session_rootfs"]])
         return {"ok": rc == 0, "rc": rc, "stdout": out, "stderr": err}
     if action == "prepare":
+        append_bootstrap(req.get("session_dir", ""), "root_managed_prepare_daemon", "start", "daemon prepare request")
         rc, out, err = run_cmd([launcher, "--prepare-session-rootfs", req["base_root"], req["session_rootfs"], req["login_user"], req.get("session_dir", "")])
+        append_bootstrap(req.get("session_dir", ""), "root_managed_prepare_daemon", "ok" if rc == 0 else "fail", (err or out or "").strip()[:600], rc)
         return {"ok": rc == 0, "rc": rc, "stdout": out, "stderr": err}
     if action == "cleanup":
         rc, out, err = run_cmd([launcher, "--cleanup-session-rootfs", req["session_work_dir"]])
         return {"ok": rc == 0, "rc": rc, "stdout": out, "stderr": err}
     if action == "launch":
+        host_session_dir = req.get("session_dir", "")
+        append_bootstrap(host_session_dir, "root_managed_launch_daemon", "start", "daemon launch request")
         if len(fds) < 3:
+            append_bootstrap(host_session_dir, "root_managed_launch_daemon", "fail", "missing stdio file descriptors", 125)
             return {"ok": False, "rc": 125, "stderr": "missing stdio file descriptors"}
         stdin_fd, stdout_fd, stderr_fd = fds[:3]
         tty_fd = None
+        tty_control_fd = None
         tty_path = req.get("tty_path")
         if tty_path:
             try:
                 tty_fd = os.open(tty_path, os.O_RDWR | os.O_NOCTTY)
                 stdin_fd = stdout_fd = stderr_fd = tty_fd
+                tty_control_fd = tty_fd
             except Exception:
                 tty_fd = None
+        if tty_control_fd is None:
+            try:
+                if os.isatty(stdin_fd):
+                    tty_control_fd = stdin_fd
+            except Exception:
+                tty_control_fd = None
         env = {
             "HOME": req.get("home", f"/home/{req['login_user']}"),
             "USER": req["login_user"],
@@ -97,18 +127,27 @@ def handle(req, fds):
             "SHADOW_LOGIN_USER": req.get("login_user", ""),
             "CMD_LOG": f"{CHROOT_SESSION_DIR}/commands.jsonl",
             "SSH_SHADOW_SANDBOX": "1",
+            "HOST_SESSION_DIR": host_session_dir,
         }
         argv = [launcher, req["session_rootfs"], req["login_user"], *req.get("argv", [])]
 
         preexec_fn = None
-        if tty_fd is not None:
+        if tty_control_fd is not None:
             def preexec_attach_tty():
                 try:
                     os.setsid()
                 except Exception:
                     pass
                 try:
-                    fcntl.ioctl(tty_fd, termios.TIOCSCTTY, 0)
+                    fcntl.ioctl(tty_control_fd, termios.TIOCSCTTY, 0)
+                except Exception:
+                    pass
+                try:
+                    os.setpgid(0, 0)
+                except Exception:
+                    pass
+                try:
+                    os.tcsetpgrp(tty_control_fd, os.getpgrp())
                 except Exception:
                     pass
             preexec_fn = preexec_attach_tty
@@ -131,6 +170,7 @@ def handle(req, fds):
                 os.close(tty_fd)
             except Exception:
                 pass
+        append_bootstrap(host_session_dir, "root_managed_launch_daemon", "ok" if rc == 0 else "fail", "", rc)
         return {"ok": rc == 0, "rc": int(rc)}
     return {"ok": False, "rc": 2, "stderr": f"unknown action: {action}"}
 

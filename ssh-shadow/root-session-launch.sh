@@ -1,24 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ensure_devpts_bind() {
-  local rootfs="$1"
-  local pts_dir="${rootfs}/dev/pts"
-  mkdir -p "$pts_dir"
-  if ! mountpoint -q "$pts_dir" >/dev/null 2>&1; then
-    if ! mount --bind /dev/pts "$pts_dir" >/dev/null 2>&1; then
-      echo "[ssh-shadow] warning: unable to bind-mount /dev/pts into session rootfs; continuing without devpts bind" >&2
-    fi
-  fi
-  ln -sfn pts/ptmx "${rootfs}/dev/ptmx" >/dev/null 2>&1 || true
-}
-
-cleanup_devpts_bind() {
-  local rootfs="$1"
-  local pts_dir="${rootfs}/dev/pts"
-  if mountpoint -q "$pts_dir" >/dev/null 2>&1; then
-    umount "$pts_dir" >/dev/null 2>&1 || umount -l "$pts_dir" >/dev/null 2>&1 || true
-  fi
+bootstrap_log() {
+  local session_dir="${1:-}"
+  local step="${2:-}"
+  local status="${3:-info}"
+  local message="${4:-}"
+  local rc="${5:-}"
+  [[ -z "$session_dir" ]] && return 0
+  mkdir -p "$session_dir" >/dev/null 2>&1 || true
+  local out="${session_dir}/bootstrap.jsonl"
+  python3 - <<'PY' "$out" "$step" "$status" "$message" "$rc"
+import json,sys,time
+path,step,status,message,rc=sys.argv[1:]
+obj={"ts":time.time(),"step":step,"status":status}
+if message:
+    obj["message"]=message
+if rc not in ("", "None", "null"):
+    try:
+        obj["rc"]=int(rc)
+    except Exception:
+        obj["rc"]=rc
+with open(path,"a",encoding="utf-8") as f:
+    f.write(json.dumps(obj,ensure_ascii=False)+"\n")
+PY
 }
 
 if [[ "${1:-}" == "--selftest" ]]; then
@@ -36,8 +41,18 @@ if [[ "${1:-}" == "--prepare-session-rootfs" ]]; then
   BASE_ROOT="${2:?base_root}"
   SESSION_ROOTFS="${3:?session_rootfs}"
   LOGIN_USER="${4:?login_user}"
-  /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"
-  ensure_devpts_bind "$SESSION_ROOTFS"
+  HOST_SESSION_DIR="${5:-}"
+  bootstrap_log "$HOST_SESSION_DIR" "rootfs_template_prepare" "start" "prepare-session-rootfs invoked"
+  bootstrap_log "$HOST_SESSION_DIR" "build_jail" "start" "invoking build-jail.sh"
+  if /opt/ssh-shadow/build-jail.sh "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER"; then
+    bootstrap_log "$HOST_SESSION_DIR" "build_jail" "ok" "build-jail.sh completed"
+    bootstrap_log "$HOST_SESSION_DIR" "rootfs_template_prepare" "ok" "prepare-session-rootfs completed"
+  else
+    rc=$?
+    bootstrap_log "$HOST_SESSION_DIR" "build_jail" "fail" "build-jail.sh failed" "$rc"
+    bootstrap_log "$HOST_SESSION_DIR" "rootfs_template_prepare" "fail" "prepare-session-rootfs failed" "$rc"
+    exit "$rc"
+  fi
   exit 0
 fi
 
@@ -83,7 +98,11 @@ if [[ ! -d "${SESSION_ROOTFS}${HOME_IN_CHROOT}" ]]; then
   HOME_IN_CHROOT="/"
 fi
 
-exec chroot --userspec="${LOGIN_USER}" "$SESSION_ROOTFS" \
+if [[ -n "${HOST_SESSION_DIR:-}" ]]; then
+  bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "start" "launching chroot command"
+fi
+
+chroot --userspec="${LOGIN_USER}" "$SESSION_ROOTFS" \
   /usr/bin/env -i \
     HOME="$HOME_IN_CHROOT" \
     USER="${LOGIN_USER}" \
@@ -100,3 +119,12 @@ exec chroot --userspec="${LOGIN_USER}" "$SESSION_ROOTFS" \
     SHADOW_LOGIN_USER="${LOGIN_USER}" \
     CMD_LOG="${CMD_LOG:-}" \
     "$@"
+rc=$?
+if [[ -n "${HOST_SESSION_DIR:-}" ]]; then
+  if [[ $rc -eq 0 ]]; then
+    bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "ok" "chroot command exited cleanly" "$rc"
+  else
+    bootstrap_log "$HOST_SESSION_DIR" "chroot_launch" "fail" "chroot command failed" "$rc"
+  fi
+fi
+exit "$rc"

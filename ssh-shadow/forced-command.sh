@@ -26,7 +26,30 @@ SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
 SESSION_ROOTFS="${SESS_WORK_ROOT}/${SESSION_ID}/rootfs"
 SESSION_WORK_DIR="${SESS_WORK_ROOT}/${SESSION_ID}"
 CHROOT_SESSION_DIR="${SESSION_ROOTFS}/tmp/.ssh-shadow/session"
+BOOTSTRAP_FILE="${SESSION_DIR}/bootstrap.jsonl"
 mkdir -p "$SESSION_DIR" "$SESSION_ROOTFS"
+
+bootstrap_log() {
+  local step="$1"
+  local status="${2:-info}"
+  local message="${3:-}"
+  local rc="${4:-}"
+  python3 - <<'PY' "$BOOTSTRAP_FILE" "$step" "$status" "$message" "$rc"
+import json,sys,time
+path,step,status,message,rc=sys.argv[1:]
+obj={"ts":time.time(),"step":step,"status":status}
+if message:
+    obj["message"]=message
+if rc not in ("", "None", "null"):
+    try:
+        obj["rc"]=int(rc)
+    except Exception:
+        obj["rc"]=rc
+with open(path,"a",encoding="utf-8") as f:
+    f.write(json.dumps(obj,ensure_ascii=False)+"\n")
+PY
+}
+bootstrap_log "session_create" "start" "forced-command entry"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
@@ -49,6 +72,7 @@ JSON
 LOCK_FILE="${STATE_ROOT}/active_session.lock"
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
+  bootstrap_log "session_lock" "fail" "console busy" 1
   echo "[ssh-shadow] console busy, try again later."
   python3 - <<'PY' "$LOG_ROOT" "$REMOTE_IP" "$REMOTE_PORT" "$LOGIN_USER"
 import json,sys,time
@@ -58,10 +82,18 @@ with open(f"{root}/busy.jsonl","a",encoding="utf-8") as f:
 PY
   exit 1
 fi
+bootstrap_log "session_lock" "ok" "active session lock acquired"
 
 setup_projection() {
   local prep_err="${SESSION_DIR}/prepare.stderr"
-  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
+  bootstrap_log "root_managed_prepare" "start" "invoking root-session-client prepare"
+  if /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
+    bootstrap_log "root_managed_prepare" "ok" "prepare completed"
+  else
+    local prep_rc=$?
+    local prep_summary=""
+    prep_summary="$(tail -n 20 "$prep_err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+    bootstrap_log "root_managed_prepare" "fail" "${prep_summary}" "${prep_rc}"
     echo "[ssh-shadow] failed to prepare session rootfs" >&2
     cat "$prep_err" >&2 || true
     exit 125
@@ -172,7 +204,9 @@ summary={
 PY
   cleanup_projection || true
 
+  bootstrap_log "cleanup_root_managed" "start" "invoking root-session-client cleanup"
   /usr/bin/python3 /opt/ssh-shadow/root-session-client.py cleanup "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
+  bootstrap_log "cleanup_root_managed" "ok" "cleanup completed"
   rm -rf "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
@@ -185,18 +219,23 @@ obj['termination_reason']=reason
 with open(path,'w',encoding='utf-8') as f:
     json.dump(obj,f,ensure_ascii=False,indent=2)
 PY
+  bootstrap_log "session_finalize" "ok" "$reason" "$rc"
 }
 trap cleanup EXIT
 
 setup_projection
+bootstrap_log "session_create" "ok" "projection setup complete"
 export SESSION_DIR SESSION_ROOTFS WORKSPACE="$SESSION_ROOTFS" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" BASELINE_META="${SESSION_DIR}/baseline_meta.json" LOGIN_USER SHADOW_WORKSPACE="$SESSION_ROOTFS" SHADOW_LOGIN_USER="$LOGIN_USER" HONEYPOT_HOSTNAME
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
+  bootstrap_log "mode_decision" "ok" "non_interactive_exec"
   echo "non_interactive_exec" > "${SESSION_DIR}/session_mode.txt"
+  bootstrap_log "chroot_launch" "start" "exec-original-command path"
   /opt/ssh-shadow/exec-original-command.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER" "$SSH_ORIGINAL_COMMAND"
 else
+  bootstrap_log "mode_decision" "ok" "interactive_shell"
   echo "interactive_shell" > "${SESSION_DIR}/session_mode.txt"
   echo "[ssh-shadow] connected to shadow GCS workstation"
-  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER" \
-    2> >(sed '/^bash: cannot set terminal process group (-1): Inappropriate ioctl for device$/d; /^bash: no job control in this shell$/d' >&2)
+  bootstrap_log "chroot_launch" "start" "interactive-shell path"
+  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER"
 fi

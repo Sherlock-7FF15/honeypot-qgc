@@ -196,5 +196,6 @@ if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
 else
   echo "interactive_shell" > "${SESSION_DIR}/session_mode.txt"
   echo "[ssh-shadow] connected to shadow GCS workstation"
-  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER"
+  /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER" \
+    2> >(sed '/^bash: cannot set terminal process group (-1): Inappropriate ioctl for device$/d; /^bash: no job control in this shell$/d' >&2)
 fi

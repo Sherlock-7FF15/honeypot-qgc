@@ -84,14 +84,14 @@ mkdir -p "${CHROOT_SESSION_DIR}"
 # Keep session metadata dir writable for the in-chroot login uid/gid (1000:1000),
 # independent of host user/group name resolution.
 chown -R 1000:1000 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
-chmod 700 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
-install -o 1000 -g 1000 -m 600 /dev/null "${CHROOT_SESSION_DIR}/commands.jsonl" >/dev/null 2>&1 || true
-install -o 1000 -g 1000 -m 600 /dev/null "${CHROOT_SESSION_DIR}/events.jsonl" >/dev/null 2>&1 || true
+chmod 755 "${CHROOT_SESSION_DIR}" >/dev/null 2>&1 || true
+install -o 1000 -g 1000 -m 644 /dev/null "${CHROOT_SESSION_DIR}/commands.jsonl" >/dev/null 2>&1 || true
+install -o 1000 -g 1000 -m 644 /dev/null "${CHROOT_SESSION_DIR}/events.jsonl" >/dev/null 2>&1 || true
 if [[ ! -f "${CHROOT_SESSION_DIR}/provenance.json" ]]; then
   printf '{}\n' > "${CHROOT_SESSION_DIR}/provenance.json" || true
 fi
 chown 1000:1000 "${CHROOT_SESSION_DIR}/provenance.json" >/dev/null 2>&1 || true
-chmod 600 "${CHROOT_SESSION_DIR}/provenance.json" >/dev/null 2>&1 || true
+chmod 644 "${CHROOT_SESSION_DIR}/provenance.json" >/dev/null 2>&1 || true
 
 HOME_IN_CHROOT="/home/${LOGIN_USER}"
 if [[ ! -d "${SESSION_ROOTFS}${HOME_IN_CHROOT}" ]]; then

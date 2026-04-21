@@ -112,6 +112,18 @@ def handle(req, fds):
                     tty_control_fd = stdin_fd
             except Exception:
                 tty_control_fd = None
+        if tty_control_fd is None:
+            for cand in (f"/proc/self/fd/{stdin_fd}", "/dev/tty"):
+                try:
+                    fd = os.open(cand, os.O_RDWR | os.O_NOCTTY)
+                    if os.isatty(fd):
+                        tty_fd = fd
+                        stdin_fd = stdout_fd = stderr_fd = tty_fd
+                        tty_control_fd = tty_fd
+                        break
+                    os.close(fd)
+                except Exception:
+                    continue
         append_bootstrap(
             host_session_dir,
             "root_managed_tty_attach",

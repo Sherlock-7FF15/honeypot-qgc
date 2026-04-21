@@ -64,11 +64,13 @@ cp -a /opt/ssh-shadow/fake-root.bashrc "$ROOTFS/opt/ssh-shadow/fake-root.bashrc"
 cp -a /opt/ssh-shadow/trace-agent.sh "$ROOTFS/opt/ssh-shadow/trace-agent.sh"
 
 # Minimal device nodes for chroot userland.
+rm -f "$ROOTFS/dev/null" "$ROOTFS/dev/zero" "$ROOTFS/dev/random" "$ROOTFS/dev/urandom" "$ROOTFS/dev/tty" "$ROOTFS/dev/ptmx"
 mknod -m 666 "$ROOTFS/dev/null" c 1 3
 mknod -m 666 "$ROOTFS/dev/zero" c 1 5
 mknod -m 666 "$ROOTFS/dev/random" c 1 8
 mknod -m 666 "$ROOTFS/dev/urandom" c 1 9
 mknod -m 666 "$ROOTFS/dev/tty" c 5 0
+mknod -m 666 "$ROOTFS/dev/ptmx" c 5 2
 chmod 1777 "$ROOTFS/tmp" "$ROOTFS/var/tmp" "$ROOTFS/dev/shm"
 
 # chroot sees these as writable mount points from host namespace.

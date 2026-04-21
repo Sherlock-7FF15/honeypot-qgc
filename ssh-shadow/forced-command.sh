@@ -25,7 +25,31 @@ SESSION_ID="${NOW_TS}_${REMOTE_IP//:/_}_${REMOTE_PORT}_sshshadow"
 SESSION_DIR="${SESS_ROOT}/${SESSION_ID}"
 SESSION_ROOTFS="${SESS_WORK_ROOT}/${SESSION_ID}/rootfs"
 SESSION_WORK_DIR="${SESS_WORK_ROOT}/${SESSION_ID}"
+CHROOT_SESSION_DIR="${SESSION_ROOTFS}/tmp/.ssh-shadow/session"
+BOOTSTRAP_FILE="${SESSION_DIR}/bootstrap.jsonl"
 mkdir -p "$SESSION_DIR" "$SESSION_ROOTFS"
+
+bootstrap_log() {
+  local step="$1"
+  local status="${2:-info}"
+  local message="${3:-}"
+  local rc="${4:-}"
+  python3 - <<'PY' "$BOOTSTRAP_FILE" "$step" "$status" "$message" "$rc"
+import json,sys,time
+path,step,status,message,rc=sys.argv[1:]
+obj={"ts":time.time(),"step":step,"status":status}
+if message:
+    obj["message"]=message
+if rc not in ("", "None", "null"):
+    try:
+        obj["rc"]=int(rc)
+    except Exception:
+        obj["rc"]=rc
+with open(path,"a",encoding="utf-8") as f:
+    f.write(json.dumps(obj,ensure_ascii=False)+"\n")
+PY
+}
+bootstrap_log "session_create" "start" "forced-command entry"
 
 META_FILE="${SESSION_DIR}/session.json"
 cat > "$META_FILE" <<JSON
@@ -48,6 +72,7 @@ JSON
 LOCK_FILE="${STATE_ROOT}/active_session.lock"
 exec 9>"$LOCK_FILE"
 if ! flock -n 9; then
+  bootstrap_log "session_lock" "fail" "console busy" 1
   echo "[ssh-shadow] console busy, try again later."
   python3 - <<'PY' "$LOG_ROOT" "$REMOTE_IP" "$REMOTE_PORT" "$LOGIN_USER"
 import json,sys,time
@@ -57,10 +82,18 @@ with open(f"{root}/busy.jsonl","a",encoding="utf-8") as f:
 PY
   exit 1
 fi
+bootstrap_log "session_lock" "ok" "active session lock acquired"
 
 setup_projection() {
   local prep_err="${SESSION_DIR}/prepare.stderr"
-  if ! /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
+  bootstrap_log "root_managed_prepare" "start" "invoking root-session-client prepare"
+  if /usr/bin/python3 /opt/ssh-shadow/root-session-client.py prepare "$BASE_ROOT" "$SESSION_ROOTFS" "$LOGIN_USER" 2>"$prep_err"; then
+    bootstrap_log "root_managed_prepare" "ok" "prepare completed"
+  else
+    local prep_rc=$?
+    local prep_summary=""
+    prep_summary="$(tail -n 20 "$prep_err" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+    bootstrap_log "root_managed_prepare" "fail" "${prep_summary}" "${prep_rc}"
     echo "[ssh-shadow] failed to prepare session rootfs" >&2
     cat "$prep_err" >&2 || true
     exit 125
@@ -85,9 +118,10 @@ out.write_text(json.dumps(rows,ensure_ascii=False),encoding='utf-8')
 list_out.write_text('\n'.join(sorted(rows.keys())) + ('\n' if rows else ''), encoding='utf-8')
 PY
 
-  mkdir -p "${SESSION_ROOTFS}/tmp/ssh-shadow/session"
-  cp -f "$BASELINE_META" "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" || true
-  chmod 666 "${SESSION_ROOTFS}/tmp/ssh-shadow/session/baseline_meta.json" >/dev/null 2>&1 || true
+  mkdir -p "${CHROOT_SESSION_DIR}"
+  cp -f "$BASELINE_META" "${CHROOT_SESSION_DIR}/baseline_meta.json" || true
+  chown 1000:1000 "${CHROOT_SESSION_DIR}/baseline_meta.json" >/dev/null 2>&1 || true
+  chmod 600 "${CHROOT_SESSION_DIR}/baseline_meta.json" >/dev/null 2>&1 || true
 }
 
 cleanup_projection() {
@@ -103,8 +137,8 @@ cleanup() {
     reason="exit_code_${rc}"
   fi
 
-  if [[ -d "${SESSION_ROOTFS}/tmp/ssh-shadow/session" ]]; then
-    rsync -a --ignore-errors "${SESSION_ROOTFS}/tmp/ssh-shadow/session/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
+  if [[ -d "${CHROOT_SESSION_DIR}" ]]; then
+    rsync -a --ignore-errors "${CHROOT_SESSION_DIR}/" "${SESSION_DIR}/" >/dev/null 2>&1 || true
   fi
 
   if [[ "$reason" == payload_captured:* || "$reason" == *"sensitive"* ]]; then
@@ -170,7 +204,25 @@ summary={
 PY
   cleanup_projection || true
 
-  /usr/bin/python3 /opt/ssh-shadow/root-session-client.py cleanup "$SESSION_WORK_DIR" >/dev/null 2>&1 || true
+  bootstrap_log "cleanup_root_managed" "start" "invoking root-session-client cleanup"
+  cleanup_summary=""
+  if /usr/bin/python3 /opt/ssh-shadow/root-session-client.py cleanup "$SESSION_WORK_DIR" >/dev/null 2>"${SESSION_DIR}/cleanup.stderr"; then
+    bootstrap_log "cleanup_root_managed" "ok" "cleanup completed via root-session-client"
+  else
+    cleanup_rc=$?
+    cleanup_summary="$(tail -n 20 "${SESSION_DIR}/cleanup.stderr" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+    bootstrap_log "cleanup_root_managed" "fail" "${cleanup_summary:-root-session-client cleanup failed}" "${cleanup_rc}"
+  fi
+  if [[ -d "${SESSION_WORK_DIR}" ]]; then
+    bootstrap_log "cleanup_root_managed_fallback" "start" "session dir still exists, attempting sudo launcher cleanup"
+    if sudo -n /opt/ssh-shadow/root-session-launch.sh --cleanup-session-rootfs "$SESSION_WORK_DIR" >/dev/null 2>"${SESSION_DIR}/cleanup_fallback.stderr"; then
+      bootstrap_log "cleanup_root_managed_fallback" "ok" "fallback cleanup removed session work dir"
+    else
+      fallback_rc=$?
+      fallback_summary="$(tail -n 20 "${SESSION_DIR}/cleanup_fallback.stderr" 2>/dev/null | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g' | cut -c1-600 || true)"
+      bootstrap_log "cleanup_root_managed_fallback" "fail" "${fallback_summary:-fallback cleanup failed}" "${fallback_rc}"
+    fi
+  fi
   rm -rf "/shadow/jails/${SESSION_ID}" || true
 
   python3 - <<'PY' "$META_FILE" "$reason"
@@ -183,17 +235,23 @@ obj['termination_reason']=reason
 with open(path,'w',encoding='utf-8') as f:
     json.dump(obj,f,ensure_ascii=False,indent=2)
 PY
+  bootstrap_log "session_finalize" "ok" "$reason" "$rc"
 }
 trap cleanup EXIT
 
 setup_projection
+bootstrap_log "session_create" "ok" "projection setup complete"
 export SESSION_DIR SESSION_ROOTFS WORKSPACE="$SESSION_ROOTFS" BASELINE_FILE="${SESSION_DIR}/baseline_files.txt" BASELINE_META="${SESSION_DIR}/baseline_meta.json" LOGIN_USER SHADOW_WORKSPACE="$SESSION_ROOTFS" SHADOW_LOGIN_USER="$LOGIN_USER" HONEYPOT_HOSTNAME
 
 if [[ -n "${SSH_ORIGINAL_COMMAND:-}" ]]; then
+  bootstrap_log "mode_decision" "ok" "non_interactive_exec"
   echo "non_interactive_exec" > "${SESSION_DIR}/session_mode.txt"
+  bootstrap_log "chroot_launch" "start" "exec-original-command path"
   /opt/ssh-shadow/exec-original-command.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER" "$SSH_ORIGINAL_COMMAND"
 else
+  bootstrap_log "mode_decision" "ok" "interactive_shell"
   echo "interactive_shell" > "${SESSION_DIR}/session_mode.txt"
   echo "[ssh-shadow] connected to shadow GCS workstation"
+  bootstrap_log "chroot_launch" "start" "interactive-shell path"
   /opt/ssh-shadow/interactive-shell.sh "$SESSION_DIR" "$SESSION_ROOTFS" "$LOGIN_USER"
 fi

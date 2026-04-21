@@ -6,6 +6,7 @@ import socket
 import sys
 
 SOCK_PATH = "/run/ssh-shadow/root-launch.sock"
+CHROOT_SESSION_DIR = "/tmp/.ssh-shadow/session"
 
 
 def send(req, pass_stdio=False):
@@ -55,11 +56,12 @@ def main():
         if len(sys.argv) < 5:
             print("usage: root-session-client.py launch <session_rootfs> <login_user> <cmd> [args...]", file=sys.stderr)
             return 2
-        tty_path = None
-        try:
-            tty_path = os.ttyname(0)
-        except Exception:
-            tty_path = None
+        tty_path = os.environ.get("SSH_TTY") or None
+        if not tty_path:
+            try:
+                tty_path = os.ttyname(0)
+            except Exception:
+                tty_path = None
         req = {
             "action": "launch",
             "session_rootfs": sys.argv[2],
@@ -69,10 +71,10 @@ def main():
             "honeypot_hostname": os.environ.get("HONEYPOT_HOSTNAME", "gcs-shadow"),
             "session_dir": os.environ.get("SESSION_DIR", ""),
             "workspace": "/",
-            "baseline_file": "/tmp/ssh-shadow/session/baseline_files.txt",
-            "baseline_meta": "/tmp/ssh-shadow/session/baseline_meta.json",
+            "baseline_file": f"{CHROOT_SESSION_DIR}/baseline_files.txt",
+            "baseline_meta": f"{CHROOT_SESSION_DIR}/baseline_meta.json",
             "shadow_workspace": "/",
-            "cmd_log": "/tmp/ssh-shadow/session/commands.jsonl",
+            "cmd_log": f"{CHROOT_SESSION_DIR}/commands.jsonl",
             "tty_path": tty_path,
         }
         resp = send(req, pass_stdio=True)

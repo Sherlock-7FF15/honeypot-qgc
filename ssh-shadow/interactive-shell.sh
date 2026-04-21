@@ -71,11 +71,6 @@ launch_cmd=(
   -i
 )
 
-if [[ -t 0 && -t 1 ]]; then
-  exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-    "${launch_cmd[@]}"
-fi
-
 if command -v /usr/bin/script >/dev/null 2>&1; then
   printf -v launch_cmd_str '%q ' "${launch_cmd[@]}"
   exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \

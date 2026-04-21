@@ -60,28 +60,6 @@ alias ls='/opt/ssh-shadow/fakebin/ls'
 BRC
 chmod 0644 "${CHROOT_BASHRC}" >/dev/null 2>&1 || true
 
-CHROOT_BASH_WRAPPER="${SESSION_ROOTFS}/tmp/.session_bash_wrapper.sh"
-cat > "${CHROOT_BASH_WRAPPER}" <<'WRAP'
-#!/usr/bin/env bash
-set -euo pipefail
-exec /bin/bash --noprofile --rcfile /tmp/.session_bashrc -i
-WRAP
-chmod +x "${CHROOT_BASH_WRAPPER}" >/dev/null 2>&1 || true
-
-launch_cmd=(
-  /opt/ssh-shadow/sandbox-run.sh
-  "${SESSION_ROOTFS}"
-  "${SESSION_DIR}"
-  "${LOGIN_USER}"
-  /bin/bash
-  /tmp/.session_bash_wrapper.sh
-)
-
-if command -v /usr/bin/script >/dev/null 2>&1; then
-  printf -v launch_cmd_str '%q ' "${launch_cmd[@]}"
-  exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-    /usr/bin/script -q -c "${launch_cmd_str}" /dev/null
-fi
-
 exec strace -ff -tt -s 256 -o "${SESSION_DIR}/strace" -e trace=%file,execve \
-  "${launch_cmd[@]}"
+  /opt/ssh-shadow/sandbox-run.sh "${SESSION_ROOTFS}" "${SESSION_DIR}" "${LOGIN_USER}" \
+  /bin/bash --noprofile --rcfile /tmp/.session_bashrc -i

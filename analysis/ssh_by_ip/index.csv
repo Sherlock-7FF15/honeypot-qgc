@@ -1,0 +1,2 @@
+ip,item_count,session_count,output_file
+149.210.235.123,793,84,/home/ubuntu/honeypot-qgc/analysis/ssh_by_ip/merged_149.210.235.123.log

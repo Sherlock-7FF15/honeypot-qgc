@@ -1,0 +1,18 @@
+{
+  "total_sessions": 247,
+  "unique_ips": 10,
+  "gcs_related_sessions": 35,
+  "gcs_related_unique_ips": 6,
+  "malware_upload_sessions": 79,
+  "malware_upload_unique_ips": 5,
+  "category_distribution_by_session": {
+    "Generic recon": 71,
+    "Host profiling": 49,
+    "SSH persistence": 56,
+    "GCS-aware discovery": 35,
+    "Data / credential hunting": 40,
+    "Network appliance probing": 0,
+    "Miner deployment": 107,
+    "File transfer / staging": 66
+  }
+}

